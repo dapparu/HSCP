@@ -26,7 +26,8 @@ INT		= $(INT_PATH)/Estimator.h \
 		  $(INT_PATH)/Cluster.h \
 		  $(INT_PATH)/SimHit.h \
 		  $(INT_PATH)/ClusterStrip.h \
-		  $(INT_PATH)/PlotterHisto.h
+		  $(INT_PATH)/PlotterHisto.h \
+		  $(INT_PATH)/Labellizer.h
 
 SRC		= $(SRC_PATH)/Estimator.cc \
 		  $(SRC_PATH)/Builder.cc \
@@ -34,7 +35,8 @@ SRC		= $(SRC_PATH)/Estimator.cc \
 		  $(SRC_PATH)/Cluster.cc \
 		  $(SRC_PATH)/SimHit.cc \
 		  $(SRC_PATH)/ClusterStrip.cc \
-		  $(SRC_PATH)/PlotterHisto.cc
+		  $(SRC_PATH)/PlotterHisto.cc \
+		  $(SRC_PATH)/Labellizer.cc
 
 OBJ		= $(OBJ_PATH)/Estimator.o \
 		  $(OBJ_PATH)/Builder.o \
@@ -42,7 +44,8 @@ OBJ		= $(OBJ_PATH)/Estimator.o \
 		  $(OBJ_PATH)/Cluster.o \
 		  $(OBJ_PATH)/SimHit.o \
 		  $(OBJ_PATH)/ClusterStrip.o \
-		  $(OBJ_PATH)/PlotterHisto.o
+		  $(OBJ_PATH)/PlotterHisto.o \
+		  $(OBJ_PATH)/Labellizer.o
 
 LIB 		= $(LIB_PATH)/libHSCP.so
 
