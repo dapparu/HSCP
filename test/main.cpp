@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -349,7 +350,7 @@ int main(int argc,char** argv){
     TFile* fileout = new TFile(s2.c_str(),"RECREATE");
 
 
-    int entries = nentries;
+    int entries = 100;
 
 
     bool testsat254 = false; 
@@ -649,7 +650,6 @@ int main(int argc,char** argv){
     line255->Draw("SAME");
     canvas_ratioSatLayer->SetLogy();
     canvas_ratioSatLayer->Write();
-    canvas_ratioSatLayer->SaveAs("./ratio_layers.pdf");
 
 // ------------------------------------------
 
@@ -778,7 +778,6 @@ int main(int argc,char** argv){
     TCanvas* ctest = new TCanvas();
     hRatio_ElossQ_tot->Draw();
     ctest->SetLogy();
-    ctest->SaveAs("./ctestfit.pdf");
 
 // ------------------------------------------
 
@@ -811,6 +810,12 @@ int main(int argc,char** argv){
     fileout->Close();
 
     delete fileout;
+
+    string s3 = "mv "+s2+" ./data/.";
+
+    cout<<s3<<endl;
+
+    system(s3.c_str());
 
     /*TCanvas* cPt = new TCanvas("cPt","cPt",700,400);
     hPt->Draw();
