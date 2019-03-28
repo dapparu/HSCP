@@ -24,33 +24,9 @@
 
 #include "../interface/Estimator.h"
 #include "../interface/Builder.h"
+#include "../interface/PlotterHisto.h"
 
 using namespace std;
-
-string Label(int i)
-{
-    if(i==1)        return "TIB1";
-    else if(i==2)   return "TIB2";
-    else if(i==3)   return "TIB3";
-    else if(i==4)   return "TIB4";
-    else if(i==5)   return "TOB1";
-    else if(i==6)   return "TOB2";
-    else if(i==7)   return "TOB3";
-    else if(i==8)   return "TOB4";
-    else if(i==9)   return "TOB5";
-    else if(i==10)  return "TOB6";
-    else if(i==11)  return "TID1";
-    else if(i==12)  return "TID2";
-    else if(i==13)  return "TEC1";
-    else if(i==14)  return "TEC2";
-    else if(i==15)  return "TEC3";
-    else if(i==16)  return "TEC4";
-    else if(i==17)  return "TEC5";
-    else if(i==18)  return "TEC6";
-    else if(i==19)  return "TEC7";
-    else if(i==20)  return "TEC8";
-    else if(i==21)  return "TEC9";
-}
 
 void SetHistoLabel(TCanvas* canvas,TH1F* histo)
 {
@@ -104,6 +80,32 @@ void SetHistoLabel(TCanvas* canvas,TH1F* histo)
     
 }
 
+
+string Label(int i)
+{
+    if(i==1)        return "TIB1";
+    else if(i==2)   return "TIB2";
+    else if(i==3)   return "TIB3";
+    else if(i==4)   return "TIB4";
+    else if(i==5)   return "TOB1";
+    else if(i==6)   return "TOB2";
+    else if(i==7)   return "TOB3";
+    else if(i==8)   return "TOB4";
+    else if(i==9)   return "TOB5";
+    else if(i==10)  return "TOB6";
+    else if(i==11)  return "TID1";
+    else if(i==12)  return "TID2";
+    else if(i==13)  return "TEC1";
+    else if(i==14)  return "TEC2";
+    else if(i==15)  return "TEC3";
+    else if(i==16)  return "TEC4";
+    else if(i==17)  return "TEC5";
+    else if(i==18)  return "TEC6";
+    else if(i==19)  return "TEC7";
+    else if(i==20)  return "TEC8";
+    else if(i==21)  return "TEC9";
+}
+
 string LabelParticle(int i)
 {
     if(i==111 || i==211) return "#pi";
@@ -113,60 +115,8 @@ string LabelParticle(int i)
     else if((int)i/1000==1009) return "R^{+}";
 }
 
-void DrawHisto(TFile* _fileout,TH1F* histo,string title,bool x_bool=false,string x_title="",bool y_bool=false,string y_title="")
-{
-    TFile* fileout = _fileout;
-    char title_char[title.length()+1];
-    char x_title_char[x_title.length()+1];
-    char y_title_char[y_title.length()+1];
-    strcpy(title_char,title.c_str());
-    strcpy(x_title_char,x_title.c_str());
-    strcpy(y_title_char,y_title.c_str());
-    histo->SetTitle(title_char);
-    if(x_bool) histo->GetXaxis()->SetTitle(x_title_char);
-    if(y_bool) histo->GetYaxis()->SetTitle(y_title_char);
-    fileout->Append(histo);
-}
 
-void DrawHisto(TFile* _fileout,TH2F* histo,string title,bool x_bool=false,string x_title="",bool y_bool=false,string y_title="")
-{
-    TFile* fileout = _fileout;
-    char title_char[title.length()+1];
-    char x_title_char[x_title.length()+1];
-    char y_title_char[y_title.length()+1];
-    strcpy(title_char,title.c_str());
-    strcpy(x_title_char,x_title.c_str());
-    strcpy(y_title_char,y_title.c_str());
-    histo->SetTitle(title_char);
-    if(x_bool) histo->GetXaxis()->SetTitle(x_title_char);
-    if(y_bool) histo->GetYaxis()->SetTitle(y_title_char);
-    fileout->Append(histo);
-}
 
-void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<char*> VectLegend,string title,string x_title)
-{
-    char title_char[title.length()+1];
-    strcpy(title_char,title.c_str());
-    THStack* Stack = new THStack(title_char,title_char);
-    title_char[x_title.length()+1];
-    strcpy(title_char,x_title.c_str());
-    for(int i=0;i<VectHisto.size();i++)
-    {
-        VectHisto[i]->SetFillColor(36+2*i);
-        VectHisto[i]->SetLineColor(36+2*i);
-        VectHisto[i]->GetXaxis()->SetTitle(title_char);
-        Stack->Add(VectHisto[i]);
-    }
-    canvas.cd();
-    Stack->Draw();
-    Stack->GetXaxis()->SetTitle(title_char);
-    TLegend* leg_stack = new TLegend(0.7,0.7,0.9,0.9);
-    for(int i=0;i<VectLegend.size();i++)
-    {
-        leg_stack->AddEntry(VectHisto[i],VectLegend[i],"f");
-    }
-    leg_stack->Draw("SAME");
-}
 
 int GetPartID(const vector<Cluster> &VectClust,float &threshold)
 {

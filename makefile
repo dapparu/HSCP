@@ -25,14 +25,16 @@ INT		= $(INT_PATH)/Estimator.h \
 		  $(INT_PATH)/Track.h \
 		  $(INT_PATH)/Cluster.h \
 		  $(INT_PATH)/SimHit.h \
-		  $(INT_PATH)/ClusterStrip.h
+		  $(INT_PATH)/ClusterStrip.h \
+		  $(INT_PATH)/PlotterHisto.h
 
 SRC		= $(SRC_PATH)/Estimator.cc \
 		  $(SRC_PATH)/Builder.cc \
 		  $(SRC_PATH)/Track.cc \
 		  $(SRC_PATH)/Cluster.cc \
 		  $(SRC_PATH)/SimHit.cc \
-		  $(SRC_PATH)/ClusterStrip.cc
+		  $(SRC_PATH)/ClusterStrip.cc \
+		  $(SRC_PATH)/PlotterHisto.cc
 
 OBJ		= $(OBJ_PATH)/Estimator.o \
 		  $(OBJ_PATH)/Builder.o \
@@ -40,6 +42,7 @@ OBJ		= $(OBJ_PATH)/Estimator.o \
 		  $(OBJ_PATH)/Cluster.o \
 		  $(OBJ_PATH)/SimHit.o \
 		  $(OBJ_PATH)/ClusterStrip.o \
+		  $(OBJ_PATH)/PlotterHisto.o
 
 LIB 		= $(LIB_PATH)/libHSCP.so
 
@@ -58,7 +61,7 @@ $(LIB): 	$(SRC) $(INT)
 #Creation of the executable
 $(EXE):		$(LIB) $(TEST)
 	$(CXX) $(CFLAGS) -c $(TEST) -o obj/main.o
-	$(CXX) $(CFLAGS) obj/main.o -o $(EXE) -L $(LIB_PATH) -lHSCP
+	$(CXX) $(CFLAGS) ./obj/main.o -o $(EXE) -L $(LIB_PATH) -lHSCP
 
 clean:
 	rm -rf $(OBJ) $(EXE) $(LIB) $(OBJ_PATH) $(BIN_PATH) $(LIB_PATH)
