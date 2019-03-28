@@ -50,7 +50,7 @@ TEST		= $(TEST_PATH)/main.cpp
 all: 		$(EXE) 
 
 #Creation of the library 
-$(LIB): 	$(SRC) $(INT)
+$(LIB): 	$(SRC) $(INT) 
 	$(CXX) $(CFLAGS) $(SRC) -c -fPIC 
 	mv *.o $(OBJ_PATH)/.
 	$(CXX) $(CFLAGS) -shared $(OBJ) -o $(LIB)
@@ -61,4 +61,9 @@ $(EXE):		$(LIB) $(TEST)
 	$(CXX) $(CFLAGS) obj/main.o -o $(EXE) -L $(LIB_PATH) -lHSCP
 
 clean:
-	rm -rf $(OBJ) $(EXE)
+	rm -rf $(OBJ) $(EXE) $(LIB) $(OBJ_PATH) $(BIN_PATH) $(LIB_PATH)
+
+folders: 
+	@mkdir obj/
+	@mkdir lib/ 
+	@mkdir bin/
