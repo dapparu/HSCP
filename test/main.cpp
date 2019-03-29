@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <stdlib.h>
+#include <iterator>
+#include <map>
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -21,10 +23,12 @@
 #include "Rtypes.h"
 #include "TLatex.h"
 #include "TMathText.h"
+#include "TExec.h"
 
+#include "../interface/Builder.h"
 #include "../interface/Estimator.h"
 #include "../interface/PlotterHisto.h"
-#include "../interface/Labellizer.h" //Builder.h dans Labellizer.h --> pb de reimportation ?
+#include "../interface/Labellizer.h" 
 
 using namespace std;
 
@@ -57,13 +61,13 @@ int main(int argc,char** argv){
     TH2F* h2ElossvQ_NoSat = new TH2F("h2ElossvQ_NoSat","h2ElossvQ_NoSat",300,0,900*pow(10,-6),300,0,900*pow(10,-6));
     TH2F* h2ElossvQ_Sat = new TH2F("h2ElossvQ_Sat","h2ElossvQ_Sat",300,0,900*pow(10,-6),300,0,900*pow(10,-6));
     TH2F* h2ElossvQ_Sat254 = new TH2F("h2ElossvQ_Sat254","h2ElossvQ_Sat254",300,0,900*pow(10,-6),300,0,900*pow(10,-6));
-    TH2F* h2ElossvQ_Sat255 = new TH2F("h2ElossvQ_Sat255","h2ElossvQ_Sat255",300,0,900*pow(10,-6),300,0,900*pow(10,-6));
+    TH2F* h2ElossvQ_Sat255 = new TH2F("h2ElossvQ_Sat255","h2ElossvQ_Sat255",300,0,3000*pow(10,-6),300,0,3000*pow(10,-6));
 
     TProfile* profElossVsQ_tot = new TProfile("profElossVsQ_tot","profElossVsQ_tot",50,0,900*pow(10,-6),"");
     TProfile* profElossVsQ_NoSat = new TProfile("profElossVsQ_NoSat","profElossVsQ_NoSat",50,0,900*pow(10,-6),"");
     TProfile* profElossVsQ_Sat = new TProfile("profElossVsQ_Sat","profElossVsQ_Sat",50,0,900*pow(10,-6),"");
     TProfile* profElossVsQ_Sat254 = new TProfile("profElossVsQ_Sat254","profElossVsQ_Sat254",50,0,900*pow(10,-6),"");
-    TProfile* profElossVsQ_Sat255 = new TProfile("profElossVsQ_Sat255","profElossVsQ_Sat255",50,0,900*pow(10,-6),"");
+    TProfile* profElossVsQ_Sat255 = new TProfile("profElossVsQ_Sat255","profElossVsQ_Sat255",50,0,3000*pow(10,-6),"");
 
     TH1F* hLayer = new TH1F("hLayer","hLayer",80,0,80);
     TH1F* hLayerLabel = new TH1F("hLayerLabel","hLayerLabel",25,0,25);
@@ -85,11 +89,23 @@ int main(int argc,char** argv){
     TH2F* h2RatioSatPt = new TH2F("h2RatioSatPt","h2RatioSatPt",100,0,3000,20,0,1.05);
     TProfile* profSatPt = new TProfile("profSatPt","profSatPt",100,0,3000,"");
 
+    TH2F* h2RatioSatEloss = new TH2F("h2RatioSatEloss","h2RatioSatEloss",300,0,900*pow(10,-6),20,0,1.05);
+    TProfile* profSatEloss = new TProfile("profSatEloss","profSatEloss",300,0,900*pow(10,-6),"");
+
+    TH2F* h2RatioSatPartID = new TH2F("h2RatioSatPartID","h2RatioSatPartID",6,0,6,20,0,1.05);
+    TProfile* profSatPartID = new TProfile("profSatPartID","profSatPartID",6,0,6,"");
+
     vector<TH2F*> vect_H2_tot;
     vector<TH2F*> vect_H2_NoSat;
     vector<TH2F*> vect_H2_Sat;
     vector<TH2F*> vect_H2_Sat254;
     vector<TH2F*> vect_H2_Sat255;
+
+    vector<TProfile*> vect_prof_tot;
+    vector<TProfile*> vect_prof_NoSat;
+    vector<TProfile*> vect_prof_Sat;
+    vector<TProfile*> vect_prof_Sat254;
+    vector<TProfile*> vect_prof_Sat255;
 
     vector<TH1F*> vect_H1_tot;
     vector<TH1F*> vect_H1_NoSat;
@@ -106,6 +122,9 @@ int main(int argc,char** argv){
         title = "h1_"+Label(i)+"_tot";
         strcpy(title_char,title.c_str());
         vect_H1_tot.push_back(new TH1F(title_char,title_char,200,0,8));
+        title = "pr_"+Label(i)+"_tot";
+        strcpy(title_char,title.c_str());
+        vect_prof_tot.push_back(new TProfile(title_char,title_char,50,0,900*pow(10,-6),""));
 
         title = "h2_"+Label(i)+"_NoSat";
         strcpy(title_char,title.c_str());
@@ -113,6 +132,9 @@ int main(int argc,char** argv){
         title = "h1_"+Label(i)+"_NoSat";
         strcpy(title_char,title.c_str());
         vect_H1_NoSat.push_back(new TH1F(title_char,title_char,200,0,8));
+        title = "pr_"+Label(i)+"_NoSat";
+        strcpy(title_char,title.c_str());
+        vect_prof_NoSat.push_back(new TProfile(title_char,title_char,50,0,900*pow(10,-6),""));
 
         title = "h2_"+Label(i)+"_Sat";
         strcpy(title_char,title.c_str());
@@ -120,6 +142,9 @@ int main(int argc,char** argv){
         title = "h1_"+Label(i)+"_Sat";
         strcpy(title_char,title.c_str());
         vect_H1_Sat.push_back(new TH1F(title_char,title_char,200,0,8));
+        title = "pr_"+Label(i)+"_Sat";
+        strcpy(title_char,title.c_str());
+        vect_prof_Sat.push_back(new TProfile(title_char,title_char,50,0,900*pow(10,-6),""));
 
         title = "h2_"+Label(i)+"_Sat254";
         strcpy(title_char,title.c_str());
@@ -127,13 +152,19 @@ int main(int argc,char** argv){
         title = "h1_"+Label(i)+"_Sat254";
         strcpy(title_char,title.c_str());
         vect_H1_Sat254.push_back(new TH1F(title_char,title_char,200,0,8));
+        title = "pr_"+Label(i)+"_Sat254";
+        strcpy(title_char,title.c_str());
+        vect_prof_Sat254.push_back(new TProfile(title_char,title_char,50,0,900*pow(10,-6),""));
 
         title = "h2_"+Label(i)+"_Sat255";
         strcpy(title_char,title.c_str());
-        vect_H2_Sat255.push_back(new TH2F(title_char,title_char,300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
+        vect_H2_Sat255.push_back(new TH2F(title_char,title_char,300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
         title = "h1_"+Label(i)+"_Sat255";
         strcpy(title_char,title.c_str());
         vect_H1_Sat255.push_back(new TH1F(title_char,title_char,200,0,8));
+        title = "pr_"+Label(i)+"_Sat255";
+        strcpy(title_char,title.c_str());
+        vect_prof_Sat255.push_back(new TProfile(title_char,title_char,50,0,3000*pow(10,-6),""));
     }
 
     vector<TH1F*> VectPtPartID;
@@ -145,10 +176,18 @@ int main(int argc,char** argv){
 
     vector<TH1F*> VectElossPartID;
 
-    VectElossPartID.push_back(new TH1F("h_proton_eloss","h_proton_eloss",300,0,900*pow(10,-6)));
-    VectElossPartID.push_back(new TH1F("h_pion_eloss","h_pion_eloss",300,0,900*pow(10,-6)));
-    VectElossPartID.push_back(new TH1F("h_gluino-u-dbar_eloss","h_gluino-u-dbar_eloss",300,0,900*pow(10,-6)));
-    VectElossPartID.push_back(new TH1F("h_R-hadron_eloss","h_R-hadron_eloss",300,0,900*pow(10,-6)));
+    VectElossPartID.push_back(new TH1F("h_proton_eloss","h_proton_eloss",300,0,3000*pow(10,-6)));
+    VectElossPartID.push_back(new TH1F("h_pion_eloss","h_pion_eloss",300,0,3000*pow(10,-6)));
+    VectElossPartID.push_back(new TH1F("h_gluino-u-dbar_eloss","h_gluino-u-dbar_eloss",300,0,3000*pow(10,-6)));
+    VectElossPartID.push_back(new TH1F("h_R-hadron_eloss","h_R-hadron_eloss",300,0,3000*pow(10,-6)));
+
+    vector<TH1F*> VectPoverMPartID;
+
+    VectPoverMPartID.push_back(new TH1F("h_proton_pm","h_proton_pm",100,0,5000));
+    VectPoverMPartID.push_back(new TH1F("h_pion_pm","h_pion_pm",100,0,5000));
+    VectPoverMPartID.push_back(new TH1F("h_gluino-u-dbar_pm","h_gluino-u-dbar_pm",100,0,5000));
+    VectPoverMPartID.push_back(new TH1F("h_R-hadron_pm","h_R-hadron_pm",100,0,5000));
+
 
     TH1F* hEmpty = new TH1F("hEmpty","hEmpty",25,0,25); //pour tracer les lignes avec la fonction SetHistoLabel
 
@@ -157,7 +196,7 @@ int main(int argc,char** argv){
     TFile* fileout = new TFile(s2.c_str(),"RECREATE");
 
 
-    int entries = 100;
+    int entries = nentries;
 
 
     bool testsat254 = false; 
@@ -172,9 +211,11 @@ int main(int argc,char** argv){
         for(int track=0;track<b1->GetNtracks();track++)
         {
             vector<int> vect_partID;
+            vector<float> vect_eloss;
             testsat254              = false;
             testsat255              = false;
             float pt                = b1->GetVectTrack()[track].GetPt();
+            float p                 = b1->GetVectTrack()[track].GetP();
             int NCluster            = b1->GetVectTrack()[track].GetNCluster();
             int NClustSat254        = b1->GetVectTrack()[track].GetNSatCluster(254);
             int NClustSat255        = b1->GetVectTrack()[track].GetNSatCluster(255);
@@ -190,6 +231,8 @@ int main(int argc,char** argv){
                 int nsimhits        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSimHits();
                 clust++;
                 
+                vect_eloss.push_back(eloss);
+
                 h2ElossvQ_tot->Fill(eloss,charge);
                 hDiff_rel_ElossQ_tot->Fill((eloss-charge)/charge);
                 hRatio_ElossQ_tot->Fill(eloss/charge);
@@ -200,25 +243,26 @@ int main(int argc,char** argv){
 
                 vect_H2_tot[layerLabel-1]->Fill(eloss,charge);
                 vect_H1_tot[layerLabel-1]->Fill(eloss/charge);
+                vect_prof_tot[layerLabel-1]->Fill(eloss,charge);
 
 
                 for(int simhit=0;simhit<nsimhits;simhit++)
                 {
                     int partID      = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits()[simhit].GetPartId();
                     
-                    if(partID==2212) //proton
+                    if(partID==2212 || partID==-2212) //proton
                     {
                         VectElossPartID[0]->Fill(eloss);
                     }
-                    if(partID==211) //pion
+                    if(partID==211 || partID==-211) //pion
                     {
                         VectElossPartID[1]->Fill(eloss);
                     }
-                    if(partID==1009213) //R-hadron gluino u dbar
+                    if(partID==1009213 || partID==-1009213) //R-hadron gluino u dbar
                     {
                         VectElossPartID[2]->Fill(eloss);
                     }
-                    if((int)partID/1000==1009) //R-hadron
+                    if((int)partID/1000==1009 || (int)partID/1000==-1009) //R-hadron
                     {
                         VectElossPartID[3]->Fill(eloss);
                     }
@@ -235,6 +279,7 @@ int main(int argc,char** argv){
                     hLayerLabelSat254->Fill(layerLabel);
                     vect_H2_Sat254[layerLabel-1]->Fill(eloss,charge);
                     vect_H1_Sat254[layerLabel-1]->Fill(eloss/charge);
+                    vect_prof_Sat254[layerLabel-1]->Fill(eloss,charge);
                     testsat254=true;
                     clustsat254++;
                 }
@@ -247,6 +292,7 @@ int main(int argc,char** argv){
                     hLayerLabelSat255->Fill(layerLabel);
                     vect_H2_Sat255[layerLabel-1]->Fill(eloss,charge);
                     vect_H1_Sat255[layerLabel-1]->Fill(eloss/charge);
+                    vect_prof_Sat255[layerLabel-1]->Fill(eloss,charge);
                     testsat255=true;
                     clustsat255++;
                 }
@@ -258,8 +304,9 @@ int main(int argc,char** argv){
                     profElossVsQ_Sat->Fill(eloss,charge);
                     vect_H2_Sat[layerLabel-1]->Fill(eloss,charge);
                     vect_H1_Sat[layerLabel-1]->Fill(eloss/charge);
+                    vect_prof_Sat[layerLabel-1]->Fill(eloss,charge);
                 }
-                else if(sat254==false && sat255==false)
+                if(sat254==false && sat255==false)
                 {
                     h2ElossvQ_NoSat->Fill(eloss,charge);
                     hDiff_rel_ElossQ_NoSat->Fill((eloss-charge)/charge);
@@ -267,6 +314,7 @@ int main(int argc,char** argv){
                     profElossVsQ_NoSat->Fill(eloss,charge);
                     vect_H2_NoSat[layerLabel-1]->Fill(eloss,charge);
                     vect_H1_NoSat[layerLabel-1]->Fill(eloss/charge);
+                    vect_prof_NoSat[layerLabel-1]->Fill(eloss,charge);
                 }
             }
             hPt_tot->Fill(pt);
@@ -280,21 +328,25 @@ int main(int argc,char** argv){
 
             int id=GetPartID(b1->GetVectTrack()[track].GetVectClusters(),threshold);
             
-            if(id==2212) 
+            if(id==2212 || id==-2212) 
             {
                 VectPtPartID[0]->Fill(pt);
+                VectPoverMPartID[0]->Fill(GetPoverM(p,i));
             }
-            if(id==211) 
+            if(id==211 || id==-211) 
             {
                 VectPtPartID[1]->Fill(pt);
+                VectPoverMPartID[1]->Fill(GetPoverM(p,i));
             }
-            if(id==1009213) 
+            if(id==1009213 || id==-1009213) 
             {
                 VectPtPartID[2]->Fill(pt);
+                VectPoverMPartID[2]->Fill(GetPoverM(p,i));
             }
-            if((int)id/1000==1009)
+            if((int)id/1000==1009 || (int)id/1000==-1009)
             {
                 VectPtPartID[3]->Fill(pt);
+                VectPoverMPartID[3]->Fill(GetPoverM(p,i));
             }
             
             
@@ -310,7 +362,7 @@ int main(int argc,char** argv){
             {
                 hPt_Sat->Fill(pt);
             }
-            else if(testsat254==false && testsat255==false)
+            if(testsat254==false && testsat255==false)
             {
                 hPt_NoSat->Fill(pt);
             }
@@ -318,6 +370,13 @@ int main(int argc,char** argv){
             h2RatioSatPt->Fill(pt,(double)NClustSat254/(double)NCluster);
             profSatPt->Fill(pt,(double)NClustSat254/(double)NCluster);
 
+            Estimator estim(vect_eloss);
+
+            h2RatioSatEloss->Fill(estim.GetMean(),(double)NClustSat254/(double)NCluster);
+            profSatEloss->Fill(estim.GetMean(),(double)NClustSat254/(double)NCluster);
+
+            h2RatioSatPartID->Fill(ReBinPartID(id),(double)NClustSat254/(double)NCluster);
+            profSatPartID->Fill(ReBinPartID(id),(double)NClustSat254/(double)NCluster);
 
             /*if(testsat254 && testsat255 )//&& b1->GetVectTrack()[track].GetVectClusters().size() <=3)
             {
@@ -326,7 +385,7 @@ int main(int argc,char** argv){
                 string str_pt = to_string(pt);
                 TText* text_pt = new TText(c_profClust->GetWw()-100,c_profClust->GetWw()-100,str_pt.c_str());
                 text_pt->Draw("SAME");
-                c_profClust->SaveAs("./Prof_Clust.pdf");
+                c_profClust->SaveAs("../data/ProfileClust.pdf");
                 getchar();
             }*/
         }
@@ -354,6 +413,10 @@ int main(int argc,char** argv){
     //TFitResultPtr rcalib = calibProf->Fit("pol1","S");
     TFitResultPtr calibGaus = calibh1->Fit("gaus","S");*/
 
+
+    //gStyle->SetOptTitle(0);
+    gStyle->SetOptStat(0);
+
     TCanvas* cPtPartID = new TCanvas("cPtPartID","cPtPartID",700,400);
     vector<char*> VectLegend;
     VectLegend.push_back("p");
@@ -367,20 +430,35 @@ int main(int argc,char** argv){
     StackHisto(*cElossPartID,VectElossPartID,VectLegend,"Distribution E_{loss} pour differentes particules","E_{loss}");
     cElossPartID->Write();
 
-    TH2F* h2RatioSatPtClone = (TH2F*) h2RatioSatPt->Clone();
+    TCanvas* cPoverMPartID = new TCanvas("cPoverMPartID","cPoverMPartID",700,400);
+    StackHisto(*cPoverMPartID,VectPoverMPartID,VectLegend,"Distribution du P/M pour differentes particules","P/M");
+    cPoverMPartID->Write();
 
     DrawHisto(fileout,h2RatioSatPt,"Frac Sat254 = f(Pt)",true,"Pt",true,"#frac{#ClustSat}{#Clust}");
+    DrawHisto(fileout,h2RatioSatEloss,"Frac Sat254 = f(E_{loss})",true,"E_{loss}",true,"#frac{#ClustSat}{#Clust}");
+    DrawHisto(fileout,h2RatioSatPartID,"Frac Sat254 = f(PartID)",true,"PartID",true,"#frac{#ClustSat}{#Clust}");
     
 
     TCanvas* cRatioSatPt = new TCanvas("cRatioSatPt","cRatioSatPt",700,400);
-    h2RatioSatPtClone->SetMaximum(200);
-    h2RatioSatPtClone->Draw();
-    h2RatioSatPtClone->SetDrawOption("COLZ");
+    h2RatioSatPt->SetMaximum(200);
+    h2RatioSatPt->Draw();
+    h2RatioSatPt->SetDrawOption("COLZ");
     profSatPt->SetLineColor(kRed);
+    profSatPt->SetMarkerColor(kRed);
     profSatPt->SetMarkerStyle(2);
     profSatPt->Draw("SAME");
     cRatioSatPt->Write();
     profSatPt->Write();
+
+    TCanvas* cRatioSatEloss = new TCanvas("cRatioSatEloss","cRatioSatEloss",700,400);
+    h2RatioSatEloss->Draw();
+    h2RatioSatEloss->SetDrawOption("COLZ");
+    profSatEloss->SetMarkerStyle(2);
+    profSatEloss->SetMarkerColor(kRed);
+    profSatEloss->SetLineColor(kRed);
+    profSatEloss->Draw("SAME");
+    cRatioSatEloss->Write();
+    profSatEloss->Write();
 
     DrawHisto(fileout,hDiff_rel_ElossQ_tot,"Difference relative",true,"(E-Q)/Q");
     DrawHisto(fileout,hDiff_rel_ElossQ_NoSat,"Difference relative",true,"(E-Q)/Q");
@@ -388,17 +466,17 @@ int main(int argc,char** argv){
     DrawHisto(fileout,hDiff_rel_ElossQ_Sat254,"Difference relative",true,"(E-Q)/Q");
     DrawHisto(fileout,hDiff_rel_ElossQ_Sat255,"Difference relative",true,"(E-Q)/Q");
 
-    DrawHisto(fileout,hRatio_ElossQ_tot,"Ratio",true,"Q/E");
-    DrawHisto(fileout,hRatio_ElossQ_NoSat,"Ratio",true,"Q/E");
-    DrawHisto(fileout,hRatio_ElossQ_Sat,"Ratio",true,"Q/E");
-    DrawHisto(fileout,hRatio_ElossQ_Sat254,"Ratio",true,"Q/E");
-    DrawHisto(fileout,hRatio_ElossQ_Sat255,"Ratio",true,"Q/E");
+    DrawHisto(fileout,hRatio_ElossQ_tot,"",true,"E/Q");
+    DrawHisto(fileout,hRatio_ElossQ_NoSat,"",true,"E/Q");
+    DrawHisto(fileout,hRatio_ElossQ_Sat,"",true,"E/Q");
+    DrawHisto(fileout,hRatio_ElossQ_Sat254,"",true,"E/Q");
+    DrawHisto(fileout,hRatio_ElossQ_Sat255,"",true,"E/Q");
 
-    DrawHisto(fileout,h2ElossvQ_tot,"E_loss v. Q",true,"E_loss",true,"Q");
-    DrawHisto(fileout,h2ElossvQ_NoSat,"E_loss v. Q",true,"E_loss",true,"Q");
-    DrawHisto(fileout,h2ElossvQ_Sat,"E_loss v. Q",true,"E_loss",true,"Q");
-    DrawHisto(fileout,h2ElossvQ_Sat254,"E_loss v. Q",true,"E_loss",true,"Q");
-    DrawHisto(fileout,h2ElossvQ_Sat255,"E_loss v. Q",true,"E_loss",true,"Q");
+    DrawHisto(fileout,h2ElossvQ_tot,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
+    DrawHisto(fileout,h2ElossvQ_NoSat,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
+    DrawHisto(fileout,h2ElossvQ_Sat,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
+    DrawHisto(fileout,h2ElossvQ_Sat254,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
+    DrawHisto(fileout,h2ElossvQ_Sat255,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
 
     fileout->Append(profElossVsQ_tot);
     fileout->Append(profElossVsQ_NoSat);
@@ -424,6 +502,18 @@ int main(int argc,char** argv){
     fileout->Append(hRatio_NClusterSat254);
     fileout->Append(hRatio_NClusterSat255);
 
+    TCanvas* canvas_RatioSatPartID = new TCanvas("canvas_RatioSatPartID","canvas_RatioSatPartID",700,400);
+
+    SetHistoLabelPartID(canvas_RatioSatPartID,h2RatioSatPartID);
+    profSatPartID->SetMarkerStyle(2);
+    profSatPartID->SetMarkerColor(kRed);
+    profSatPartID->SetLineColor(kRed);
+    profSatPartID->Draw("SAME");
+    h2RatioSatPartID->GetXaxis()->SetTitle("");
+    h2RatioSatPartID->SetDrawOption("COLZ");
+    h2RatioSatPartID->SetMaximum(800);
+    canvas_RatioSatPartID->Write();
+
 
 // ------------------------------------------ ratio saturation fonction de la layer 
 
@@ -432,7 +522,6 @@ int main(int argc,char** argv){
 
     fileout->Append(Ratio_LayerSat254);
     fileout->Append(Ratio_LayerSat255);
-
 
     float rat254 = (float)clustsat254/(float)clust;
     float rat255 = (float)clustsat255/(float)clust;
@@ -444,8 +533,6 @@ int main(int argc,char** argv){
     TCanvas* canvas_ratioSatLayer = new TCanvas("canvas_ratioSatLayer","canvas_ratioSatLayer",700,400);
     SetHistoLabel(canvas_ratioSatLayer,hEmpty);
     canvas_ratioSatLayer->cd();
-    gStyle->SetOptTitle(0);
-    gStyle->SetOptStat(0);
     hEmpty->GetYaxis()->SetRangeUser(pow(10,-4),0.25);
     Ratio_LayerSat254->Draw("SAME");
     Ratio_LayerSat255->SetLineColor(2);
@@ -464,47 +551,56 @@ int main(int argc,char** argv){
 
     TCanvas* canvas_EvQ_h2prof_tot = new TCanvas("canvas_EvQ_h2prof_tot","canvas_EvQ_h2prof_tot",700,400);
     h2ElossvQ_tot->Draw();
-    h2ElossvQ_tot->GetXaxis()->SetTitle("E_loss");
+    h2ElossvQ_tot->GetXaxis()->SetTitle("E_{loss}");
     h2ElossvQ_tot->GetYaxis()->SetTitle("Q");
     h2ElossvQ_tot->SetDrawOption("COLZ");
     profElossVsQ_tot->SetMarkerStyle(2);
     profElossVsQ_tot->SetMarkerColor(kRed);
+    profElossVsQ_tot->SetLineColor(kRed);
     profElossVsQ_tot->Draw("SAME");
     canvas_EvQ_h2prof_tot->Write();
 
     TCanvas* canvas_EvQ_h2prof_NoSat = new TCanvas("canvas_EvQ_h2prof_NoSat","canvas_EvQ_h2prof_NoSat",700,400);
     h2ElossvQ_NoSat->Draw();
-    h2ElossvQ_NoSat->GetXaxis()->SetTitle("E_loss");
+    h2ElossvQ_NoSat->GetXaxis()->SetTitle("E_{loss}");
     h2ElossvQ_NoSat->GetYaxis()->SetTitle("Q");
     h2ElossvQ_NoSat->SetDrawOption("COLZ");
     profElossVsQ_NoSat->SetMarkerStyle(2);
+    profElossVsQ_NoSat->SetMarkerColor(kRed);
+    profElossVsQ_NoSat->SetLineColor(kRed);
     profElossVsQ_NoSat->Draw("SAME");
     canvas_EvQ_h2prof_NoSat->Write();
 
     TCanvas* canvas_EvQ_h2prof_Sat = new TCanvas("canvas_EvQ_h2prof_Sat","canvas_EvQ_h2prof_Sat",700,400);
     h2ElossvQ_Sat->Draw();
-    h2ElossvQ_Sat->GetXaxis()->SetTitle("E_loss");
+    h2ElossvQ_Sat->GetXaxis()->SetTitle("E_{loss}");
     h2ElossvQ_Sat->GetYaxis()->SetTitle("Q");
     h2ElossvQ_Sat->SetDrawOption("COLZ");
     profElossVsQ_Sat->SetMarkerStyle(2);
+    profElossVsQ_Sat->SetMarkerColor(kRed);
+    profElossVsQ_Sat->SetLineColor(kRed);
     profElossVsQ_Sat->Draw("SAME");
     canvas_EvQ_h2prof_Sat->Write();
 
     TCanvas* canvas_EvQ_h2prof_Sat254 = new TCanvas("canvas_EvQ_h2prof_Sat254","canvas_EvQ_h2prof_Sat254",700,400);
     h2ElossvQ_Sat254->Draw();
-    h2ElossvQ_Sat254->GetXaxis()->SetTitle("E_loss");
+    h2ElossvQ_Sat254->GetXaxis()->SetTitle("E_{loss}");
     h2ElossvQ_Sat254->GetYaxis()->SetTitle("Q");
     h2ElossvQ_Sat254->SetDrawOption("COLZ");
     profElossVsQ_Sat254->SetMarkerStyle(2);
+    profElossVsQ_Sat254->SetMarkerColor(kRed);
+    profElossVsQ_Sat254->SetLineColor(kRed);
     profElossVsQ_Sat254->Draw("SAME");
     canvas_EvQ_h2prof_Sat254->Write();
 
     TCanvas* canvas_EvQ_h2prof_Sat255 = new TCanvas("canvas_EvQ_h2prof_Sat255","canvas_EvQ_h2prof_Sat255",700,400);
     h2ElossvQ_Sat255->Draw();
-    h2ElossvQ_Sat255->GetXaxis()->SetTitle("E_loss");
+    h2ElossvQ_Sat255->GetXaxis()->SetTitle("E_{loss}");
     h2ElossvQ_Sat255->GetYaxis()->SetTitle("Q");
     h2ElossvQ_Sat255->SetDrawOption("COLZ");
     profElossVsQ_Sat255->SetMarkerStyle(2);
+    profElossVsQ_Sat255->SetMarkerColor(kRed);
+    profElossVsQ_Sat255->SetLineColor(kRed);
     profElossVsQ_Sat255->Draw("SAME");
     canvas_EvQ_h2prof_Sat255->Write();
 
@@ -520,17 +616,17 @@ int main(int argc,char** argv){
 
     TCanvas* canvas_Pt = new TCanvas("canvas_Pt","canvas_Pt",700,400);
     TLegend* leg_pt = new TLegend(0.7,0.7,0.9,0.9);
-    double scale_pt = 1./(hPt_NoSat->Integral());
     leg_pt->AddEntry(hPt_NoSat,"No saturation","l");
     leg_pt->AddEntry(hPt_Sat,"Saturation","l");
-    hPt_NoSat->Scale(scale_pt);
+    hPt_NoSat->Scale(1./(hPt_NoSat->Integral()));
     hPt_NoSat->Draw();
     hPt_NoSat->GetXaxis()->SetTitle("Pt");
     hPt_Sat->SetLineColor(2);
-    hPt_Sat->Scale(scale_pt);
+    hPt_Sat->Scale(1./(hPt_Sat->Integral()));
     hPt_Sat->Draw("SAME");
     leg_pt->Draw("SAME");
     canvas_Pt->SetLogy();
+    gStyle->SetOptStat(0);
     canvas_Pt->Write();
 
 // ------------------------------------------
@@ -541,12 +637,16 @@ int main(int argc,char** argv){
     TLegend* leg_RatNCluster = new TLegend(0.7,0.7,0.9,0.9);
     leg_RatNCluster->AddEntry(hRatio_NClusterSat255,"Saturation 255","l");
     leg_RatNCluster->AddEntry(hRatio_NClusterSat254,"Saturation 254","l");
+    hRatio_NClusterSat255->Scale(1./(hRatio_NClusterSat255->Integral()));
     hRatio_NClusterSat255->Draw();
     hRatio_NClusterSat254->SetLineColor(2);
+    hRatio_NClusterSat254->Scale(1./(hRatio_NClusterSat254->Integral()));
     hRatio_NClusterSat254->Draw("SAME");
     leg_RatNCluster->Draw("SAME");
-    hRatio_NClusterSat255->GetXaxis()->SetTitle("NSat/NTot");
+    hRatio_NClusterSat255->GetXaxis()->SetTitle("#frac{Nombre de cluster sature}{Nombre de cluster dans la trace}");
+    hRatio_NClusterSat255->SetTitle("Fraction de saturation");
     canvas_RatioNClusterSat->SetLogy();
+    gStyle->SetOptStat(0);
     canvas_RatioNClusterSat->Write();
 
 // ------------------------------------------
@@ -556,20 +656,21 @@ int main(int argc,char** argv){
     TCanvas* canvas_EvQ_Ratio = new TCanvas("canvas_EvQ_Ratio","canvas_EvQ_Ratio",700,400);
     TLegend* leg_EvQ_Ratio = new TLegend(0.7,0.7,0.9,0.9);
     double scale_RatioEvQ = 1./(hRatio_ElossQ_NoSat->Integral());
-    leg_EvQ_Ratio->AddEntry(hRatio_ElossQ_tot,"Total","l");
+    //leg_EvQ_Ratio->AddEntry(hRatio_ElossQ_tot,"Total","l");
     leg_EvQ_Ratio->AddEntry(hRatio_ElossQ_NoSat,"No saturation","l");
     leg_EvQ_Ratio->AddEntry(hRatio_ElossQ_Sat,"Saturation","l");
-    hRatio_ElossQ_tot->Scale(scale_RatioEvQ);
+    /*hRatio_ElossQ_tot->Scale(1./(hRatio_ElossQ_tot->Integral()));
     hRatio_ElossQ_tot->Draw();
-    hRatio_ElossQ_tot->GetXaxis()->SetTitle("E/Q");
-    hRatio_ElossQ_NoSat->SetLineColor(2);
-    hRatio_ElossQ_NoSat->Scale(scale_RatioEvQ);
-    hRatio_ElossQ_NoSat->Draw("SAME");
-    hRatio_ElossQ_Sat->SetLineColor(3);
-    hRatio_ElossQ_Sat->Scale(scale_RatioEvQ);
+    hRatio_ElossQ_tot->GetXaxis()->SetTitle("E/Q");*/
+    hRatio_ElossQ_NoSat->SetLineColor(kCyan);
+    hRatio_ElossQ_NoSat->Scale(1./(hRatio_ElossQ_NoSat->Integral()));
+    hRatio_ElossQ_NoSat->Draw();
+    hRatio_ElossQ_Sat->SetLineColor(kViolet);
+    hRatio_ElossQ_Sat->Scale(1./(hRatio_ElossQ_Sat->Integral()));
     hRatio_ElossQ_Sat->Draw("SAME");
     leg_EvQ_Ratio->Draw("SAME");
     canvas_EvQ_Ratio->SetLogy();
+    gStyle->SetOptStat(0);
     canvas_EvQ_Ratio->Write();
 
 // ------------------------------------------
@@ -595,21 +696,33 @@ int main(int argc,char** argv){
 
 // ------------------------------------------
 
+
     for(int i=0;i<21;i++)
     {
-        string title = "E_loss v. Q  |  "+Label(i+1);
+        string title = "E_{loss} v. Q  |  "+Label(i+1);
         char title_char[title.length()+1];
         strcpy(title_char,title.c_str());
-        DrawHisto(fileout,vect_H2_tot[i],title_char,true,"E_loss",true,"Q");
-        DrawHisto(fileout,vect_H2_NoSat[i],title_char,true,"E_loss",true,"Q");
-        DrawHisto(fileout,vect_H2_Sat[i],title_char,true,"E_loss",true,"Q");
-        DrawHisto(fileout,vect_H2_Sat254[i],title_char,true,"E_loss",true,"Q");
-        DrawHisto(fileout,vect_H2_Sat255[i],title_char,true,"E_loss",true,"Q");
+        TCanvas* csuperposed = new TCanvas(title_char,title_char,700,400);
+        DrawHisto(fileout,vect_H2_tot[i],title_char,true,"E_{loss}",true,"Q");
+        DrawHisto(fileout,vect_H2_NoSat[i],title_char,true,"E_{loss}",true,"Q");
+        DrawHisto(fileout,vect_H2_Sat[i],title_char,true,"E_{loss}",true,"Q");
+        DrawHisto(fileout,vect_H2_Sat254[i],title_char,true,"E_{loss}",true,"Q");
+        DrawHisto(fileout,vect_H2_Sat255[i],title_char,true,"E_{loss}",true,"Q");
         DrawHisto(fileout,vect_H1_tot[i],title_char,true,"E/Q");
         DrawHisto(fileout,vect_H1_NoSat[i],title_char,true,"E/Q");
         DrawHisto(fileout,vect_H1_Sat[i],title_char,true,"E/Q");
         DrawHisto(fileout,vect_H1_Sat254[i],title_char,true,"E/Q");
         DrawHisto(fileout,vect_H1_Sat255[i],title_char,true,"E/Q");
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_tot[i],vect_prof_tot[i],title_char,"E_{loss}","Q");
+        DrawCanvas(fileout,*csuperposed);
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_NoSat[i],vect_prof_NoSat[i],title_char,"E_{loss}","Q");
+        DrawCanvas(fileout,*csuperposed);
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat[i],vect_prof_Sat[i],title_char,"E_{loss}","Q");
+        DrawCanvas(fileout,*csuperposed);
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat254[i],vect_prof_Sat254[i],title_char,"E_{loss}","Q");
+        DrawCanvas(fileout,*csuperposed);
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat255[i],vect_prof_Sat255[i],title_char,"E_{loss}","Q");
+        DrawCanvas(fileout,*csuperposed);
     }
     
 

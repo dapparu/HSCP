@@ -24,6 +24,9 @@
 
 using namespace std;
 
+void DrawCanvas(TFile* _fileout,TCanvas &canvas);
 void DrawHisto(TFile* _fileout,TH1F* histo,string title,bool x_bool,string x_title);
+void DrawProfile(TFile* _fileout,TProfile* prof,string title,bool x_bool,string x_title);
 void DrawHisto(TFile* _fileout,TH2F* histo,string title,bool x_bool,string x_title,bool y_bool,string y_title);
+void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string title="",string x_title="", string y_title="");
 void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<char*> VectLegend,string title,string x_title);

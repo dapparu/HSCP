@@ -1,3 +1,6 @@
+#ifndef BUILDER
+#define BUILDER
+
 #include "TChain.h"
 
 #include "Track.h"
@@ -89,3 +92,5 @@ class Builder{
 		void SetCalibration(float factor,int entries);///loop on the tree and recalibration 
 
 };
+
+#endif

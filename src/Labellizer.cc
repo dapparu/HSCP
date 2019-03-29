@@ -54,6 +54,16 @@ void SetHistoLabel(TCanvas* canvas,TH1F* histo)
     
 }
 
+void SetHistoLabelPartID(TCanvas* canvas,TH2F* histo)
+{
+    histo->GetXaxis()->SetBinLabel(1+1,"#pi^{+/-}");
+    histo->GetXaxis()->SetBinLabel(1+2,"p/#bar{p}");
+    histo->GetXaxis()->SetBinLabel(1+3,"R^{+/-}_{#tilde{g}u#bar{d}}");
+    histo->GetXaxis()->SetBinLabel(1+4,"R^{+/-}");
+    canvas->cd();
+    histo->Draw();
+}
+
 string Label(int i)
 {
     if(i==1)        return "TIB1";
@@ -81,15 +91,11 @@ string Label(int i)
 
 string LabelParticle(int i)
 {
-    if(i==111 || i==211) return "#pi";
-    else if(i==2212) return "p";
-    else if(i==2112) return "n";
-    else if(i==1009213) return "R^{+}_{#tilde{g}u#bar{d}}";
-    else if((int)i/1000==1009) return "R^{+}";
+    if(i==211 || i==-211) return "#pi";
+    if(i==2212 || i==-2212) return "p";
+    if(i==1009213 || i==-1009213) return "R^{+}_{#tilde{g}u#bar{d}}";
+    else if((int)i/1000==1009 || (int)i/1000==-1009) return "R^{+}";
 }
-
-
-
 
 int GetPartID(const vector<Cluster> &VectClust,float &threshold)
 {
@@ -126,8 +132,6 @@ int GetPartID(const vector<Cluster> &VectClust,float &threshold)
     for(int i=0;i<counter.size();i++)
     {
         ratio.push_back((float)counter[i]/(float)VectPartID_Cluster.size());
-        //cout<<counter[i]<<endl;
-        //cout<<VectPartID.size()<<endl;
     }
     float max=0;
     int indice=0;
@@ -141,4 +145,19 @@ int GetPartID(const vector<Cluster> &VectClust,float &threshold)
     }
     threshold=max;
     return VectPartID[indice];
+}
+
+int ReBinPartID(int i)
+{
+    if(i==211 || i==-211) return 1;
+    else if(i==2212 || i==-2212) return 2;
+    else if(i==1009213 || i==-1009213) return 3;
+    else if((int)i/1000==1009 || (int)i/1000==-1009) return 4;
+}
+
+float GetPoverM(float p,int i)
+{
+    if(i==211 || i==-211) return p/m_pion;
+    if(i==2212 || i==2212) return p/m_proton;
+    if((int)i/1000==1009 || (int)i/1000==-1009) return p/m_Rhadrons;
 }
