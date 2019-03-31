@@ -2,6 +2,18 @@
 
 using namespace std;
 
+
+const float m_proton = 938.27*pow(10,-3); //masse du proton en MeV
+const float m_pion = 139.57*pow(10,-3); //masse du pion en MeV
+const float m_Rhadrons = 2400; //masse des R-hadrons (proche masse gluino) en MeV 
+
+char StirngToChar(string str)
+{
+    char c[str.length()+1];
+    strcpy(c,str);
+    return c;
+}
+
 void SetHistoLabel(TCanvas* canvas,TH1F* histo)
 {
 

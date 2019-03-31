@@ -93,3 +93,29 @@ void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<char*> VectLegend
     }
     leg_stack->Draw("SAME");
 }
+
+void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<char*> VectLegend,string title,string x_title)
+{
+    char title_char[title.length()+1];
+    strcpy(title_char,title.c_str());
+    char xtitle_char[x_title.length()+1];
+    strcpy(xtitle_char,x_title.c_str());
+    canvas.cd();
+    for(int i=0;i<VectHisto.size();i++)
+    {
+        VectHisto[i]->Scale(1./(VectHisto[i]->Integral()));
+        VectHisto[i]->SetLineColor(i+1);
+        VectHisto[i]->SetFillColor(0);
+        VectHisto[i]->GetXaxis()->SetTitle(xtitle_char);
+        VectHisto[i]->Draw("SAME");
+    }
+    VectHisto[0]->SetTitle(title_char);
+    VectHisto[0]->GetYaxis()->SetRangeUser(0,0.3);
+    TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
+    for(int i=0;i<VectLegend.size();i++)
+    {
+        leg->AddEntry(VectHisto[i],VectLegend[i],"l");
+    }
+    canvas.SetLogx();
+    leg->Draw("SAME");
+}

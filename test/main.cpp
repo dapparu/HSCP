@@ -183,10 +183,10 @@ int main(int argc,char** argv){
 
     vector<TH1F*> VectPoverMPartID;
 
-    VectPoverMPartID.push_back(new TH1F("h_proton_pm","h_proton_pm",100,0,5000));
-    VectPoverMPartID.push_back(new TH1F("h_pion_pm","h_pion_pm",100,0,5000));
-    VectPoverMPartID.push_back(new TH1F("h_gluino-u-dbar_pm","h_gluino-u-dbar_pm",100,0,5000));
-    VectPoverMPartID.push_back(new TH1F("h_R-hadron_pm","h_R-hadron_pm",100,0,5000));
+    VectPoverMPartID.push_back(new TH1F("h_proton_pm","h_proton_pm",1000,0.01,10));
+    VectPoverMPartID.push_back(new TH1F("h_pion_pm","h_pion_pm",1000,0.01,10));
+    VectPoverMPartID.push_back(new TH1F("h_gluino-u-dbar_pm","h_gluino-u-dbar_pm",1000,0.01,10));
+    VectPoverMPartID.push_back(new TH1F("h_R-hadron_pm","h_R-hadron_pm",1000,0.01,10));
 
 
     TH1F* hEmpty = new TH1F("hEmpty","hEmpty",25,0,25); //pour tracer les lignes avec la fonction SetHistoLabel
@@ -331,22 +331,22 @@ int main(int argc,char** argv){
             if(id==2212 || id==-2212) 
             {
                 VectPtPartID[0]->Fill(pt);
-                VectPoverMPartID[0]->Fill(GetPoverM(p,i));
+                VectPoverMPartID[0]->Fill(GetPoverM(p,id));
             }
             if(id==211 || id==-211) 
             {
                 VectPtPartID[1]->Fill(pt);
-                VectPoverMPartID[1]->Fill(GetPoverM(p,i));
+                VectPoverMPartID[1]->Fill(GetPoverM(p,id));
             }
             if(id==1009213 || id==-1009213) 
             {
                 VectPtPartID[2]->Fill(pt);
-                VectPoverMPartID[2]->Fill(GetPoverM(p,i));
+                VectPoverMPartID[2]->Fill(GetPoverM(p,id));
             }
             if((int)id/1000==1009 || (int)id/1000==-1009)
             {
                 VectPtPartID[3]->Fill(pt);
-                VectPoverMPartID[3]->Fill(GetPoverM(p,i));
+                VectPoverMPartID[3]->Fill(GetPoverM(p,id));
             }
             
             
@@ -433,6 +433,11 @@ int main(int argc,char** argv){
     TCanvas* cPoverMPartID = new TCanvas("cPoverMPartID","cPoverMPartID",700,400);
     StackHisto(*cPoverMPartID,VectPoverMPartID,VectLegend,"Distribution du P/M pour differentes particules","P/M");
     cPoverMPartID->Write();
+
+    TCanvas* cPoverMPartIDNormal = new TCanvas("cPoverMPartIDNormal","cPoverMPartIDNormal",700,400);
+    DrawHistoNormalized(*cPoverMPartIDNormal,VectPoverMPartID,VectLegend,"Distribution du P/M pour differentes particules","P/M");
+    cPoverMPartIDNormal->Write();
+
 
     DrawHisto(fileout,h2RatioSatPt,"Frac Sat254 = f(Pt)",true,"Pt",true,"#frac{#ClustSat}{#Clust}");
     DrawHisto(fileout,h2RatioSatEloss,"Frac Sat254 = f(E_{loss})",true,"E_{loss}",true,"#frac{#ClustSat}{#Clust}");
