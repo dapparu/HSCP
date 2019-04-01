@@ -18,9 +18,9 @@ void SetHistoLabel(TCanvas* canvas,TH1F* histo)
     int Wsize = histo->GetMaximum()*1.05;
     histo->GetYaxis()->SetRangeUser(0,histo->GetMaximum()*1.05);
 
-    TLine* line1 = new TLine(5,0,5,0.25);
-    TLine* line2 = new TLine(11,0,11,0.25);
-    TLine* line3 = new TLine(13,0,13,0.25);
+    TLine* line1 = new TLine(4,0,4,0.25);
+    TLine* line2 = new TLine(10,0,10,0.25);
+    TLine* line3 = new TLine(12,0,12,0.25);
 
     if(Wsize!=0)
     {
@@ -34,27 +34,27 @@ void SetHistoLabel(TCanvas* canvas,TH1F* histo)
     line2->SetLineStyle(2);
     line3->SetLineStyle(2);
     
-    histo->GetXaxis()->SetBinLabel(1+1,"TIB 1");
-    histo->GetXaxis()->SetBinLabel(1+2,"TIB 2");
-    histo->GetXaxis()->SetBinLabel(1+3,"TIB 3");
-    histo->GetXaxis()->SetBinLabel(1+4,"TIB 4");
-    histo->GetXaxis()->SetBinLabel(1+5,"TOB 1");
-    histo->GetXaxis()->SetBinLabel(1+6,"TOB 2");
-    histo->GetXaxis()->SetBinLabel(1+7,"TOB 3");
-    histo->GetXaxis()->SetBinLabel(1+8,"TOB 4");
-    histo->GetXaxis()->SetBinLabel(1+9,"TOB 5");
-    histo->GetXaxis()->SetBinLabel(1+10,"TOB 6");
-    histo->GetXaxis()->SetBinLabel(1+11,"TID 1");
-    histo->GetXaxis()->SetBinLabel(1+12,"TID 2");
-    histo->GetXaxis()->SetBinLabel(1+13,"TEC 1");
-    histo->GetXaxis()->SetBinLabel(1+14,"TEC 2");
-    histo->GetXaxis()->SetBinLabel(1+15,"TEC 3");
-    histo->GetXaxis()->SetBinLabel(1+16,"TEC 4");
-    histo->GetXaxis()->SetBinLabel(1+17,"TEC 5");
-    histo->GetXaxis()->SetBinLabel(1+18,"TEC 6");
-    histo->GetXaxis()->SetBinLabel(1+19,"TEC 7");
-    histo->GetXaxis()->SetBinLabel(1+20,"TEC 8");
-    histo->GetXaxis()->SetBinLabel(1+21,"TEC 9");
+    histo->GetXaxis()->SetBinLabel(1,"TIB 1");
+    histo->GetXaxis()->SetBinLabel(2,"TIB 2");
+    histo->GetXaxis()->SetBinLabel(3,"TIB 3");
+    histo->GetXaxis()->SetBinLabel(4,"TIB 4");
+    histo->GetXaxis()->SetBinLabel(5,"TOB 1");
+    histo->GetXaxis()->SetBinLabel(6,"TOB 2");
+    histo->GetXaxis()->SetBinLabel(7,"TOB 3");
+    histo->GetXaxis()->SetBinLabel(8,"TOB 4");
+    histo->GetXaxis()->SetBinLabel(9,"TOB 5");
+    histo->GetXaxis()->SetBinLabel(10,"TOB 6");
+    histo->GetXaxis()->SetBinLabel(11,"TID 1");
+    histo->GetXaxis()->SetBinLabel(12,"TID 2");
+    histo->GetXaxis()->SetBinLabel(13,"TEC 1");
+    histo->GetXaxis()->SetBinLabel(14,"TEC 2");
+    histo->GetXaxis()->SetBinLabel(15,"TEC 3");
+    histo->GetXaxis()->SetBinLabel(16,"TEC 4");
+    histo->GetXaxis()->SetBinLabel(17,"TEC 5");
+    histo->GetXaxis()->SetBinLabel(18,"TEC 6");
+    histo->GetXaxis()->SetBinLabel(19,"TEC 7");
+    histo->GetXaxis()->SetBinLabel(20,"TEC 8");
+    histo->GetXaxis()->SetBinLabel(21,"TEC 9");
     histo->GetXaxis()->LabelsOption("v");
     canvas->cd();
     histo->Draw();
