@@ -7,11 +7,9 @@ const float m_proton = 938.27*pow(10,-3); //masse du proton en MeV
 const float m_pion = 139.57*pow(10,-3); //masse du pion en MeV
 const float m_Rhadrons = 2400; //masse des R-hadrons (proche masse gluino) en MeV 
 
-char StirngToChar(string str)
+const char* StringToChar(string str)
 {
-    char c[str.length()+1];
-    strcpy(c,str);
-    return c;
+    return str.c_str();
 }
 
 void SetHistoLabel(TCanvas* canvas,TH1F* histo)
@@ -78,27 +76,27 @@ void SetHistoLabelPartID(TCanvas* canvas,TH2F* histo)
 
 string Label(int i)
 {
-    if(i==1)        return "TIB1";
-    else if(i==2)   return "TIB2";
-    else if(i==3)   return "TIB3";
-    else if(i==4)   return "TIB4";
-    else if(i==5)   return "TOB1";
-    else if(i==6)   return "TOB2";
-    else if(i==7)   return "TOB3";
-    else if(i==8)   return "TOB4";
-    else if(i==9)   return "TOB5";
-    else if(i==10)  return "TOB6";
-    else if(i==11)  return "TID1";
-    else if(i==12)  return "TID2";
-    else if(i==13)  return "TEC1";
-    else if(i==14)  return "TEC2";
-    else if(i==15)  return "TEC3";
-    else if(i==16)  return "TEC4";
-    else if(i==17)  return "TEC5";
-    else if(i==18)  return "TEC6";
-    else if(i==19)  return "TEC7";
-    else if(i==20)  return "TEC8";
-    else if(i==21)  return "TEC9";
+    if(i==1)   return "TIB1";
+    if(i==2)   return "TIB2";
+    if(i==3)   return "TIB3";
+    if(i==4)   return "TIB4";
+    if(i==5)   return "TOB1";
+    if(i==6)   return "TOB2";
+    if(i==7)   return "TOB3";
+    if(i==8)   return "TOB4";
+    if(i==9)   return "TOB5";
+    if(i==10)  return "TOB6";
+    if(i==11)  return "TID1";
+    if(i==12)  return "TID2";
+    if(i==13)  return "TEC1";
+    if(i==14)  return "TEC2";
+    if(i==15)  return "TEC3";
+    if(i==16)  return "TEC4";
+    if(i==17)  return "TEC5";
+    if(i==18)  return "TEC6";
+    if(i==19)  return "TEC7";
+    if(i==20)  return "TEC8";
+    if(i==21)  return "TEC9";
 }
 
 string LabelParticle(int i)
@@ -172,4 +170,12 @@ float GetPoverM(float p,int i)
     if(i==211 || i==-211) return p/m_pion;
     if(i==2212 || i==2212) return p/m_proton;
     if((int)i/1000==1009 || (int)i/1000==-1009) return p/m_Rhadrons;
+}
+
+string LoopPartID(int i)
+{
+    if(i==1) return "#pi";
+    if(i==2) return "p";
+    if(i==3) return "R^{+}_{#tilde{g}u#bar{d}}";
+    else if(i==4) return "R^{+}";
 }

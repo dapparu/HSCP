@@ -38,6 +38,7 @@ class Cluster{
 		bool GetSat255() const;
 		int GetNSatStrip(int sat) const;
 		int GetNSatStripBoth() const;
+		int GetNStrip() const;
 		int GetNSimHits() const;
 		const vector<ClusterStrip>& GetVectStrips() const;
 		const vector<SimHit>& GetVectSimHits() const;

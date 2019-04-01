@@ -95,6 +95,37 @@ int main(int argc,char** argv){
     TH2F* h2RatioSatPartID = new TH2F("h2RatioSatPartID","h2RatioSatPartID",6,0,6,20,0,1.05);
     TProfile* profSatPartID = new TProfile("profSatPartID","profSatPartID",6,0,6,"");
 
+    vector<TH2F*> VectH2NStripsNoSat;
+    vector<TH2F*> VectH2NStripsSat;
+    vector<TH2F*> VectH2NStripsSat254;
+    vector<TH2F*> VectH2NStripsSat255;
+    vector<TH2F*> VectH2NStripsSat_Sat254;
+    vector<TH2F*> VectH2NStripsSat_Sat255;
+
+    for(int i=1;i<11;i++)
+    {   
+        string str_i = to_string(i);
+        VectH2NStripsNoSat.push_back(new TH2F(("NoSatNstrips_"+str_i).c_str(),("NoSatNstrips_"+str_i).c_str(),300,0,300*pow(10,-6),300,0,300*pow(10,-6)));
+        VectH2NStripsSat.push_back(new TH2F(("SatNstrips_"+str_i).c_str(),("SatNstrips_"+str_i).c_str(),300,0,300*pow(10,-6),300,0,300*pow(10,-6)));
+        VectH2NStripsSat254.push_back(new TH2F(("Sat254Nstrips_"+str_i).c_str(),("Sat254Nstrips_"+str_i).c_str(),300,0,300*pow(10,-6),300,0,300*pow(10,-6)));
+        VectH2NStripsSat255.push_back(new TH2F(("Sat255Nstrips_"+str_i).c_str(),("Sat255Nstrips_"+str_i).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
+        VectH2NStripsSat_Sat254.push_back(new TH2F(("Sat254NstripsSat_"+str_i).c_str(),("Sat254NstripsSat_"+str_i).c_str(),300,0,300*pow(10,-6),300,0,300*pow(10,-6)));
+        VectH2NStripsSat_Sat255.push_back(new TH2F(("Sat255NstripsSat_"+str_i).c_str(),("Sat255NstripsSat_"+str_i).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
+    }
+    
+    vector<TH2F*> VectH2PartIDNoSat;
+    vector<TH2F*> VectH2PartIDSat;
+    vector<TH2F*> VectH2PartIDSat254;
+    vector<TH2F*> VectH2PartIDSat255;
+
+    for(int i=0;i<4;i++)
+    {
+        VectH2PartIDNoSat.push_back(new TH2F(("NoSat_"+LoopPartID(i+1)).c_str(),("NoSat_"+LoopPartID(i+1)).c_str(),300,0,300*pow(10,-6),300,0,300*pow(10,-6)));
+        VectH2PartIDSat.push_back(new TH2F(("Sat_"+LoopPartID(i+1)).c_str(),("Sat_"+LoopPartID(i+1)).c_str(),300,0,300*pow(10,-6),300,0,300*pow(10,-6)));
+        VectH2PartIDSat254.push_back(new TH2F(("Sat254_"+LoopPartID(i+1)).c_str(),("Sat254_"+LoopPartID(i+1)).c_str(),300,0,300*pow(10,-6),300,0,300*pow(10,-6)));
+        VectH2PartIDSat255.push_back(new TH2F(("Sat255_"+LoopPartID(i+1)).c_str(),("Sat255_"+LoopPartID(i+1)).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
+    }
+
     vector<TH2F*> vect_H2_tot;
     vector<TH2F*> vect_H2_NoSat;
     vector<TH2F*> vect_H2_Sat;
@@ -115,56 +146,25 @@ int main(int argc,char** argv){
 
     for(int i=1;i<22;i++)
     {
-        string title = "h2_"+Label(i)+"_tot";
-        char title_char[title.length()+1];
-        strcpy(title_char,title.c_str());
-        vect_H2_tot.push_back(new TH2F(title_char,title_char,300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
-        title = "h1_"+Label(i)+"_tot";
-        strcpy(title_char,title.c_str());
-        vect_H1_tot.push_back(new TH1F(title_char,title_char,200,0,8));
-        title = "pr_"+Label(i)+"_tot";
-        strcpy(title_char,title.c_str());
-        vect_prof_tot.push_back(new TProfile(title_char,title_char,50,0,900*pow(10,-6),""));
+        vect_H2_tot.push_back(new TH2F(("h2_"+Label(i)+"_tot").c_str(),("h2_"+Label(i)+"_tot").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
+        vect_H1_tot.push_back(new TH1F(("h1_"+Label(i)+"_tot").c_str(),("h1_"+Label(i)+"_tot").c_str(),200,0,8));
+        vect_prof_tot.push_back(new TProfile(("pr_"+Label(i)+"_tot").c_str(),("pr_"+Label(i)+"_tot").c_str(),50,0,900*pow(10,-6),""));
 
-        title = "h2_"+Label(i)+"_NoSat";
-        strcpy(title_char,title.c_str());
-        vect_H2_NoSat.push_back(new TH2F(title_char,title_char,300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
-        title = "h1_"+Label(i)+"_NoSat";
-        strcpy(title_char,title.c_str());
-        vect_H1_NoSat.push_back(new TH1F(title_char,title_char,200,0,8));
-        title = "pr_"+Label(i)+"_NoSat";
-        strcpy(title_char,title.c_str());
-        vect_prof_NoSat.push_back(new TProfile(title_char,title_char,50,0,900*pow(10,-6),""));
+        vect_H2_NoSat.push_back(new TH2F(("h2_"+Label(i)+"_NoSat").c_str(),("h2_"+Label(i)+"_NoSat").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
+        vect_H1_NoSat.push_back(new TH1F(("h1_"+Label(i)+"_NoSat").c_str(),("h1_"+Label(i)+"_NoSat").c_str(),200,0,8));
+        vect_prof_NoSat.push_back(new TProfile(("pr_"+Label(i)+"_NoSat").c_str(),("pr_"+Label(i)+"_NoSat").c_str(),50,0,900*pow(10,-6),""));
 
-        title = "h2_"+Label(i)+"_Sat";
-        strcpy(title_char,title.c_str());
-        vect_H2_Sat.push_back(new TH2F(title_char,title_char,300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
-        title = "h1_"+Label(i)+"_Sat";
-        strcpy(title_char,title.c_str());
-        vect_H1_Sat.push_back(new TH1F(title_char,title_char,200,0,8));
-        title = "pr_"+Label(i)+"_Sat";
-        strcpy(title_char,title.c_str());
-        vect_prof_Sat.push_back(new TProfile(title_char,title_char,50,0,900*pow(10,-6),""));
+        vect_H2_Sat.push_back(new TH2F(("h2_"+Label(i)+"_Sat").c_str(),("h2_"+Label(i)+"_Sat").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
+        vect_H1_Sat.push_back(new TH1F(("h1_"+Label(i)+"_Sat").c_str(),("h1_"+Label(i)+"_Sat").c_str(),200,0,8));
+        vect_prof_Sat.push_back(new TProfile(("pr_"+Label(i)+"_Sat").c_str(),("pr_"+Label(i)+"_Sat").c_str(),50,0,900*pow(10,-6),""));
 
-        title = "h2_"+Label(i)+"_Sat254";
-        strcpy(title_char,title.c_str());
-        vect_H2_Sat254.push_back(new TH2F(title_char,title_char,300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
-        title = "h1_"+Label(i)+"_Sat254";
-        strcpy(title_char,title.c_str());
-        vect_H1_Sat254.push_back(new TH1F(title_char,title_char,200,0,8));
-        title = "pr_"+Label(i)+"_Sat254";
-        strcpy(title_char,title.c_str());
-        vect_prof_Sat254.push_back(new TProfile(title_char,title_char,50,0,900*pow(10,-6),""));
+        vect_H2_Sat254.push_back(new TH2F(("h2_"+Label(i)+"_Sat254").c_str(),("h2_"+Label(i)+"_Sat254").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
+        vect_H1_Sat254.push_back(new TH1F(("h1_"+Label(i)+"_Sat254").c_str(),("h1_"+Label(i)+"_Sat254").c_str(),200,0,8));
+        vect_prof_Sat254.push_back(new TProfile(("pr_"+Label(i)+"_Sat254").c_str(),("pr_"+Label(i)+"_Sat254").c_str(),50,0,900*pow(10,-6),""));
 
-        title = "h2_"+Label(i)+"_Sat255";
-        strcpy(title_char,title.c_str());
-        vect_H2_Sat255.push_back(new TH2F(title_char,title_char,300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
-        title = "h1_"+Label(i)+"_Sat255";
-        strcpy(title_char,title.c_str());
-        vect_H1_Sat255.push_back(new TH1F(title_char,title_char,200,0,8));
-        title = "pr_"+Label(i)+"_Sat255";
-        strcpy(title_char,title.c_str());
-        vect_prof_Sat255.push_back(new TProfile(title_char,title_char,50,0,3000*pow(10,-6),""));
+        vect_H2_Sat255.push_back(new TH2F(("h2_"+Label(i)+"_Sat255").c_str(),("h2_"+Label(i)+"_Sat255").c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
+        vect_H1_Sat255.push_back(new TH1F(("h1_"+Label(i)+"_Sat255").c_str(),("h1_"+Label(i)+"_Sat255").c_str(),200,0,8));
+        vect_prof_Sat255.push_back(new TProfile(("pr_"+Label(i)+"_Sat255").c_str(),("pr_"+Label(i)+"_Sat255").c_str(),50,0,3000*pow(10,-6),""));
     }
 
     vector<TH1F*> VectPtPartID;
@@ -229,6 +229,10 @@ int main(int argc,char** argv){
                 bool sat254         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetSat254();
                 bool sat255         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetSat255();
                 int nsimhits        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSimHits();
+                int nstrips         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNStrip();
+                int nsatboth        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStripBoth();
+                int nsat254         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStrip(254);
+                int nsat255         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStrip(255);
                 clust++;
                 
                 vect_eloss.push_back(eloss);
@@ -253,23 +257,38 @@ int main(int argc,char** argv){
                     if(partID==2212 || partID==-2212) //proton
                     {
                         VectElossPartID[0]->Fill(eloss);
+                        if(sat254==false && sat255==false) VectH2PartIDNoSat[1]->Fill(eloss,charge);
+                        if(sat254==true) VectH2PartIDSat[1]->Fill(eloss,charge);
+                        if(sat254==true && sat255==false) VectH2PartIDSat254[1]->Fill(eloss,charge);
+                        if(sat255==true) VectH2PartIDSat255[1]->Fill(eloss,charge);
                     }
                     if(partID==211 || partID==-211) //pion
                     {
                         VectElossPartID[1]->Fill(eloss);
+                        if(sat254==false && sat255==false) VectH2PartIDNoSat[0]->Fill(eloss,charge);
+                        if(sat254==true) VectH2PartIDSat[0]->Fill(eloss,charge);
+                        if(sat254==true && sat255==false) VectH2PartIDSat254[0]->Fill(eloss,charge);
+                        if(sat255==true) VectH2PartIDSat255[0]->Fill(eloss,charge);
                     }
                     if(partID==1009213 || partID==-1009213) //R-hadron gluino u dbar
                     {
                         VectElossPartID[2]->Fill(eloss);
+                        if(sat254==false && sat255==false) VectH2PartIDNoSat[2]->Fill(eloss,charge);
+                        if(sat254==true) VectH2PartIDSat[2]->Fill(eloss,charge);
+                        if(sat254==true && sat255==false) VectH2PartIDSat254[2]->Fill(eloss,charge);
+                        if(sat255==true) VectH2PartIDSat255[2]->Fill(eloss,charge);
                     }
                     if((int)partID/1000==1009 || (int)partID/1000==-1009) //R-hadron
                     {
                         VectElossPartID[3]->Fill(eloss);
+                        if(sat254==false && sat255==false) VectH2PartIDNoSat[3]->Fill(eloss,charge);
+                        if(sat254==true) VectH2PartIDSat[3]->Fill(eloss,charge);
+                        if(sat254==true && sat255==false) VectH2PartIDSat254[3]->Fill(eloss,charge);
+                        if(sat255==true) VectH2PartIDSat255[3]->Fill(eloss,charge);
                     }
                     
                 }
 
-                
                 if(sat254==true && sat255==false) 
                 {
                     hRatio_ElossQ_Sat254->Fill(eloss/charge);
@@ -282,6 +301,22 @@ int main(int argc,char** argv){
                     vect_prof_Sat254[layerLabel-1]->Fill(eloss,charge);
                     testsat254=true;
                     clustsat254++;
+                    for(int strip=0;strip<10;strip++)
+                    {
+                        
+                        if(nstrips==strip+1)
+                        {
+                            VectH2NStripsSat254[strip]->Fill(eloss,charge);
+                        }
+                    }
+                    for(int strip=0;strip<10;strip++)
+                    {
+                        
+                        if(nsat254==strip+1)
+                        {
+                            VectH2NStripsSat_Sat254[strip]->Fill(eloss,charge);
+                        }
+                    }
                 }
                 if(sat255==true)
                 {
@@ -295,6 +330,22 @@ int main(int argc,char** argv){
                     vect_prof_Sat255[layerLabel-1]->Fill(eloss,charge);
                     testsat255=true;
                     clustsat255++;
+                    for(int strip=0;strip<10;strip++)
+                    {
+                        
+                        if(nstrips==strip+1)
+                        {
+                            VectH2NStripsSat255[strip]->Fill(eloss,charge);
+                        }
+                    }
+                    for(int strip=0;strip<10;strip++)
+                    {
+                        
+                        if(nsat255==strip+1)
+                        {
+                            VectH2NStripsSat_Sat255[strip]->Fill(eloss,charge);
+                        }
+                    }
                 }
                 if(sat254==true)
                 {
@@ -305,6 +356,14 @@ int main(int argc,char** argv){
                     vect_H2_Sat[layerLabel-1]->Fill(eloss,charge);
                     vect_H1_Sat[layerLabel-1]->Fill(eloss/charge);
                     vect_prof_Sat[layerLabel-1]->Fill(eloss,charge);
+                    for(int strip=0;strip<10;strip++)
+                    {
+                        
+                        if(nstrips==strip+1)
+                        {
+                            VectH2NStripsSat[strip]->Fill(eloss,charge);
+                        }
+                    }
                 }
                 if(sat254==false && sat255==false)
                 {
@@ -315,8 +374,16 @@ int main(int argc,char** argv){
                     vect_H2_NoSat[layerLabel-1]->Fill(eloss,charge);
                     vect_H1_NoSat[layerLabel-1]->Fill(eloss/charge);
                     vect_prof_NoSat[layerLabel-1]->Fill(eloss,charge);
+                    for(int strip=0;strip<10;strip++)
+                    {
+                        if(nstrips==strip+1)
+                        {
+                            VectH2NStripsNoSat[strip]->Fill(eloss,charge);
+                        }
+                    }
                 }
             }
+            
             hPt_tot->Fill(pt);
             hNClusterPerTrack->Fill(NCluster);
             hNClusterSat254PerTrack->Fill(NClustSat254);
@@ -413,12 +480,8 @@ int main(int argc,char** argv){
     //TFitResultPtr rcalib = calibProf->Fit("pol1","S");
     TFitResultPtr calibGaus = calibh1->Fit("gaus","S");*/
 
-
-    //gStyle->SetOptTitle(0);
-    gStyle->SetOptStat(0);
-
     TCanvas* cPtPartID = new TCanvas("cPtPartID","cPtPartID",700,400);
-    vector<char*> VectLegend;
+    vector<string> VectLegend;
     VectLegend.push_back("p");
     VectLegend.push_back("#pi");
     VectLegend.push_back("R^{+}_{#scale[0.6]{#tilde{g}u#bar{d}}}");
@@ -439,9 +502,9 @@ int main(int argc,char** argv){
     cPoverMPartIDNormal->Write();
 
 
-    DrawHisto(fileout,h2RatioSatPt,"Frac Sat254 = f(Pt)",true,"Pt",true,"#frac{#ClustSat}{#Clust}");
-    DrawHisto(fileout,h2RatioSatEloss,"Frac Sat254 = f(E_{loss})",true,"E_{loss}",true,"#frac{#ClustSat}{#Clust}");
-    DrawHisto(fileout,h2RatioSatPartID,"Frac Sat254 = f(PartID)",true,"PartID",true,"#frac{#ClustSat}{#Clust}");
+    DrawHisto(*fileout,h2RatioSatPt,"Frac Sat254 = f(Pt)","Pt","#frac{#ClustSat}{#Clust}");
+    DrawHisto(*fileout,h2RatioSatEloss,"Frac Sat254 = f(E_{loss})","E_{loss}","#frac{#ClustSat}{#Clust}");
+    DrawHisto(*fileout,h2RatioSatPartID,"Frac Sat254 = f(PartID)","PartID","#frac{#ClustSat}{#Clust}");
     
 
     TCanvas* cRatioSatPt = new TCanvas("cRatioSatPt","cRatioSatPt",700,400);
@@ -465,23 +528,23 @@ int main(int argc,char** argv){
     cRatioSatEloss->Write();
     profSatEloss->Write();
 
-    DrawHisto(fileout,hDiff_rel_ElossQ_tot,"Difference relative",true,"(E-Q)/Q");
-    DrawHisto(fileout,hDiff_rel_ElossQ_NoSat,"Difference relative",true,"(E-Q)/Q");
-    DrawHisto(fileout,hDiff_rel_ElossQ_Sat,"Difference relative",true,"(E-Q)/Q");
-    DrawHisto(fileout,hDiff_rel_ElossQ_Sat254,"Difference relative",true,"(E-Q)/Q");
-    DrawHisto(fileout,hDiff_rel_ElossQ_Sat255,"Difference relative",true,"(E-Q)/Q");
+    DrawHisto(*fileout,hDiff_rel_ElossQ_tot,"Difference relative","(E-Q)/Q");
+    DrawHisto(*fileout,hDiff_rel_ElossQ_NoSat,"Difference relative","(E-Q)/Q");
+    DrawHisto(*fileout,hDiff_rel_ElossQ_Sat,"Difference relative","(E-Q)/Q");
+    DrawHisto(*fileout,hDiff_rel_ElossQ_Sat254,"Difference relative","(E-Q)/Q");
+    DrawHisto(*fileout,hDiff_rel_ElossQ_Sat255,"Difference relative","(E-Q)/Q");
 
-    DrawHisto(fileout,hRatio_ElossQ_tot,"",true,"E/Q");
-    DrawHisto(fileout,hRatio_ElossQ_NoSat,"",true,"E/Q");
-    DrawHisto(fileout,hRatio_ElossQ_Sat,"",true,"E/Q");
-    DrawHisto(fileout,hRatio_ElossQ_Sat254,"",true,"E/Q");
-    DrawHisto(fileout,hRatio_ElossQ_Sat255,"",true,"E/Q");
+    DrawHisto(*fileout,hRatio_ElossQ_tot,"","E/Q");
+    DrawHisto(*fileout,hRatio_ElossQ_NoSat,"","E/Q");
+    DrawHisto(*fileout,hRatio_ElossQ_Sat,"","E/Q");
+    DrawHisto(*fileout,hRatio_ElossQ_Sat254,"","E/Q");
+    DrawHisto(*fileout,hRatio_ElossQ_Sat255,"","E/Q");
 
-    DrawHisto(fileout,h2ElossvQ_tot,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
-    DrawHisto(fileout,h2ElossvQ_NoSat,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
-    DrawHisto(fileout,h2ElossvQ_Sat,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
-    DrawHisto(fileout,h2ElossvQ_Sat254,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
-    DrawHisto(fileout,h2ElossvQ_Sat255,"E_{loss} v. Q",true,"E_{loss}",true,"Q");
+    DrawHisto(*fileout,h2ElossvQ_tot,"E_{loss} v. Q","E_{loss}","Q");
+    DrawHisto(*fileout,h2ElossvQ_NoSat,"E_{loss} v. Q","E_{loss}","Q");
+    DrawHisto(*fileout,h2ElossvQ_Sat,"E_{loss} v. Q","E_{loss}","Q");
+    DrawHisto(*fileout,h2ElossvQ_Sat254,"E_{loss} v. Q","E_{loss}","Q");
+    DrawHisto(*fileout,h2ElossvQ_Sat255,"E_{loss} v. Q","E_{loss}","Q");
 
     fileout->Append(profElossVsQ_tot);
     fileout->Append(profElossVsQ_NoSat);
@@ -494,15 +557,15 @@ int main(int argc,char** argv){
     fileout->Append(hLayerLabelSat254);
     fileout->Append(hLayerLabelSat255);
 
-    DrawHisto(fileout,hPt_tot,"Distribution du Pt",true,"Pt");
-    DrawHisto(fileout,hPt_NoSat,"Distribution du Pt",true,"Pt");
-    DrawHisto(fileout,hPt_Sat,"Distribution du Pt",true,"Pt");
-    DrawHisto(fileout,hPt_Sat254,"Distribution du Pt",true,"Pt");
-    DrawHisto(fileout,hPt_Sat255,"Distribution du Pt",true,"Pt");
+    DrawHisto(*fileout,hPt_tot,"Distribution du Pt","Pt");
+    DrawHisto(*fileout,hPt_NoSat,"Distribution du Pt","Pt");
+    DrawHisto(*fileout,hPt_Sat,"Distribution du Pt","Pt");
+    DrawHisto(*fileout,hPt_Sat254,"Distribution du Pt","Pt");
+    DrawHisto(*fileout,hPt_Sat255,"Distribution du Pt","Pt");
 
-    DrawHisto(fileout,hNClusterPerTrack,"Nombre de clusters pour une trace",true,"# of clusters");
-    DrawHisto(fileout,hNClusterSat254PerTrack,"Nombre de clusters sat254 pour une trace",true,"# of clusters");
-    DrawHisto(fileout,hNClusterSat255PerTrack,"Nombre de clusters sat255 pour une trace",true,"# of clusters");
+    DrawHisto(*fileout,hNClusterPerTrack,"Nombre de clusters pour une trace","# of clusters");
+    DrawHisto(*fileout,hNClusterSat254PerTrack,"Nombre de clusters sat254 pour une trace","# of clusters");
+    DrawHisto(*fileout,hNClusterSat255PerTrack,"Nombre de clusters sat255 pour une trace","# of clusters");
 
     fileout->Append(hRatio_NClusterSat254);
     fileout->Append(hRatio_NClusterSat255);
@@ -555,58 +618,23 @@ int main(int argc,char** argv){
 // ------------------------------------------ TH2F + TProfile 
 
     TCanvas* canvas_EvQ_h2prof_tot = new TCanvas("canvas_EvQ_h2prof_tot","canvas_EvQ_h2prof_tot",700,400);
-    h2ElossvQ_tot->Draw();
-    h2ElossvQ_tot->GetXaxis()->SetTitle("E_{loss}");
-    h2ElossvQ_tot->GetYaxis()->SetTitle("Q");
-    h2ElossvQ_tot->SetDrawOption("COLZ");
-    profElossVsQ_tot->SetMarkerStyle(2);
-    profElossVsQ_tot->SetMarkerColor(kRed);
-    profElossVsQ_tot->SetLineColor(kRed);
-    profElossVsQ_tot->Draw("SAME");
+    SuperposedHisto2DProfile(*canvas_EvQ_h2prof_tot,h2ElossvQ_tot,profElossVsQ_tot,"","E_{loss}","Q");
     canvas_EvQ_h2prof_tot->Write();
 
     TCanvas* canvas_EvQ_h2prof_NoSat = new TCanvas("canvas_EvQ_h2prof_NoSat","canvas_EvQ_h2prof_NoSat",700,400);
-    h2ElossvQ_NoSat->Draw();
-    h2ElossvQ_NoSat->GetXaxis()->SetTitle("E_{loss}");
-    h2ElossvQ_NoSat->GetYaxis()->SetTitle("Q");
-    h2ElossvQ_NoSat->SetDrawOption("COLZ");
-    profElossVsQ_NoSat->SetMarkerStyle(2);
-    profElossVsQ_NoSat->SetMarkerColor(kRed);
-    profElossVsQ_NoSat->SetLineColor(kRed);
-    profElossVsQ_NoSat->Draw("SAME");
+    SuperposedHisto2DProfile(*canvas_EvQ_h2prof_NoSat,h2ElossvQ_NoSat,profElossVsQ_NoSat,"","E_{loss}","Q");
     canvas_EvQ_h2prof_NoSat->Write();
 
     TCanvas* canvas_EvQ_h2prof_Sat = new TCanvas("canvas_EvQ_h2prof_Sat","canvas_EvQ_h2prof_Sat",700,400);
-    h2ElossvQ_Sat->Draw();
-    h2ElossvQ_Sat->GetXaxis()->SetTitle("E_{loss}");
-    h2ElossvQ_Sat->GetYaxis()->SetTitle("Q");
-    h2ElossvQ_Sat->SetDrawOption("COLZ");
-    profElossVsQ_Sat->SetMarkerStyle(2);
-    profElossVsQ_Sat->SetMarkerColor(kRed);
-    profElossVsQ_Sat->SetLineColor(kRed);
-    profElossVsQ_Sat->Draw("SAME");
+    SuperposedHisto2DProfile(*canvas_EvQ_h2prof_Sat,h2ElossvQ_Sat,profElossVsQ_Sat,"","E_{loss}","Q");
     canvas_EvQ_h2prof_Sat->Write();
 
     TCanvas* canvas_EvQ_h2prof_Sat254 = new TCanvas("canvas_EvQ_h2prof_Sat254","canvas_EvQ_h2prof_Sat254",700,400);
-    h2ElossvQ_Sat254->Draw();
-    h2ElossvQ_Sat254->GetXaxis()->SetTitle("E_{loss}");
-    h2ElossvQ_Sat254->GetYaxis()->SetTitle("Q");
-    h2ElossvQ_Sat254->SetDrawOption("COLZ");
-    profElossVsQ_Sat254->SetMarkerStyle(2);
-    profElossVsQ_Sat254->SetMarkerColor(kRed);
-    profElossVsQ_Sat254->SetLineColor(kRed);
-    profElossVsQ_Sat254->Draw("SAME");
+    SuperposedHisto2DProfile(*canvas_EvQ_h2prof_Sat254,h2ElossvQ_Sat254,profElossVsQ_Sat254,"","E_{loss}","Q");
     canvas_EvQ_h2prof_Sat254->Write();
 
     TCanvas* canvas_EvQ_h2prof_Sat255 = new TCanvas("canvas_EvQ_h2prof_Sat255","canvas_EvQ_h2prof_Sat255",700,400);
-    h2ElossvQ_Sat255->Draw();
-    h2ElossvQ_Sat255->GetXaxis()->SetTitle("E_{loss}");
-    h2ElossvQ_Sat255->GetYaxis()->SetTitle("Q");
-    h2ElossvQ_Sat255->SetDrawOption("COLZ");
-    profElossVsQ_Sat255->SetMarkerStyle(2);
-    profElossVsQ_Sat255->SetMarkerColor(kRed);
-    profElossVsQ_Sat255->SetLineColor(kRed);
-    profElossVsQ_Sat255->Draw("SAME");
+    SuperposedHisto2DProfile(*canvas_EvQ_h2prof_Sat255,h2ElossvQ_Sat255,profElossVsQ_Sat255,"","E_{loss}","Q");
     canvas_EvQ_h2prof_Sat255->Write();
 
     profElossVsQ_tot->SetMarkerStyle(1);
@@ -620,38 +648,27 @@ int main(int argc,char** argv){
 // ------------------------------------------ TH1F Pt de la trace, avec ou sans saturation
 
     TCanvas* canvas_Pt = new TCanvas("canvas_Pt","canvas_Pt",700,400);
-    TLegend* leg_pt = new TLegend(0.7,0.7,0.9,0.9);
-    leg_pt->AddEntry(hPt_NoSat,"No saturation","l");
-    leg_pt->AddEntry(hPt_Sat,"Saturation","l");
-    hPt_NoSat->Scale(1./(hPt_NoSat->Integral()));
-    hPt_NoSat->Draw();
-    hPt_NoSat->GetXaxis()->SetTitle("Pt");
-    hPt_Sat->SetLineColor(2);
-    hPt_Sat->Scale(1./(hPt_Sat->Integral()));
-    hPt_Sat->Draw("SAME");
-    leg_pt->Draw("SAME");
-    canvas_Pt->SetLogy();
-    gStyle->SetOptStat(0);
+    vector<TH1F*> VectHistoPt;
+    VectHistoPt.push_back(hPt_NoSat);
+    VectHistoPt.push_back(hPt_Sat);
+    vector<string> VectLegendPt;
+    VectLegendPt.push_back("No saturation");
+    VectLegendPt.push_back("Saturation");
+    DrawHistoNormalized(*canvas_Pt,VectHistoPt,VectLegendPt,"Distribution de P_{T}","P_{T}");
     canvas_Pt->Write();
 
 // ------------------------------------------
 
-// ------------------------------------------ TH1F ratio NCluster qui saturent par trace
+// ------------------------------------------ TH1F ratio NClusters qui saturent par trace
 
     TCanvas* canvas_RatioNClusterSat = new TCanvas("canvas_RatioNClusterSat","canvas_RatioNClusterSat",700,400);
-    TLegend* leg_RatNCluster = new TLegend(0.7,0.7,0.9,0.9);
-    leg_RatNCluster->AddEntry(hRatio_NClusterSat255,"Saturation 255","l");
-    leg_RatNCluster->AddEntry(hRatio_NClusterSat254,"Saturation 254","l");
-    hRatio_NClusterSat255->Scale(1./(hRatio_NClusterSat255->Integral()));
-    hRatio_NClusterSat255->Draw();
-    hRatio_NClusterSat254->SetLineColor(2);
-    hRatio_NClusterSat254->Scale(1./(hRatio_NClusterSat254->Integral()));
-    hRatio_NClusterSat254->Draw("SAME");
-    leg_RatNCluster->Draw("SAME");
-    hRatio_NClusterSat255->GetXaxis()->SetTitle("#frac{Nombre de cluster sature}{Nombre de cluster dans la trace}");
-    hRatio_NClusterSat255->SetTitle("Fraction de saturation");
-    canvas_RatioNClusterSat->SetLogy();
-    gStyle->SetOptStat(0);
+    vector<TH1F*> VectHistoNSat;
+    VectHistoNSat.push_back(hRatio_ElossQ_Sat254);
+    VectHistoNSat.push_back(hRatio_ElossQ_Sat255);
+    vector<string> VectLegendNSat;
+    VectLegend.push_back("Saturation 254");
+    VectLegend.push_back("Saturation 255");
+    DrawHistoNormalized(*canvas_RatioNClusterSat,VectHistoNSat,VectLegendNSat,"Fraction de saturation","#frac{Nombre de cluster sature}{Nombre de cluster dans la trace}");
     canvas_RatioNClusterSat->Write();
 
 // ------------------------------------------
@@ -659,23 +676,13 @@ int main(int argc,char** argv){
 // ------------------------------------------ Ratio E/Q
 
     TCanvas* canvas_EvQ_Ratio = new TCanvas("canvas_EvQ_Ratio","canvas_EvQ_Ratio",700,400);
-    TLegend* leg_EvQ_Ratio = new TLegend(0.7,0.7,0.9,0.9);
-    double scale_RatioEvQ = 1./(hRatio_ElossQ_NoSat->Integral());
-    //leg_EvQ_Ratio->AddEntry(hRatio_ElossQ_tot,"Total","l");
-    leg_EvQ_Ratio->AddEntry(hRatio_ElossQ_NoSat,"No saturation","l");
-    leg_EvQ_Ratio->AddEntry(hRatio_ElossQ_Sat,"Saturation","l");
-    /*hRatio_ElossQ_tot->Scale(1./(hRatio_ElossQ_tot->Integral()));
-    hRatio_ElossQ_tot->Draw();
-    hRatio_ElossQ_tot->GetXaxis()->SetTitle("E/Q");*/
-    hRatio_ElossQ_NoSat->SetLineColor(kCyan);
-    hRatio_ElossQ_NoSat->Scale(1./(hRatio_ElossQ_NoSat->Integral()));
-    hRatio_ElossQ_NoSat->Draw();
-    hRatio_ElossQ_Sat->SetLineColor(kViolet);
-    hRatio_ElossQ_Sat->Scale(1./(hRatio_ElossQ_Sat->Integral()));
-    hRatio_ElossQ_Sat->Draw("SAME");
-    leg_EvQ_Ratio->Draw("SAME");
-    canvas_EvQ_Ratio->SetLogy();
-    gStyle->SetOptStat(0);
+    vector<TH1F*> VectHistoEoverQ;
+    VectHistoEoverQ.push_back(hRatio_ElossQ_NoSat);
+    VectHistoEoverQ.push_back(hRatio_ElossQ_Sat);
+    vector<string> VectLegendEoverQ;
+    VectLegendEoverQ.push_back("No saturation");
+    VectLegendEoverQ.push_back("Saturation");
+    DrawHistoNormalized(*canvas_EvQ_Ratio,VectHistoEoverQ,VectLegendEoverQ,"","#frac{E}{Q}");
     canvas_EvQ_Ratio->Write();
 
 // ------------------------------------------
@@ -705,29 +712,46 @@ int main(int argc,char** argv){
     for(int i=0;i<21;i++)
     {
         string title = "E_{loss} v. Q  |  "+Label(i+1);
-        char title_char[title.length()+1];
-        strcpy(title_char,title.c_str());
-        TCanvas* csuperposed = new TCanvas(title_char,title_char,700,400);
-        DrawHisto(fileout,vect_H2_tot[i],title_char,true,"E_{loss}",true,"Q");
-        DrawHisto(fileout,vect_H2_NoSat[i],title_char,true,"E_{loss}",true,"Q");
-        DrawHisto(fileout,vect_H2_Sat[i],title_char,true,"E_{loss}",true,"Q");
-        DrawHisto(fileout,vect_H2_Sat254[i],title_char,true,"E_{loss}",true,"Q");
-        DrawHisto(fileout,vect_H2_Sat255[i],title_char,true,"E_{loss}",true,"Q");
-        DrawHisto(fileout,vect_H1_tot[i],title_char,true,"E/Q");
-        DrawHisto(fileout,vect_H1_NoSat[i],title_char,true,"E/Q");
-        DrawHisto(fileout,vect_H1_Sat[i],title_char,true,"E/Q");
-        DrawHisto(fileout,vect_H1_Sat254[i],title_char,true,"E/Q");
-        DrawHisto(fileout,vect_H1_Sat255[i],title_char,true,"E/Q");
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_tot[i],vect_prof_tot[i],title_char,"E_{loss}","Q");
-        DrawCanvas(fileout,*csuperposed);
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_NoSat[i],vect_prof_NoSat[i],title_char,"E_{loss}","Q");
-        DrawCanvas(fileout,*csuperposed);
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat[i],vect_prof_Sat[i],title_char,"E_{loss}","Q");
-        DrawCanvas(fileout,*csuperposed);
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat254[i],vect_prof_Sat254[i],title_char,"E_{loss}","Q");
-        DrawCanvas(fileout,*csuperposed);
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat255[i],vect_prof_Sat255[i],title_char,"E_{loss}","Q");
-        DrawCanvas(fileout,*csuperposed);
+        TCanvas* csuperposed = new TCanvas(title.c_str(),title.c_str(),700,400);
+        DrawHisto(*fileout,vect_H2_tot[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,vect_H2_NoSat[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,vect_H2_Sat[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,vect_H2_Sat254[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,vect_H2_Sat255[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,vect_H1_tot[i],title.c_str(),"E/Q");
+        DrawHisto(*fileout,vect_H1_NoSat[i],title.c_str(),"E/Q");
+        DrawHisto(*fileout,vect_H1_Sat[i],title.c_str(),"E/Q");
+        DrawHisto(*fileout,vect_H1_Sat254[i],title.c_str(),"E/Q");
+        DrawHisto(*fileout,vect_H1_Sat255[i],title.c_str(),"E/Q");
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_tot[i],vect_prof_tot[i],title.c_str(),"E_{loss}","Q");
+        csuperposed->Write();
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_NoSat[i],vect_prof_NoSat[i],title.c_str(),"E_{loss}","Q");
+        csuperposed->Write();
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat[i],vect_prof_Sat[i],title.c_str(),"E_{loss}","Q");
+        csuperposed->Write();
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat254[i],vect_prof_Sat254[i],title.c_str(),"E_{loss}","Q");
+        csuperposed->Write();
+        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat255[i],vect_prof_Sat255[i],title.c_str(),"E_{loss}","Q");
+        csuperposed->Write();
+    }
+
+    for(int i=0;i<10;i++)
+    {
+        string title = "NStrip_"+to_string(i+1);
+        DrawHisto(*fileout,VectH2NStripsNoSat[i],("NoSat_"+title).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectH2NStripsSat[i],("Sat_"+title).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectH2NStripsSat254[i],("Sat254_"+title).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectH2NStripsSat255[i],("Sat255_"+title).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectH2NStripsSat_Sat254[i],("Sat254_"+title+"Sat").c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectH2NStripsSat_Sat255[i],("Sat255_"+title+"Sat").c_str(),"E_{loss}","Q");
+    }
+
+    for(int i=0;i<4;i++)
+    {
+        DrawHisto(*fileout,VectH2PartIDNoSat[i],("NoSat_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectH2PartIDSat[i],("Sat_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectH2PartIDSat254[i],("Sat254_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectH2PartIDSat255[i],("Sat255_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
     }
     
 
@@ -736,11 +760,7 @@ int main(int argc,char** argv){
 
     delete fileout;
 
-    string s3 = "mv "+s2+" ./data/.";
-
-    cout<<s3<<endl;
-
-    system(s3.c_str());
+    system(("mv "+s2+" ./data/.").c_str());
     
 
     return 0;

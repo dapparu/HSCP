@@ -144,6 +144,11 @@ int Cluster::GetNSatStripBoth() const
 	return nsat;
 }
 
+int Cluster::GetNStrip() const
+{
+	return nstrips_;
+}	
+
 int Cluster::GetNSimHits() const
 {
 	return nsimhits_;

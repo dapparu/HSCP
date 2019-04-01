@@ -28,7 +28,7 @@
 using namespace std;
 
 
-char StringToChar(string str);
+const char* StringToChar(string str);
 void SetHistoLabel(TCanvas* canvas,TH1F* histo);
 void SetHistoLabelPartID(TCanvas* canvas,TH2F* histo);
 string Label(int i);
@@ -36,3 +36,4 @@ string LabelParticle(int i);
 int GetPartID(const vector<Cluster> &VectClust,float &threshold);
 int ReBinPartID(int i);
 float GetPoverM(float p,int i);
+string LoopPartID(int i);
