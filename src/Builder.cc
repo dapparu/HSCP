@@ -47,6 +47,7 @@ Builder::Builder(TChain &chain)
 		sclus_index_simhit[i]=0;
 		sclus_nsimhit[i]=0;
 		sclus_eloss[i]=0;
+		sclus_firstsclus[i]=0;
 	}
 	for(int i=0;i<nstrips_max;i++){
 		strip_ampl[i]=0;
@@ -157,7 +158,7 @@ void Builder::GetEntry(int i)
                             SimHit simhit1(simhit_pid[isimhit],simhit_p[isimhit],simhit_eloss[isimhit],simhit_tof[isimhit]);
                             VectSimHits.push_back(simhit1);
                         }
-                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],VectStrips,VectSimHits);
+                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_firstsclus[iclust],VectStrips,VectSimHits);
                         VectClust.push_back(clust1);
                     }
                 }
@@ -211,7 +212,7 @@ void Builder::SetCalibration(float factor,int entries)
                             SimHit simhit1(simhit_pid[isimhit],simhit_p[isimhit],simhit_eloss[isimhit],simhit_tof[isimhit]);
                             VectSimHits.push_back(simhit1);
                         }
-                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*factor*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],VectStrips,VectSimHits);
+                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*factor*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_firstsclus[iclust],VectStrips,VectSimHits);
                         VectClust.push_back(clust1);
                     }
                 }

@@ -12,11 +12,12 @@ Cluster::Cluster()
 	nsimhits_			= 0;
 	detid_				= 0;
 	subdetid_			= 0;
+	firstsclus_			= 0;
 	sat254_				= false;
 	sat255_				= false;
 }
 
-Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,bool sat254,bool sat255,const vector<ClusterStrip> &VectStrips,const vector<SimHit> &VectSimHits)
+Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,bool sat254,bool sat255,int firstsclus,const vector<ClusterStrip> &VectStrips,const vector<SimHit> &VectSimHits)
 {
 	dedx_charge_		= dedx_charge;
 	sclus_charge_		= sclus_charge;
@@ -28,6 +29,7 @@ Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float elo
 	subdetid_			= subdetid;
 	sat254_				= sat254;
 	sat255_				= sat255;
+	firstsclus_			= firstsclus;
 	VectStrips_			= VectStrips;
 	VectSimHits_ 		= VectSimHits;
 }
@@ -54,6 +56,11 @@ float Cluster::GetPathLength() const
 float Cluster::GetEloss() const
 {
 	return eloss_;
+}
+
+int Cluster::GetFirstsclus() const
+{
+	return firstsclus_;
 }
 
 int Cluster::GetLayer() const
@@ -101,6 +108,13 @@ int Cluster::GetLayerLabel() const
 	}
 }
 
+int Cluster::GetNStripLayer(int layerlabel) const
+{
+	if(layerlabel==1 || layerlabel==2 || layerlabel==9 || layerlabel==10) return 768;
+	if(layerlabel==3 || layerlabel==4 || layerlabel==7 || layerlabel==8) return 512;
+	else return 0;
+}
+
 bool Cluster::GetSat254() const
 {
 	return sat254_;
@@ -113,25 +127,12 @@ bool Cluster::GetSat255() const
 
 int Cluster::GetNSatStrip(int sat) const
 {
-	if(sat==254)
+	int nsat=0;
+	for(int i=0;i<VectStrips_.size();i++)
 	{
-		int nsat254=0;
-		for(int i=0;i<VectStrips_.size();i++)
-		{
-			if(VectStrips_[i].GetAmpl()==254) nsat254++;
-		}
-		return nsat254;
+		if(VectStrips_[i].GetAmpl()==sat) nsat++;
 	}
-	if(sat==255)
-	{
-		int nsat255=0;
-		for(int i=0;i<VectStrips_.size();i++)
-		{
-			if(VectStrips_[i].GetAmpl()==255) nsat255++;
-		}
-		return nsat255;
-	}
-	else return 0;
+	return nsat;
 }
 
 int Cluster::GetNSatStripBoth() const
@@ -179,3 +180,24 @@ TProfile& Cluster::GetDistribStrip() const
 	return *profDistribStrip;
 }
 	
+bool Cluster::Edge() const
+{
+	bool Edge_res=false;
+	int nstriplayer=this->GetNStripLayer(this->GetLayerLabel());
+	if(nstriplayer==0 && (firstsclus_==0 || firstsclus_+nstrips_==512 || firstsclus_+nstrips_==768)) Edge_res=true;
+	else if(nstriplayer!=0 && (firstsclus_==0 || firstsclus_+nstrips_==nstriplayer)) Edge_res=true;
+	return Edge_res;
+}
+
+bool Cluster::Cut() const
+{
+	bool Cut_res = false;
+	if(VectStrips_.size()>=3)
+	{
+		for(int i=1;i<VectStrips_.size()-1;i++)
+		{
+			if(VectStrips_[i].GetAmpl()==0) Cut_res=true;
+		}
+	}
+	return Cut_res;
+}

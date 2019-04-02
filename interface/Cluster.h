@@ -1,4 +1,5 @@
 #include <vector>
+#include <iostream>
 #include "TProfile.h"
 
 #include "ClusterStrip.h"
@@ -18,6 +19,7 @@ class Cluster{
 		int	nsimhits_;
 		int detid_;
 		int subdetid_;
+		int firstsclus_;
 		bool sat254_;
 		bool sat255_;
 		vector<ClusterStrip>	VectStrips_;
@@ -26,14 +28,16 @@ class Cluster{
 	public:	
 		
 		Cluster();
-		Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid, int subdetid,bool sat254,bool sat255,const vector<ClusterStrip> &VectStrip,const vector<SimHit> &VectSimHit);
+		Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid, int subdetid,bool sat254,bool sat255,int firstsclus,const vector<ClusterStrip> &VectStrip,const vector<SimHit> &VectSimHit);
 		~Cluster();
 		float GetDedxCharge() const;
 		float GetSclusCharge() const;
 		float GetPathLength() const;
 		float GetEloss() const;
+		int GetFirstsclus() const;
 		int GetLayer() const;
 		int GetLayerLabel() const;
+		int GetNStripLayer(int layerlabel) const;
 		bool GetSat254() const;
 		bool GetSat255() const;
 		int GetNSatStrip(int sat) const;
@@ -43,5 +47,7 @@ class Cluster{
 		const vector<ClusterStrip>& GetVectStrips() const;
 		const vector<SimHit>& GetVectSimHits() const;
 		TProfile& GetDistribStrip() const;
+		bool Edge() const;
+		bool Cut() const;
 
 };

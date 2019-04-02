@@ -26,12 +26,10 @@ void DrawHisto(TFile &fileout,TH2F* histo,string title,string x_title,string y_t
 
 void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string title,string xtitle, string ytitle)
 {
-    canvas.cd();
     prof->SetMarkerStyle(2);
     prof->SetMarkerColor(kRed);
     prof->SetLineColor(kRed);
-    histo->Draw();
-    histo->SetDrawOption("COLZ");
+    histo->Draw("COLZ");
     histo->SetTitle(title.c_str());
     histo->GetXaxis()->SetTitle(xtitle.c_str());
     histo->GetYaxis()->SetTitle(ytitle.c_str());

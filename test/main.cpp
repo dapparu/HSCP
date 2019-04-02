@@ -104,98 +104,122 @@ int main(int argc,char** argv){
     TH2F* h2RatioSatPartID255 = new TH2F("h2RatioSatPartID255","h2RatioSatPartID255",6,0,6,20,0,1.05);
     TProfile* profSatPartID255 = new TProfile("profSatPartID255","profSatPartID255",6,0,6,"");
 
-    vector<TH2F*> VectH2NStripsNoSat;
-    vector<TH2F*> VectH2NStripsSat;
-    vector<TH2F*> VectH2NStripsSat254;
-    vector<TH2F*> VectH2NStripsSat255;
-    vector<TH2F*> VectH2NStripsSat_Sat254;
-    vector<TH2F*> VectH2NStripsSat_Sat255;
+    vector<TH2F*> VectNStrip_h2EvQ_NoSat;
+    vector<TH2F*> VectNStrip_h2EvQ_Sat;
+    vector<TH2F*> VectNStrip_h2EvQ_Sat254;
+    vector<TH2F*> VectNStrip_h2EvQ_Sat255;
+    vector<TH2F*> VectNStripSat_h2EvQ_254;
+    vector<TH2F*> VectNStripSat_h2EvQ_255;
 
     for(int i=1;i<11;i++)
     {   
         string str_i = to_string(i);
-        VectH2NStripsNoSat.push_back(new TH2F(("NoSatNstrips_"+str_i).c_str(),("NoSatNstrips_"+str_i).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
-        VectH2NStripsSat.push_back(new TH2F(("SatNstrips_"+str_i).c_str(),("SatNstrips_"+str_i).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
-        VectH2NStripsSat254.push_back(new TH2F(("Sat254Nstrips_"+str_i).c_str(),("Sat254Nstrips_"+str_i).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
-        VectH2NStripsSat255.push_back(new TH2F(("Sat255Nstrips_"+str_i).c_str(),("Sat255Nstrips_"+str_i).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
-        VectH2NStripsSat_Sat254.push_back(new TH2F(("Sat254NstripsSat_"+str_i).c_str(),("Sat254NstripsSat_"+str_i).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
-        VectH2NStripsSat_Sat255.push_back(new TH2F(("Sat255NstripsSat_"+str_i).c_str(),("Sat255NstripsSat_"+str_i).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
+        VectNStrip_h2EvQ_NoSat.push_back(new TH2F(("NoSatNstrips_"+str_i).c_str(),("NoSatNstrips_"+str_i).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
+        VectNStrip_h2EvQ_Sat.push_back(new TH2F(("SatNstrips_"+str_i).c_str(),("SatNstrips_"+str_i).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
+        VectNStrip_h2EvQ_Sat254.push_back(new TH2F(("Sat254Nstrips_"+str_i).c_str(),("Sat254Nstrips_"+str_i).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
+        VectNStrip_h2EvQ_Sat255.push_back(new TH2F(("Sat255Nstrips_"+str_i).c_str(),("Sat255Nstrips_"+str_i).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
+        VectNStripSat_h2EvQ_254.push_back(new TH2F(("Sat254NstripsSat_"+str_i).c_str(),("Sat254NstripsSat_"+str_i).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
+        VectNStripSat_h2EvQ_255.push_back(new TH2F(("Sat255NstripsSat_"+str_i).c_str(),("Sat255NstripsSat_"+str_i).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
+    }
+
+    vector<vector<TH2F*>> VectNStrip_VectNStripSat_h2EvQ;
+    vector<vector<TH1F*>> VectNStrip_VectNStripSat_h1EvQ;
+    vector<vector<TProfile*>> VectNStrip_VectNStripSat_profEvQ;
+    for(int i=1;i<6;i++)
+    {
+        vector<TH2F*> VectNStripSat_h2EvQ;
+        vector<TH1F*> VectNStripSat_h1EvQ;
+        vector<TProfile*> VectNStripSat_profEvQ;
+        for(int j=0;j<i;j++)
+        {
+            string str_i = to_string(i);
+            string str_j = to_string(j);
+            TH2F* h2EvQVectVect = new TH2F(("H2 NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),("H2 NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+            TH1F* h1EvQVectVect = new TH1F(("H1 NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),("H1 NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),200,0,8);
+            TProfile* profEvQVectVect = new TProfile(("prof NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),("prof NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),50,0,1500*pow(10,-6));
+            VectNStripSat_h2EvQ.push_back(h2EvQVectVect);
+            VectNStripSat_h1EvQ.push_back(h1EvQVectVect);
+            VectNStripSat_profEvQ.push_back(profEvQVectVect);
+        }
+        VectNStrip_VectNStripSat_h2EvQ.push_back(VectNStripSat_h2EvQ);
+        VectNStrip_VectNStripSat_h1EvQ.push_back(VectNStripSat_h1EvQ);
+        VectNStrip_VectNStripSat_profEvQ.push_back(VectNStripSat_profEvQ);
     }
     
-    vector<TH2F*> VectH2PartIDNoSat;
-    vector<TH2F*> VectH2PartIDSat;
-    vector<TH2F*> VectH2PartIDSat254;
-    vector<TH2F*> VectH2PartIDSat255;
+    vector<TH2F*> VectPartID_h2EvQ_NoSat;
+    vector<TH2F*> VectPartID_h2EvQ_Sat;
+    vector<TH2F*> VectPartID_h2EvQ_Sat254;
+    vector<TH2F*> VectPartID_h2EvQ_Sat255;
 
     for(int i=0;i<4;i++)
     {
-        VectH2PartIDNoSat.push_back(new TH2F(("NoSat_"+LoopPartID(i+1)).c_str(),("NoSat_"+LoopPartID(i+1)).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
-        VectH2PartIDSat.push_back(new TH2F(("Sat_"+LoopPartID(i+1)).c_str(),("Sat_"+LoopPartID(i+1)).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
-        VectH2PartIDSat254.push_back(new TH2F(("Sat254_"+LoopPartID(i+1)).c_str(),("Sat254_"+LoopPartID(i+1)).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
-        VectH2PartIDSat255.push_back(new TH2F(("Sat255_"+LoopPartID(i+1)).c_str(),("Sat255_"+LoopPartID(i+1)).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
+        VectPartID_h2EvQ_NoSat.push_back(new TH2F(("NoSat_"+LoopPartID(i+1)).c_str(),("NoSat_"+LoopPartID(i+1)).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
+        VectPartID_h2EvQ_Sat.push_back(new TH2F(("Sat_"+LoopPartID(i+1)).c_str(),("Sat_"+LoopPartID(i+1)).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
+        VectPartID_h2EvQ_Sat254.push_back(new TH2F(("Sat254_"+LoopPartID(i+1)).c_str(),("Sat254_"+LoopPartID(i+1)).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
+        VectPartID_h2EvQ_Sat255.push_back(new TH2F(("Sat255_"+LoopPartID(i+1)).c_str(),("Sat255_"+LoopPartID(i+1)).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
     }
 
-    vector<TH2F*> vect_H2_tot;
-    vector<TH2F*> vect_H2_NoSat;
-    vector<TH2F*> vect_H2_Sat;
-    vector<TH2F*> vect_H2_Sat254;
-    vector<TH2F*> vect_H2_Sat255;
+    vector<TH2F*> VectLayer_h2EvQ_Tot;
+    vector<TH2F*> VectLayer_h2EvQ_NoSat;
+    vector<TH2F*> VectLayer_h2EvQ_Sat;
+    vector<TH2F*> VectLayer_h2EvQ_Sat254;
+    vector<TH2F*> VectLayer_h2EvQ_Sat255;
 
-    vector<TProfile*> vect_prof_tot;
-    vector<TProfile*> vect_prof_NoSat;
-    vector<TProfile*> vect_prof_Sat;
-    vector<TProfile*> vect_prof_Sat254;
-    vector<TProfile*> vect_prof_Sat255;
+    vector<TProfile*> VectLayer_profEvQ_Tot;
+    vector<TProfile*> VectLayer_profEvQ_NoSat;
+    vector<TProfile*> VectLayer_profEvQ_Sat;
+    vector<TProfile*> VectLayer_profEvQ_Sat254;
+    vector<TProfile*> VectLayer_profEvQ_Sat255;
 
-    vector<TH1F*> vect_H1_tot;
-    vector<TH1F*> vect_H1_NoSat;
-    vector<TH1F*> vect_H1_Sat;
-    vector<TH1F*> vect_H1_Sat254;
-    vector<TH1F*> vect_H1_Sat255;
+    vector<TH1F*> VectLayer_h1EvQ_Tot;
+    vector<TH1F*> VectLayer_h1EvQ_NoSat;
+    vector<TH1F*> VectLayer_h1EvQ_Sat;
+    vector<TH1F*> VectLayer_h1EvQ_Sat254;
+    vector<TH1F*> VectLayer_h1EvQ_Sat255;
 
     for(int i=1;i<22;i++)
     {
-        vect_H2_tot.push_back(new TH2F(("h2_"+Label(i)+"_tot").c_str(),("h2_"+Label(i)+"_tot").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
-        vect_H1_tot.push_back(new TH1F(("h1_"+Label(i)+"_tot").c_str(),("h1_"+Label(i)+"_tot").c_str(),200,0,8));
-        vect_prof_tot.push_back(new TProfile(("pr_"+Label(i)+"_tot").c_str(),("pr_"+Label(i)+"_tot").c_str(),50,0,900*pow(10,-6),""));
+        VectLayer_h2EvQ_Tot.push_back(new TH2F(("h2_"+Label(i)+"_tot").c_str(),("h2_"+Label(i)+"_tot").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
+        VectLayer_h1EvQ_Tot.push_back(new TH1F(("h1_"+Label(i)+"_tot").c_str(),("h1_"+Label(i)+"_tot").c_str(),200,0,8));
+        VectLayer_profEvQ_Tot.push_back(new TProfile(("pr_"+Label(i)+"_tot").c_str(),("pr_"+Label(i)+"_tot").c_str(),50,0,900*pow(10,-6),""));
 
-        vect_H2_NoSat.push_back(new TH2F(("h2_"+Label(i)+"_NoSat").c_str(),("h2_"+Label(i)+"_NoSat").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
-        vect_H1_NoSat.push_back(new TH1F(("h1_"+Label(i)+"_NoSat").c_str(),("h1_"+Label(i)+"_NoSat").c_str(),200,0,8));
-        vect_prof_NoSat.push_back(new TProfile(("pr_"+Label(i)+"_NoSat").c_str(),("pr_"+Label(i)+"_NoSat").c_str(),50,0,900*pow(10,-6),""));
+        VectLayer_h2EvQ_NoSat.push_back(new TH2F(("h2_"+Label(i)+"_NoSat").c_str(),("h2_"+Label(i)+"_NoSat").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
+        VectLayer_h1EvQ_NoSat.push_back(new TH1F(("h1_"+Label(i)+"_NoSat").c_str(),("h1_"+Label(i)+"_NoSat").c_str(),200,0,8));
+        VectLayer_profEvQ_NoSat.push_back(new TProfile(("pr_"+Label(i)+"_NoSat").c_str(),("pr_"+Label(i)+"_NoSat").c_str(),50,0,900*pow(10,-6),""));
 
-        vect_H2_Sat.push_back(new TH2F(("h2_"+Label(i)+"_Sat").c_str(),("h2_"+Label(i)+"_Sat").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
-        vect_H1_Sat.push_back(new TH1F(("h1_"+Label(i)+"_Sat").c_str(),("h1_"+Label(i)+"_Sat").c_str(),200,0,8));
-        vect_prof_Sat.push_back(new TProfile(("pr_"+Label(i)+"_Sat").c_str(),("pr_"+Label(i)+"_Sat").c_str(),50,0,900*pow(10,-6),""));
+        VectLayer_h2EvQ_Sat.push_back(new TH2F(("h2_"+Label(i)+"_Sat").c_str(),("h2_"+Label(i)+"_Sat").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
+        VectLayer_h1EvQ_Sat.push_back(new TH1F(("h1_"+Label(i)+"_Sat").c_str(),("h1_"+Label(i)+"_Sat").c_str(),200,0,8));
+        VectLayer_profEvQ_Sat.push_back(new TProfile(("pr_"+Label(i)+"_Sat").c_str(),("pr_"+Label(i)+"_Sat").c_str(),50,0,900*pow(10,-6),""));
 
-        vect_H2_Sat254.push_back(new TH2F(("h2_"+Label(i)+"_Sat254").c_str(),("h2_"+Label(i)+"_Sat254").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
-        vect_H1_Sat254.push_back(new TH1F(("h1_"+Label(i)+"_Sat254").c_str(),("h1_"+Label(i)+"_Sat254").c_str(),200,0,8));
-        vect_prof_Sat254.push_back(new TProfile(("pr_"+Label(i)+"_Sat254").c_str(),("pr_"+Label(i)+"_Sat254").c_str(),50,0,900*pow(10,-6),""));
+        VectLayer_h2EvQ_Sat254.push_back(new TH2F(("h2_"+Label(i)+"_Sat254").c_str(),("h2_"+Label(i)+"_Sat254").c_str(),300,0,900*pow(10,-6),300,0,900*pow(10,-6)));
+        VectLayer_h1EvQ_Sat254.push_back(new TH1F(("h1_"+Label(i)+"_Sat254").c_str(),("h1_"+Label(i)+"_Sat254").c_str(),200,0,8));
+        VectLayer_profEvQ_Sat254.push_back(new TProfile(("pr_"+Label(i)+"_Sat254").c_str(),("pr_"+Label(i)+"_Sat254").c_str(),50,0,900*pow(10,-6),""));
 
-        vect_H2_Sat255.push_back(new TH2F(("h2_"+Label(i)+"_Sat255").c_str(),("h2_"+Label(i)+"_Sat255").c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
-        vect_H1_Sat255.push_back(new TH1F(("h1_"+Label(i)+"_Sat255").c_str(),("h1_"+Label(i)+"_Sat255").c_str(),200,0,8));
-        vect_prof_Sat255.push_back(new TProfile(("pr_"+Label(i)+"_Sat255").c_str(),("pr_"+Label(i)+"_Sat255").c_str(),50,0,3000*pow(10,-6),""));
+        VectLayer_h2EvQ_Sat255.push_back(new TH2F(("h2_"+Label(i)+"_Sat255").c_str(),("h2_"+Label(i)+"_Sat255").c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
+        VectLayer_h1EvQ_Sat255.push_back(new TH1F(("h1_"+Label(i)+"_Sat255").c_str(),("h1_"+Label(i)+"_Sat255").c_str(),200,0,8));
+        VectLayer_profEvQ_Sat255.push_back(new TProfile(("pr_"+Label(i)+"_Sat255").c_str(),("pr_"+Label(i)+"_Sat255").c_str(),50,0,3000*pow(10,-6),""));
     }
 
-    vector<TH1F*> VectPtPartID;
+    vector<TH1F*> VectPartID_Pt;
 
-    VectPtPartID.push_back(new TH1F("h1_proton_pt","h1_proton_pt",100,0,3000));
-    VectPtPartID.push_back(new TH1F("h1_pion_pt","h1_pion_pt",100,0,3000));
-    VectPtPartID.push_back(new TH1F("h1_gluino-u-dbar_pt","h1_gluino-u-dbar_pt",100,0,3000));
-    VectPtPartID.push_back(new TH1F("h1_R-hadron_pt","h1_R-hadron_pt",100,0,3000));
+    VectPartID_Pt.push_back(new TH1F("h1_proton_pt","h1_proton_pt",100,0,3000));
+    VectPartID_Pt.push_back(new TH1F("h1_pion_pt","h1_pion_pt",100,0,3000));
+    VectPartID_Pt.push_back(new TH1F("h1_gluino-u-dbar_pt","h1_gluino-u-dbar_pt",100,0,3000));
+    VectPartID_Pt.push_back(new TH1F("h1_R-hadron_pt","h1_R-hadron_pt",100,0,3000));
 
-    vector<TH1F*> VectElossPartID;
+    vector<TH1F*> VectPartID_Eloss;
 
-    VectElossPartID.push_back(new TH1F("h_proton_eloss","h_proton_eloss",300,0,3000*pow(10,-6)));
-    VectElossPartID.push_back(new TH1F("h_pion_eloss","h_pion_eloss",300,0,3000*pow(10,-6)));
-    VectElossPartID.push_back(new TH1F("h_gluino-u-dbar_eloss","h_gluino-u-dbar_eloss",300,0,3000*pow(10,-6)));
-    VectElossPartID.push_back(new TH1F("h_R-hadron_eloss","h_R-hadron_eloss",300,0,3000*pow(10,-6)));
+    VectPartID_Eloss.push_back(new TH1F("h_proton_eloss","h_proton_eloss",300,0,3000*pow(10,-6)));
+    VectPartID_Eloss.push_back(new TH1F("h_pion_eloss","h_pion_eloss",300,0,3000*pow(10,-6)));
+    VectPartID_Eloss.push_back(new TH1F("h_gluino-u-dbar_eloss","h_gluino-u-dbar_eloss",300,0,3000*pow(10,-6)));
+    VectPartID_Eloss.push_back(new TH1F("h_R-hadron_eloss","h_R-hadron_eloss",300,0,3000*pow(10,-6)));
 
-    vector<TH1F*> VectPoverMPartID;
+    vector<TH1F*> VectPartID_PoverM;
 
-    VectPoverMPartID.push_back(new TH1F("h_proton_pm","h_proton_pm",1000,0.01,10));
-    VectPoverMPartID.push_back(new TH1F("h_pion_pm","h_pion_pm",1000,0.01,10));
-    VectPoverMPartID.push_back(new TH1F("h_gluino-u-dbar_pm","h_gluino-u-dbar_pm",1000,0.01,10));
-    VectPoverMPartID.push_back(new TH1F("h_R-hadron_pm","h_R-hadron_pm",1000,0.01,10));
+    VectPartID_PoverM.push_back(new TH1F("h_proton_pm","h_proton_pm",1000,0.01,10));
+    VectPartID_PoverM.push_back(new TH1F("h_pion_pm","h_pion_pm",1000,0.01,10));
+    VectPartID_PoverM.push_back(new TH1F("h_gluino-u-dbar_pm","h_gluino-u-dbar_pm",1000,0.01,10));
+    VectPartID_PoverM.push_back(new TH1F("h_R-hadron_pm","h_R-hadron_pm",1000,0.01,10));
 
 
     TH1F* hEmpty = new TH1F("hEmpty","hEmpty",21,0,21); //pour tracer les lignes avec la fonction SetHistoLabel
@@ -205,7 +229,7 @@ int main(int argc,char** argv){
     TFile* fileout = new TFile(s2.c_str(),"RECREATE");
 
 
-    int entries = nentries;
+    int entries = 1000;
 
 
     bool testsat254 = false; 
@@ -242,6 +266,9 @@ int main(int argc,char** argv){
                 int nsatboth        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStripBoth();
                 int nsat254         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStrip(254);
                 int nsat255         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStrip(255);
+                bool edge           = b1->GetVectTrack()[track].GetVectClusters()[cluster].Edge();
+                bool cut            = b1->GetVectTrack()[track].GetVectClusters()[cluster].Cut();
+
                 clust++;
 
                 vect_eloss.push_back(eloss);
@@ -254,9 +281,9 @@ int main(int argc,char** argv){
                 hLayer->Fill(layer);
                 hLayerLabel->Fill(layerLabel-1);
 
-                vect_H2_tot[layerLabel-1]->Fill(eloss,charge);
-                vect_H1_tot[layerLabel-1]->Fill(eloss/charge);
-                vect_prof_tot[layerLabel-1]->Fill(eloss,charge);
+                VectLayer_h2EvQ_Tot[layerLabel-1]->Fill(eloss,charge);
+                VectLayer_h1EvQ_Tot[layerLabel-1]->Fill(eloss/charge);
+                VectLayer_profEvQ_Tot[layerLabel-1]->Fill(eloss,charge);
 
 
                 for(int simhit=0;simhit<nsimhits;simhit++)
@@ -265,37 +292,53 @@ int main(int argc,char** argv){
                     
                     if(partID==2212 || partID==-2212) //proton
                     {
-                        if(layerLabel==5) VectElossPartID[0]->Fill(eloss);
-                        if(sat254==false && sat255==false) VectH2PartIDNoSat[1]->Fill(eloss,charge);
-                        if(sat254==true) VectH2PartIDSat[1]->Fill(eloss,charge);
-                        if(sat254==true && sat255==false) VectH2PartIDSat254[1]->Fill(eloss,charge);
-                        if(sat255==true) VectH2PartIDSat255[1]->Fill(eloss,charge);
+                        if(layerLabel==5) VectPartID_Eloss[0]->Fill(eloss);
+                        if(sat254==false && sat255==false) VectPartID_h2EvQ_NoSat[1]->Fill(eloss,charge);
+                        if(sat254==true && GetPoverM(p,2212)<1) VectPartID_h2EvQ_Sat[1]->Fill(eloss,charge);
+                        if(sat254==true && sat255==false) VectPartID_h2EvQ_Sat254[1]->Fill(eloss,charge);
+                        if(sat255==true) VectPartID_h2EvQ_Sat255[1]->Fill(eloss,charge);
                     }
                     if(partID==211 || partID==-211) //pion
                     {
-                        if(layerLabel==5) VectElossPartID[1]->Fill(eloss);
-                        if(sat254==false && sat255==false) VectH2PartIDNoSat[0]->Fill(eloss,charge);
-                        if(sat254==true) VectH2PartIDSat[0]->Fill(eloss,charge);
-                        if(sat254==true && sat255==false) VectH2PartIDSat254[0]->Fill(eloss,charge);
-                        if(sat255==true) VectH2PartIDSat255[0]->Fill(eloss,charge);
+                        if(layerLabel==5) VectPartID_Eloss[1]->Fill(eloss);
+                        if(sat254==false && sat255==false) VectPartID_h2EvQ_NoSat[0]->Fill(eloss,charge);
+                        if(sat254==true) VectPartID_h2EvQ_Sat[0]->Fill(eloss,charge);
+                        if(sat254==true && sat255==false) VectPartID_h2EvQ_Sat254[0]->Fill(eloss,charge);
+                        if(sat255==true) VectPartID_h2EvQ_Sat255[0]->Fill(eloss,charge);
                     }
                     if(partID==1009213 || partID==-1009213) //R-hadron gluino u dbar
                     {
-                        if(layerLabel==5) VectElossPartID[2]->Fill(eloss);
-                        if(sat254==false && sat255==false) VectH2PartIDNoSat[2]->Fill(eloss,charge);
-                        if(sat254==true) VectH2PartIDSat[2]->Fill(eloss,charge);
-                        if(sat254==true && sat255==false) VectH2PartIDSat254[2]->Fill(eloss,charge);
-                        if(sat255==true) VectH2PartIDSat255[2]->Fill(eloss,charge);
+                        if(layerLabel==5) VectPartID_Eloss[2]->Fill(eloss);
+                        if(sat254==false && sat255==false) VectPartID_h2EvQ_NoSat[2]->Fill(eloss,charge);
+                        if(sat254==true) VectPartID_h2EvQ_Sat[2]->Fill(eloss,charge);
+                        if(sat254==true && sat255==false) VectPartID_h2EvQ_Sat254[2]->Fill(eloss,charge);
+                        if(sat255==true) VectPartID_h2EvQ_Sat255[2]->Fill(eloss,charge);
                     }
                     if((int)partID/1000==1009 || (int)partID/1000==-1009) //R-hadron
                     {
-                        if(layerLabel==5) VectElossPartID[3]->Fill(eloss);
-                        if(sat254==false && sat255==false) VectH2PartIDNoSat[3]->Fill(eloss,charge);
-                        if(sat254==true) VectH2PartIDSat[3]->Fill(eloss,charge);
-                        if(sat254==true && sat255==false) VectH2PartIDSat254[3]->Fill(eloss,charge);
-                        if(sat255==true) VectH2PartIDSat255[3]->Fill(eloss,charge);
+                        if(layerLabel==5) VectPartID_Eloss[3]->Fill(eloss);
+                        if(sat254==false && sat255==false) VectPartID_h2EvQ_NoSat[3]->Fill(eloss,charge);
+                        if(sat254==true) VectPartID_h2EvQ_Sat[3]->Fill(eloss,charge);
+                        if(sat254==true && sat255==false) VectPartID_h2EvQ_Sat254[3]->Fill(eloss,charge);
+                        if(sat255==true) VectPartID_h2EvQ_Sat255[3]->Fill(eloss,charge);
                     }
                     
+                }
+
+                for(int nstrip=1;nstrip<6;nstrip++)
+                {
+                    for(int nstripsat=0;nstripsat<nstrip;nstripsat++)
+                    {
+                        if(nstrip==nstrips && nstripsat==nsat254 && nsat255==0) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
+                        {
+                            if(layerLabel==5 && cut==false && edge==false)
+                            {
+                                VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                                VectNStrip_VectNStripSat_h1EvQ[nstrip-1][nstripsat]->Fill(eloss/charge);
+                                VectNStrip_VectNStripSat_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                            }
+                        }
+                    }
                 }
 
                 if(sat254==true && sat255==false) 
@@ -305,9 +348,9 @@ int main(int argc,char** argv){
                     h2ElossvQ_Sat254->Fill(eloss,charge);
                     profElossVsQ_Sat254->Fill(eloss,charge);
                     hLayerLabelSat254->Fill(layerLabel-1);
-                    vect_H2_Sat254[layerLabel-1]->Fill(eloss,charge);
-                    vect_H1_Sat254[layerLabel-1]->Fill(eloss/charge);
-                    vect_prof_Sat254[layerLabel-1]->Fill(eloss,charge);
+                    VectLayer_h2EvQ_Sat254[layerLabel-1]->Fill(eloss,charge);
+                    VectLayer_h1EvQ_Sat254[layerLabel-1]->Fill(eloss/charge);
+                    VectLayer_profEvQ_Sat254[layerLabel-1]->Fill(eloss,charge);
                     testsat254=true;
                     clustsat254++;
                     for(int strip=0;strip<10;strip++)
@@ -315,7 +358,7 @@ int main(int argc,char** argv){
                         
                         if(nstrips==strip+1)
                         {
-                            VectH2NStripsSat254[strip]->Fill(eloss,charge);
+                            VectNStrip_h2EvQ_Sat254[strip]->Fill(eloss,charge);
                         }
                     }
                     for(int strip=0;strip<10;strip++)
@@ -323,7 +366,7 @@ int main(int argc,char** argv){
                         
                         if(nsat254==strip+1)
                         {
-                            VectH2NStripsSat_Sat254[strip]->Fill(eloss,charge);
+                            VectNStripSat_h2EvQ_254[strip]->Fill(eloss,charge);
                         }
                     }
                 }
@@ -334,9 +377,9 @@ int main(int argc,char** argv){
                     h2ElossvQ_Sat255->Fill(eloss,charge);
                     profElossVsQ_Sat255->Fill(eloss,charge);
                     hLayerLabelSat255->Fill(layerLabel-1);
-                    vect_H2_Sat255[layerLabel-1]->Fill(eloss,charge);
-                    vect_H1_Sat255[layerLabel-1]->Fill(eloss/charge);
-                    vect_prof_Sat255[layerLabel-1]->Fill(eloss,charge);
+                    VectLayer_h2EvQ_Sat255[layerLabel-1]->Fill(eloss,charge);
+                    VectLayer_h1EvQ_Sat255[layerLabel-1]->Fill(eloss/charge);
+                    VectLayer_profEvQ_Sat255[layerLabel-1]->Fill(eloss,charge);
                     testsat255=true;
                     clustsat255++;
                     for(int strip=0;strip<10;strip++)
@@ -344,7 +387,7 @@ int main(int argc,char** argv){
                         
                         if(nstrips==strip+1)
                         {
-                            VectH2NStripsSat255[strip]->Fill(eloss,charge);
+                            VectNStrip_h2EvQ_Sat255[strip]->Fill(eloss,charge);
                         }
                     }
                     for(int strip=0;strip<10;strip++)
@@ -352,7 +395,7 @@ int main(int argc,char** argv){
                         
                         if(nsat255==strip+1)
                         {
-                            VectH2NStripsSat_Sat255[strip]->Fill(eloss,charge);
+                            VectNStripSat_h2EvQ_255[strip]->Fill(eloss,charge);
                         }
                     }
                 }
@@ -362,15 +405,15 @@ int main(int argc,char** argv){
                     hDiff_rel_ElossQ_Sat->Fill((eloss-charge)/charge);
                     hRatio_ElossQ_Sat->Fill(eloss/charge);
                     profElossVsQ_Sat->Fill(eloss,charge);
-                    vect_H2_Sat[layerLabel-1]->Fill(eloss,charge);
-                    vect_H1_Sat[layerLabel-1]->Fill(eloss/charge);
-                    vect_prof_Sat[layerLabel-1]->Fill(eloss,charge);
+                    VectLayer_h2EvQ_Sat[layerLabel-1]->Fill(eloss,charge);
+                    VectLayer_h1EvQ_Sat[layerLabel-1]->Fill(eloss/charge);
+                    VectLayer_profEvQ_Sat[layerLabel-1]->Fill(eloss,charge);
                     for(int strip=0;strip<10;strip++)
                     {
                         
                         if(nsatboth==strip+1)
                         {
-                            VectH2NStripsSat[strip]->Fill(eloss,charge);
+                            VectNStrip_h2EvQ_Sat[strip]->Fill(eloss,charge);
                         }
                     }
                 }
@@ -380,14 +423,14 @@ int main(int argc,char** argv){
                     hDiff_rel_ElossQ_NoSat->Fill((eloss-charge)/charge);
                     hRatio_ElossQ_NoSat->Fill(eloss/charge);
                     profElossVsQ_NoSat->Fill(eloss,charge);
-                    vect_H2_NoSat[layerLabel-1]->Fill(eloss,charge);
-                    vect_H1_NoSat[layerLabel-1]->Fill(eloss/charge);
-                    vect_prof_NoSat[layerLabel-1]->Fill(eloss,charge);
+                    VectLayer_h2EvQ_NoSat[layerLabel-1]->Fill(eloss,charge);
+                    VectLayer_h1EvQ_NoSat[layerLabel-1]->Fill(eloss/charge);
+                    VectLayer_profEvQ_NoSat[layerLabel-1]->Fill(eloss,charge);
                     for(int strip=0;strip<10;strip++)
                     {
                         if(nstrips==strip+1)
                         {
-                            VectH2NStripsNoSat[strip]->Fill(eloss,charge);
+                            VectNStrip_h2EvQ_NoSat[strip]->Fill(eloss,charge);
                         }
                     }
                 }
@@ -406,23 +449,23 @@ int main(int argc,char** argv){
             
             if(id==2212 || id==-2212) 
             {
-                VectPtPartID[0]->Fill(pt);
-                VectPoverMPartID[0]->Fill(GetPoverM(p,id));
+                VectPartID_Pt[0]->Fill(pt);
+                VectPartID_PoverM[0]->Fill(GetPoverM(p,id));
             }
             if(id==211 || id==-211) 
             {
-                VectPtPartID[1]->Fill(pt);
-                VectPoverMPartID[1]->Fill(GetPoverM(p,id));
+                VectPartID_Pt[1]->Fill(pt);
+                VectPartID_PoverM[1]->Fill(GetPoverM(p,id));
             }
             if(id==1009213 || id==-1009213) 
             {
-                VectPtPartID[2]->Fill(pt);
-                VectPoverMPartID[2]->Fill(GetPoverM(p,id));
+                VectPartID_Pt[2]->Fill(pt);
+                VectPartID_PoverM[2]->Fill(GetPoverM(p,id));
             }
             if((int)id/1000==1009 || (int)id/1000==-1009)
             {
-                VectPtPartID[3]->Fill(pt);
-                VectPoverMPartID[3]->Fill(GetPoverM(p,id));
+                VectPartID_Pt[3]->Fill(pt);
+                VectPartID_PoverM[3]->Fill(GetPoverM(p,id));
             }
             
             
@@ -500,19 +543,19 @@ int main(int argc,char** argv){
     VectLegend.push_back("#pi");
     VectLegend.push_back("R^{+}_{#scale[0.6]{#tilde{g}u#bar{d}}}");
     VectLegend.push_back("R^{+}");
-    StackHisto(*cPtPartID,VectPtPartID,VectLegend,"Distribution en p_{T} pour differentes particules","p_{T}");
+    StackHisto(*cPtPartID,VectPartID_Pt,VectLegend,"Distribution en p_{T} pour differentes particules","p_{T}");
     cPtPartID->Write();
 
     TCanvas* cElossPartID = new TCanvas("cElossPartID","cElossPartID",700,400);
-    StackHisto(*cElossPartID,VectElossPartID,VectLegend,"Distribution E_{loss} pour differentes particules dans TOB1","E_{loss}");
+    StackHisto(*cElossPartID,VectPartID_Eloss,VectLegend,"Distribution E_{loss} pour differentes particules dans TOB1","E_{loss}");
     cElossPartID->Write();
 
     TCanvas* cPoverMPartID = new TCanvas("cPoverMPartID","cPoverMPartID",700,400);
-    StackHisto(*cPoverMPartID,VectPoverMPartID,VectLegend,"Distribution du P/M pour differentes particules","P/M");
+    StackHisto(*cPoverMPartID,VectPartID_PoverM,VectLegend,"Distribution du P/M pour differentes particules","P/M");
     cPoverMPartID->Write();
 
     TCanvas* cPoverMPartIDNormal = new TCanvas("cPoverMPartIDNormal","cPoverMPartIDNormal",700,400);
-    DrawHistoNormalized(*cPoverMPartIDNormal,VectPoverMPartID,VectLegend,"Distribution du P/M pour differentes particules","P/M");
+    DrawHistoNormalized(*cPoverMPartIDNormal,VectPartID_PoverM,VectLegend,"Distribution du P/M pour differentes particules","P/M");
     cPoverMPartIDNormal->Write();
 
 
@@ -761,51 +804,79 @@ int main(int argc,char** argv){
 // ------------------------------------------
 
 
-    for(int i=0;i<21;i++)
+/*    for(int i=0;i<21;i++)
     {
         string title = "E_{loss} v. Q  |  "+Label(i+1);
         TCanvas* csuperposed = new TCanvas(title.c_str(),title.c_str(),700,400);
-        DrawHisto(*fileout,vect_H2_tot[i],title.c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,vect_H2_NoSat[i],title.c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,vect_H2_Sat[i],title.c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,vect_H2_Sat254[i],title.c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,vect_H2_Sat255[i],title.c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,vect_H1_tot[i],title.c_str(),"E/Q");
-        DrawHisto(*fileout,vect_H1_NoSat[i],title.c_str(),"E/Q");
-        DrawHisto(*fileout,vect_H1_Sat[i],title.c_str(),"E/Q");
-        DrawHisto(*fileout,vect_H1_Sat254[i],title.c_str(),"E/Q");
-        DrawHisto(*fileout,vect_H1_Sat255[i],title.c_str(),"E/Q");
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_tot[i],vect_prof_tot[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectLayer_h2EvQ_Tot[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectLayer_h2EvQ_NoSat[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectLayer_h2EvQ_Sat[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectLayer_h2EvQ_Sat254[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectLayer_h2EvQ_Sat255[i],title.c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectLayer_h1EvQ_Tot[i],title.c_str(),"E/Q");
+        DrawHisto(*fileout,VectLayer_h1EvQ_NoSat[i],title.c_str(),"E/Q");
+        DrawHisto(*fileout,VectLayer_h1EvQ_Sat[i],title.c_str(),"E/Q");
+        DrawHisto(*fileout,VectLayer_h1EvQ_Sat254[i],title.c_str(),"E/Q");
+        DrawHisto(*fileout,VectLayer_h1EvQ_Sat255[i],title.c_str(),"E/Q");
+        SuperposedHisto2DProfile(*csuperposed,VectLayer_h2EvQ_Tot[i],VectLayer_profEvQ_Tot[i],title.c_str(),"E_{loss}","Q");
         csuperposed->Write();
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_NoSat[i],vect_prof_NoSat[i],title.c_str(),"E_{loss}","Q");
+        SuperposedHisto2DProfile(*csuperposed,VectLayer_h2EvQ_NoSat[i],VectLayer_profEvQ_NoSat[i],title.c_str(),"E_{loss}","Q");
         csuperposed->Write();
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat[i],vect_prof_Sat[i],title.c_str(),"E_{loss}","Q");
+        SuperposedHisto2DProfile(*csuperposed,VectLayer_h2EvQ_Sat[i],VectLayer_profEvQ_Sat[i],title.c_str(),"E_{loss}","Q");
         csuperposed->Write();
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat254[i],vect_prof_Sat254[i],title.c_str(),"E_{loss}","Q");
+        SuperposedHisto2DProfile(*csuperposed,VectLayer_h2EvQ_Sat254[i],VectLayer_profEvQ_Sat254[i],title.c_str(),"E_{loss}","Q");
         csuperposed->Write();
-        SuperposedHisto2DProfile(*csuperposed,vect_H2_Sat255[i],vect_prof_Sat255[i],title.c_str(),"E_{loss}","Q");
+        SuperposedHisto2DProfile(*csuperposed,VectLayer_h2EvQ_Sat255[i],VectLayer_profEvQ_Sat255[i],title.c_str(),"E_{loss}","Q");
         csuperposed->Write();
     }
 
     for(int i=0;i<10;i++)
     {
         string title = "NStrip_"+to_string(i+1);
-        DrawHisto(*fileout,VectH2NStripsNoSat[i],("NoSat_"+title).c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,VectH2NStripsSat[i],("Sat_"+title).c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,VectH2NStripsSat254[i],("Sat254_"+title).c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,VectH2NStripsSat255[i],("Sat255_"+title).c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,VectH2NStripsSat_Sat254[i],("Sat254_"+title+"Sat").c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,VectH2NStripsSat_Sat255[i],("Sat255_"+title+"Sat").c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectNStrip_h2EvQ_NoSat[i],("NoSat_"+title).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectNStrip_h2EvQ_Sat[i],("Sat_"+title).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectNStrip_h2EvQ_Sat254[i],("Sat254_"+title).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectNStrip_h2EvQ_Sat255[i],("Sat255_"+title).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectNStripSat_h2EvQ_254[i],("Sat254_"+title+"Sat").c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectNStripSat_h2EvQ_255[i],("Sat255_"+title+"Sat").c_str(),"E_{loss}","Q");
     }
 
     for(int i=0;i<4;i++)
     {
-        DrawHisto(*fileout,VectH2PartIDNoSat[i],("NoSat_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,VectH2PartIDSat[i],("Sat_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,VectH2PartIDSat254[i],("Sat254_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
-        DrawHisto(*fileout,VectH2PartIDSat255[i],("Sat255_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectPartID_h2EvQ_NoSat[i],("NoSat_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectPartID_h2EvQ_Sat[i],("Sat_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectPartID_h2EvQ_Sat254[i],("Sat254_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
+        DrawHisto(*fileout,VectPartID_h2EvQ_Sat255[i],("Sat255_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
     }
-    
+
+*/
+
+    for(int nstrip=1;nstrip<6;nstrip++)
+    {
+        TCanvas* cNStripNStripSat_h2prof = new TCanvas(("H2 & profile NStrip="+to_string(nstrip)+" | TOB1").c_str(),("H2 & profile NStrip="+to_string(nstrip)+" | TOB1").c_str());
+        TCanvas* cNStripNStripSat_h1 = new TCanvas(("H1 NStrip="+to_string(nstrip)+" | TOB1").c_str(),("H1 NStrip="+to_string(nstrip)+" | TOB1").c_str());
+        TLine* linexy = new TLine(0,0,0.0015,0.0015);
+        TLine* linesat254 = new TLine(0,254*(3.61*pow(10,-9)*247),0.0015,254*(3.61*pow(10,-9)*247));
+        linesat254->SetLineStyle(4);
+        linexy->SetLineStyle(3);
+        cNStripNStripSat_h2prof->Divide(2,nstrip);
+        cNStripNStripSat_h1->Divide(2,nstrip);
+        for(int nstripsat=0;nstripsat<nstrip;nstripsat++)
+        {
+            cNStripNStripSat_h2prof->cd(nstripsat+1);
+            SuperposedHisto2DProfile(*cNStripNStripSat_h2prof,VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat],VectNStrip_VectNStripSat_profEvQ[nstrip-1][nstripsat],("H2 & prof NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" | TOB1").c_str(),"E_{loss}","Q");
+            //VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat]->Draw("COLZ");
+            linexy->Draw("SAME");
+            linesat254->Draw("SAME");
+            cNStripNStripSat_h1->cd(nstripsat+1);
+            VectNStrip_VectNStripSat_h1EvQ[nstrip-1][nstripsat]->Draw();
+            //DrawHisto(*fileout,VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat],("H2 NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)).c_str(),"E_{loss}","Q");
+            //DrawHisto(*fileout,VectNStrip_VectNStripSat_h1EvQ[nstrip-1][nstripsat],("H1 NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)).c_str(),"E_{loss}");
+
+        }
+        cNStripNStripSat_h2prof->Write();
+        cNStripNStripSat_h1->Write();
+    }
 
     fileout->Write();
     fileout->Close();
