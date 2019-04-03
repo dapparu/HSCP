@@ -32,3 +32,4 @@ void DrawHisto(TFile &fileout,TH2F* histo,string title,string x_title="",string 
 void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string title="",string x_title="", string y_title="");
 void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title);
 void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title);
+bool SelectedArea(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4,float x,float y);

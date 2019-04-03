@@ -130,7 +130,7 @@ int main(int argc,char** argv){
         vector<TH2F*> VectNStripSat_h2EvQ;
         vector<TH1F*> VectNStripSat_h1EvQ;
         vector<TProfile*> VectNStripSat_profEvQ;
-        for(int j=0;j<i;j++)
+        for(int j=0;j<i+1;j++)
         {
             string str_i = to_string(i);
             string str_j = to_string(j);
@@ -228,8 +228,13 @@ int main(int argc,char** argv){
 
     TFile* fileout = new TFile(s2.c_str(),"RECREATE");
 
+    TH1F* h1EvQdr = new TH1F("1","1",200,-5,5);
+    TH1F* h1EvQcaldr = new TH1F("2","2",200,-5,5);
+    TH2F* h2EvQcal = new TH2F("h2","h2",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
 
-    int entries = 1000;
+
+
+    int entries = nentries; 
 
 
     bool testsat254 = false; 
@@ -268,6 +273,12 @@ int main(int argc,char** argv){
                 int nsat255         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStrip(255);
                 bool edge           = b1->GetVectTrack()[track].GetVectClusters()[cluster].Edge();
                 bool cut            = b1->GetVectTrack()[track].GetVectClusters()[cluster].Cut();
+
+                bool InArea = SelectedArea(402*pow(10,-6),314*pow(10,-6),402*pow(10,-6),354*pow(10,-6),1297*pow(10,-6),542*pow(10,-6),1297*pow(10,-6),597*pow(10,-6),eloss,charge);
+
+                float charge_recalib = charge;
+                if(InArea==true) charge_recalib = -(0.000255-charge)/0.2327;
+                
 
                 clust++;
 
@@ -327,7 +338,7 @@ int main(int argc,char** argv){
 
                 for(int nstrip=1;nstrip<6;nstrip++)
                 {
-                    for(int nstripsat=0;nstripsat<nstrip;nstripsat++)
+                    for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
                     {
                         if(nstrip==nstrips && nstripsat==nsat254 && nsat255==0) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
                         {
@@ -336,6 +347,12 @@ int main(int argc,char** argv){
                                 VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
                                 VectNStrip_VectNStripSat_h1EvQ[nstrip-1][nstripsat]->Fill(eloss/charge);
                                 VectNStrip_VectNStripSat_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                                if(nstrip==5 && nstripsat==1)
+                                {
+                                    h1EvQdr->Fill((charge-eloss)/eloss);
+                                    h1EvQcaldr->Fill((charge_recalib-eloss)/eloss);
+                                    h2EvQcal->Fill(eloss,charge_recalib);
+                                }
                             }
                         }
                     }
@@ -536,6 +553,14 @@ int main(int argc,char** argv){
 
     //TFitResultPtr rcalib = calibProf->Fit("pol1","S");
     TFitResultPtr calibGaus = calibh1->Fit("gaus","S");*/
+
+    fileout->Append(h2EvQcal);
+
+    TCanvas* cte = new TCanvas();
+    h1EvQdr->Draw();
+    h1EvQcaldr->SetLineColor(2);
+    h1EvQcaldr->Draw("SAME");
+    cte->Write();
 
     TCanvas* cPtPartID = new TCanvas("cPtPartID","cPtPartID",700,400);
     vector<string> VectLegend;
@@ -861,7 +886,7 @@ int main(int argc,char** argv){
         linexy->SetLineStyle(3);
         cNStripNStripSat_h2prof->Divide(2,nstrip);
         cNStripNStripSat_h1->Divide(2,nstrip);
-        for(int nstripsat=0;nstripsat<nstrip;nstripsat++)
+        for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
         {
             cNStripNStripSat_h2prof->cd(nstripsat+1);
             SuperposedHisto2DProfile(*cNStripNStripSat_h2prof,VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat],VectNStrip_VectNStripSat_profEvQ[nstrip-1][nstripsat],("H2 & prof NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" | TOB1").c_str(),"E_{loss}","Q");
@@ -870,7 +895,7 @@ int main(int argc,char** argv){
             linesat254->Draw("SAME");
             cNStripNStripSat_h1->cd(nstripsat+1);
             VectNStrip_VectNStripSat_h1EvQ[nstrip-1][nstripsat]->Draw();
-            //DrawHisto(*fileout,VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat],("H2 NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)).c_str(),"E_{loss}","Q");
+            DrawHisto(*fileout,VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat],("H2 NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)).c_str(),"E_{loss}","Q");
             //DrawHisto(*fileout,VectNStrip_VectNStripSat_h1EvQ[nstrip-1][nstripsat],("H1 NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)).c_str(),"E_{loss}");
 
         }
