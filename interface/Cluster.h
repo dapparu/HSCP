@@ -24,6 +24,7 @@ class Cluster{
 		bool sat255_;
 		vector<ClusterStrip>	VectStrips_;
 		vector<SimHit>	VectSimHits_;
+		int partid_;
 
 	public:	
 		
@@ -49,5 +50,7 @@ class Cluster{
 		TProfile& GetDistribStrip() const;
 		bool Edge() const;
 		bool Cut() const;
+		void SetPartId(int partid);
+		int GetPartId() const;
 
 };

@@ -15,6 +15,7 @@ Cluster::Cluster()
 	firstsclus_			= 0;
 	sat254_				= false;
 	sat255_				= false;
+	partid_				= 0;
 }
 
 Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,bool sat254,bool sat255,int firstsclus,const vector<ClusterStrip> &VectStrips,const vector<SimHit> &VectSimHits)
@@ -32,6 +33,7 @@ Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float elo
 	firstsclus_			= firstsclus;
 	VectStrips_			= VectStrips;
 	VectSimHits_ 		= VectSimHits;
+	partid_				= 0;
 }
 
 Cluster::~Cluster()
@@ -200,4 +202,14 @@ bool Cluster::Cut() const
 		}
 	}
 	return Cut_res;
+}
+
+int Cluster::GetPartId() const
+{
+	return partid_;
+}
+
+void Cluster::SetPartId(int partid)
+{
+	partid_ = partid;
 }

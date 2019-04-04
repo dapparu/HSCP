@@ -140,7 +140,7 @@ void Builder::GetEntry(int i)
         for(int itrack=0;itrack<ntracks;itrack++)
         {
 			//cout<<"track "<<itrack<<endl;
-            if(track_pt[itrack]>0 && track_p[itrack]>0 && track_chi2[itrack]<=5 && track_nvalidhits[itrack]>=8)
+            if(track_pt[itrack]>0 && track_p[itrack]>0 && track_chi2[itrack]<=5 && track_nvalidhits[itrack]>=8) //on applique des selections sur nos traces, des criteres de qualite
             {
                 vector<Cluster> VectClust;
                 for(int iclust=track_index_hit[itrack];iclust<track_index_hit[itrack]+track_nhits[itrack];iclust++)
@@ -164,8 +164,10 @@ void Builder::GetEntry(int i)
                         VectClust.push_back(clust1);
                     }
                 }
+				for(int iclust=track_index_hit[itrack];iclust<track_index_hit[itrack]+track_nhits[itrack];iclust++) VectClust[iclust].SetPartId(GetPartID(VectClust,ThresholdPartId_));
                 Track track1(track_pt[itrack],track_p[itrack],track_nhits[itrack],ndedxhits,VectClust);
-                if(VectClust.size()>=3) VectTrack_.push_back(track1);
+                if(VectClust.size()>=3) VectTrack_.push_back(track1); //on veut des traces avec minimum trois clusters 
+
             }
         }
     }
@@ -185,6 +187,17 @@ const vector<Track>& Builder::GetVectTrack() const
 {
 	return VectTrack_;
 }
+
+void Builder::SetThresholdPartId(float threshold)
+{
+	ThresholdPartId_ = threshold;
+}
+
+float Builder::GetThresholdPartId() const
+{
+	return ThresholdPartId_;
+}
+
 
 /*void Builder::SetCalibration(float factor,int entries)
 {

@@ -44,6 +44,7 @@ int main(int argc,char** argv){
     Builder* b1 = new Builder(chain);
     b1->SetBranchAdd();
     int nentries = b1->GetEntries();
+    b1->SetThresholdPartId(0);
 
     TH1F* hDiff_rel_ElossQ_tot = new TH1F("hDiff_rel_ElossQ_tot","hDiff_rel_ElossQ_tot",200,-1,5);
     TH1F* hDiff_rel_ElossQ_NoSat = new TH1F("hDiff_rel_ElossQ_NoSat","hDiff_rel_ElossQ_NoSat",200,-1,5);
@@ -276,6 +277,10 @@ int main(int argc,char** argv){
     TProfile* profNstrip5Sat1_254_3=new TProfile("profNstrip5Sat1_254_3","profNstrip5Sat1_254_3",50,0,1500*pow(10,-6),"");
     TProfile* profNstrip5Sat1_254_4=new TProfile("profNstrip5Sat1_254_4","profNstrip5Sat1_254_4",50,0,1500*pow(10,-6),"");
     TProfile* profNstrip5Sat1_254_5=new TProfile("profNstrip5Sat1_254_5","profNstrip5Sat1_254_5",50,0,1500*pow(10,-6),"");
+
+    TH2F* h2TestCutEdge = new TH2F("h2TestCutEdge","h2TestCutEdge",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+    TH1F* h1TestNoCutAndNoEdge = new TH1F("h1TestNoCutAndNoEdge","h1TestNoCutAndNoEdge",200,0,8);
+    TH1F* h1TestCutOrEdge = new TH1F("h1TestCutOrEdge","h1TestCutOrEdge",200,0,8);
 
 
 
@@ -607,6 +612,15 @@ int main(int argc,char** argv){
                         }
                     }
                 }
+                if(cut || edge) 
+                {
+                    h2TestCutEdge->Fill(eloss,charge);
+                    h1TestCutOrEdge->Fill(eloss/charge);
+                }
+                if(cut==false && edge==false)
+                {
+                    h1TestNoCutAndNoEdge->Fill(eloss/charge);
+                }
             }
 
             
@@ -704,6 +718,20 @@ int main(int argc,char** argv){
 
     //TFitResultPtr rcalib = calibProf->Fit("pol1","S");
     TFitResultPtr calibGaus = calibh1->Fit("gaus","S");*/
+
+    DrawHisto(*fileout,h2TestCutEdge,"Cut or Edge","E_{loss}","Q");
+    DrawHisto(*fileout,h1TestCutOrEdge,"Cut or edge","E/Q");
+
+    TCanvas* cTestCutEdge = new TCanvas("cTestCutEdge","cTestCutEdge");
+    vector<TH1F*> VectTestCutEdge;
+    VectTestCutEdge.push_back(h1TestNoCutAndNoEdge);
+    VectTestCutEdge.push_back(h1TestCutOrEdge);
+    vector<string> VectLegendTestCutEdge;
+    VectLegendTestCutEdge.push_back("No cut & no edge");
+    VectLegendTestCutEdge.push_back("Cut or edge");
+    DrawHistoNormalized(*cTestCutEdge,VectTestCutEdge,VectLegendTestCutEdge,"Test cut and edge","#frac{E_{loss}}{Q}");
+    cTestCutEdge->Write();
+
     
     TCanvas* cNStrip5Sat1_254_1=new TCanvas("cNStrip5Sat1_254_1","cNStrip5Sat1_254_1",700,400);
     SuperposedHisto2DProfile(*cNStrip5Sat1_254_1,h2NStrip5Sat1_254_1,profNstrip5Sat1_254_1,"NStrip=5 & NStripSat=1 | TOB1 | Selected Area | 0.0<P/M<0.2","E_{loss}","Q");

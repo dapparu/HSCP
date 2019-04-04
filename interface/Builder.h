@@ -4,6 +4,7 @@
 #include "TChain.h"
 
 #include "Track.h"
+#include "../interface/Labellizer.h"
 
 const int ngenpart_max = 226; //taille obtenue grace au MakeClass de root, applique sur le fichier merge.root (fusion des trois ntuples)
 const int ntracks_max = 216;//205;
@@ -18,6 +19,7 @@ class Builder{
 
 		TChain* chain_;
 		vector<Track> VectTrack_;
+		float ThresholdPartId_;
 
 		Int_t           runNumber;
    		Int_t           event;
@@ -90,6 +92,8 @@ class Builder{
 		int GetNtracks() const;///return the number of tracks of the current event
 		const vector<Track>& GetVectTrack() const;///return the tracks of the current event 
 		void SetCalibration(float factor,int entries);///loop on the tree and recalibration 
+		void SetThresholdPartId(float threshold);
+		float GetThresholdPartId() const;
 
 };
 
