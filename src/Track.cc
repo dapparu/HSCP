@@ -106,3 +106,13 @@ TCanvas& Track::GetProfCluster() const
 	}
 	return *c_track;
 }
+
+int Track::GetPartId() const
+{
+	return PartId_;
+}
+
+void Track::SetPartId(int PartId)
+{
+	PartId_ = PartId;
+}

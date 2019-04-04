@@ -17,6 +17,8 @@ Builder::Builder(TChain &chain)
 
     ntracks=0;
 
+	ThresholdPartId_ = 0.;
+
 	for(int i=0;i<ngenpart_max;i++){
 		gen_pdg[i]=0;
 		gen_pt[i]=0;
@@ -133,6 +135,7 @@ void Builder::SetBranchAdd()
 
 void Builder::GetEntry(int i)
 {
+	float ThresholdPartId=0;
 	VectTrack_.clear();
     chain_->GetEntry(i);
     if(ntracks>0)
@@ -164,10 +167,14 @@ void Builder::GetEntry(int i)
                         VectClust.push_back(clust1);
                     }
                 }
-				for(int iclust=track_index_hit[itrack];iclust<track_index_hit[itrack]+track_nhits[itrack];iclust++) VectClust[iclust].SetPartId(GetPartID(VectClust,ThresholdPartId_));
+				for(int iclust=0;iclust<VectClust.size();iclust++) VectClust[iclust].SetPartId(GetPartID(VectClust,ThresholdPartId));
                 Track track1(track_pt[itrack],track_p[itrack],track_nhits[itrack],ndedxhits,VectClust);
-                if(VectClust.size()>=3) VectTrack_.push_back(track1); //on veut des traces avec minimum trois clusters 
-
+				//cout<<ThresholdPartId_<<endl;
+                if(VectClust.size()>=3 && ThresholdPartId>=ThresholdPartId_) //on veut des traces avec minimum trois clusters et au minimum threshold% de meme partID
+				{
+					track1.SetPartId(VectClust[0].GetPartId());
+					VectTrack_.push_back(track1); 
+				} 
             }
         }
     }

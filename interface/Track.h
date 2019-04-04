@@ -16,6 +16,7 @@ class Track{
 		float				nhits_;
 		int					ndedxhits_;
 		vector<Cluster>		VectClusters_;
+		int 				PartId_;
 
 	public:
 
@@ -30,6 +31,7 @@ class Track{
 		int GetNSatClusterBoth() const;
 		const vector<Cluster>& GetVectClusters() const;
 		TCanvas& GetProfCluster() const;
-
+		int GetPartId() const;
+		void SetPartId(int partid);
 
 };

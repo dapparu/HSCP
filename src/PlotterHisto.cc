@@ -6,14 +6,14 @@ void DrawHisto(TFile &fileout,TH1F* histo,string title,string x_title)
 {
     histo->SetTitle(title.c_str());
     histo->GetXaxis()->SetTitle(x_title.c_str());
-    fileout.Append(histo);
+    histo->Write();
 }
 
 void DrawProfile(TFile &fileout,TProfile* prof,string title,string x_title)
 {
     prof->SetTitle(title.c_str());
     prof->GetXaxis()->SetTitle(x_title.c_str());
-    fileout.Append(prof);
+    prof->Write();
 }
 
 void DrawHisto(TFile &fileout,TH2F* histo,string title,string x_title,string y_title)
@@ -21,7 +21,7 @@ void DrawHisto(TFile &fileout,TH2F* histo,string title,string x_title,string y_t
     histo->SetTitle(title.c_str());
     histo->GetXaxis()->SetTitle(x_title.c_str());
     histo->GetYaxis()->SetTitle(y_title.c_str());
-    fileout.Append(histo);
+    histo->Write();
 }
 
 void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string title,string xtitle, string ytitle)
