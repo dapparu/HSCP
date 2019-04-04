@@ -8,14 +8,18 @@ SimHit::SimHit()
 	p_		= .0;
 	eloss_	= .0;
 	tof_	= .0;
+	xentry_	= .0;
+	xexit_	= .0;
 }
 
-SimHit::SimHit(int partId,float p,float eloss,float tof)
+SimHit::SimHit(int partId,float p,float eloss,float tof,float xentry,float xexit)
 {
 	partId_	= partId;
 	p_	= p;
 	eloss_	= eloss;
 	tof_	= tof;
+	xentry_	= xentry;
+	xexit_	= xexit;
 }
 
 SimHit::~SimHit()
@@ -40,4 +44,14 @@ float SimHit::GetEloss() const
 float SimHit::GetToF() const
 {
 	return tof_;
+}
+
+float SimHit::GetXentry() const
+{
+	return xentry_;
+}
+
+float SimHit::GetXexit() const
+{
+	return xexit_;
 }

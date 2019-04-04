@@ -57,6 +57,8 @@ Builder::Builder(TChain &chain)
 		simhit_p[i]=0;
 		simhit_eloss[i]=0;
 		simhit_tof[i]=0;
+		simhit_xentry[i]=0;
+		simhit_xexit[i]=0;
 	}
 }
 
@@ -155,7 +157,7 @@ void Builder::GetEntry(int i)
                         }
                         for(int isimhit=sclus_index_simhit[iclust];isimhit<sclus_index_simhit[iclust]+sclus_nsimhit[iclust];isimhit++)
                         {
-                            SimHit simhit1(simhit_pid[isimhit],simhit_p[isimhit],simhit_eloss[isimhit],simhit_tof[isimhit]);
+                            SimHit simhit1(simhit_pid[isimhit],simhit_p[isimhit],simhit_eloss[isimhit],simhit_tof[isimhit],simhit_xentry[isimhit],simhit_xexit[isimhit]);
                             VectSimHits.push_back(simhit1);
                         }
                         Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_firstsclus[iclust],VectStrips,VectSimHits);
@@ -184,7 +186,7 @@ const vector<Track>& Builder::GetVectTrack() const
 	return VectTrack_;
 }
 
-void Builder::SetCalibration(float factor,int entries)
+/*void Builder::SetCalibration(float factor,int entries)
 {
 	chain_->GetEntry(entries);
     if(ntracks>0)
@@ -221,4 +223,4 @@ void Builder::SetCalibration(float factor,int entries)
             }
         }
     }
-}
+}*/

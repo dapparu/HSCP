@@ -95,6 +95,9 @@ int main(int argc,char** argv){
     TH2F* h2RatioSatPartID254 = new TH2F("h2RatioSatPartID254","h2RatioSatPartID254",6,0,6,20,0,1.05);
     TProfile* profSatPartID254 = new TProfile("profSatPartID254","profSatPartID254",6,0,6,"");
 
+    TH2F* h2RatioSatPoverM254 = new TH2F("h2RatioSatPoverM254","h2RatioSatPoverM254",100,0,10,20,0,1.05);
+    TProfile* profSatPoverM254 = new TProfile("profSatPoverM254","profSatPoverM254",100,0,10,"");
+
     TH2F* h2RatioSatPt255 = new TH2F("h2RatioSatPt255","h2RatioSatPt255",100,0,3000,20,0,1.05);
     TProfile* profSatPt255 = new TProfile("profSatPt255","profSatPt255",100,0,3000,"");
 
@@ -103,6 +106,9 @@ int main(int argc,char** argv){
 
     TH2F* h2RatioSatPartID255 = new TH2F("h2RatioSatPartID255","h2RatioSatPartID255",6,0,6,20,0,1.05);
     TProfile* profSatPartID255 = new TProfile("profSatPartID255","profSatPartID255",6,0,6,"");
+
+    TH2F* h2RatioSatPoverM255 = new TH2F("h2RatioSatPoverM255","h2RatioSatPoverM255",100,0,10,20,0,1.05);
+    TProfile* profSatPoverM255 = new TProfile("profSatPoverM255","profSatPoverM255",100,0,10,"");
 
     vector<TH2F*> VectNStrip_h2EvQ_NoSat;
     vector<TH2F*> VectNStrip_h2EvQ_Sat;
@@ -122,28 +128,52 @@ int main(int argc,char** argv){
         VectNStripSat_h2EvQ_255.push_back(new TH2F(("Sat255NstripsSat_"+str_i).c_str(),("Sat255NstripsSat_"+str_i).c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6)));
     }
 
-    vector<vector<TH2F*>> VectNStrip_VectNStripSat_h2EvQ;
-    vector<vector<TH1F*>> VectNStrip_VectNStripSat_h1EvQ;
-    vector<vector<TProfile*>> VectNStrip_VectNStripSat_profEvQ;
+    vector<vector<TH2F*>> VectNStrip_VectNStripSat254_h2EvQ;
+    vector<vector<TH1F*>> VectNStrip_VectNStripSat254_h1EvQ;
+    vector<vector<TProfile*>> VectNStrip_VectNStripSat254_profEvQ;
     for(int i=1;i<6;i++)
     {
-        vector<TH2F*> VectNStripSat_h2EvQ;
-        vector<TH1F*> VectNStripSat_h1EvQ;
-        vector<TProfile*> VectNStripSat_profEvQ;
+        vector<TH2F*> VectNStripSat254_h2EvQ;
+        vector<TH1F*> VectNStripSat254_h1EvQ;
+        vector<TProfile*> VectNStripSat254_profEvQ;
         for(int j=0;j<i+1;j++)
         {
             string str_i = to_string(i);
             string str_j = to_string(j);
-            TH2F* h2EvQVectVect = new TH2F(("H2 NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),("H2 NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
-            TH1F* h1EvQVectVect = new TH1F(("H1 NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),("H1 NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),200,0,8);
-            TProfile* profEvQVectVect = new TProfile(("prof NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),("prof NStrip="+str_i+" & NStripSat="+str_j+" | TOB1").c_str(),50,0,1500*pow(10,-6));
-            VectNStripSat_h2EvQ.push_back(h2EvQVectVect);
-            VectNStripSat_h1EvQ.push_back(h1EvQVectVect);
-            VectNStripSat_profEvQ.push_back(profEvQVectVect);
+            TH2F* h2EvQVectVect = new TH2F(("H2 NStrip="+str_i+" & NStripSat254="+str_j+" | TOB1").c_str(),("H2 NStrip="+str_i+" & NStripSat254="+str_j+" | TOB1").c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+            TH1F* h1EvQVectVect = new TH1F(("H1 NStrip="+str_i+" & NStripSat254="+str_j+" | TOB1").c_str(),("H1 NStrip="+str_i+" & NStripSat254="+str_j+" | TOB1").c_str(),200,0,8);
+            TProfile* profEvQVectVect = new TProfile(("prof NStrip="+str_i+" & NStripSat254="+str_j+" | TOB1").c_str(),("prof NStrip="+str_i+" & NStripSat254="+str_j+" | TOB1").c_str(),50,0,1500*pow(10,-6));
+            VectNStripSat254_h2EvQ.push_back(h2EvQVectVect);
+            VectNStripSat254_h1EvQ.push_back(h1EvQVectVect);
+            VectNStripSat254_profEvQ.push_back(profEvQVectVect);
         }
-        VectNStrip_VectNStripSat_h2EvQ.push_back(VectNStripSat_h2EvQ);
-        VectNStrip_VectNStripSat_h1EvQ.push_back(VectNStripSat_h1EvQ);
-        VectNStrip_VectNStripSat_profEvQ.push_back(VectNStripSat_profEvQ);
+        VectNStrip_VectNStripSat254_h2EvQ.push_back(VectNStripSat254_h2EvQ);
+        VectNStrip_VectNStripSat254_h1EvQ.push_back(VectNStripSat254_h1EvQ);
+        VectNStrip_VectNStripSat254_profEvQ.push_back(VectNStripSat254_profEvQ);
+    }
+
+    vector<vector<TH2F*>> VectNStrip_VectNStripSat255_h2EvQ;
+    vector<vector<TH1F*>> VectNStrip_VectNStripSat255_h1EvQ;
+    vector<vector<TProfile*>> VectNStrip_VectNStripSat255_profEvQ;
+    for(int i=1;i<6;i++)
+    {
+        vector<TH2F*> VectNStripSat255_h2EvQ;
+        vector<TH1F*> VectNStripSat255_h1EvQ;
+        vector<TProfile*> VectNStripSat255_profEvQ;
+        for(int j=0;j<i+1;j++)
+        {
+            string str_i = to_string(i);
+            string str_j = to_string(j);
+            TH2F* h2EvQVectVect = new TH2F(("H2 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),("H2 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6));
+            TH1F* h1EvQVectVect = new TH1F(("H1 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),("H1 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),200,0,8);
+            TProfile* profEvQVectVect = new TProfile(("prof NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),("prof NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),50,0,3000*pow(10,-6));
+            VectNStripSat255_h2EvQ.push_back(h2EvQVectVect);
+            VectNStripSat255_h1EvQ.push_back(h1EvQVectVect);
+            VectNStripSat255_profEvQ.push_back(profEvQVectVect);
+        }
+        VectNStrip_VectNStripSat255_h2EvQ.push_back(VectNStripSat255_h2EvQ);
+        VectNStrip_VectNStripSat255_h1EvQ.push_back(VectNStripSat255_h1EvQ);
+        VectNStrip_VectNStripSat255_profEvQ.push_back(VectNStripSat255_profEvQ);
     }
     
     vector<TH2F*> VectPartID_h2EvQ_NoSat;
@@ -232,6 +262,21 @@ int main(int argc,char** argv){
     TH1F* h1EvQcaldr = new TH1F("2","2",200,-5,5);
     TH2F* h2EvQcal = new TH2F("h2","h2",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
 
+    TH1F* hdeltax1 = new TH1F("hdeltax1","hdeltax1",200,0,0.1);
+    TH1F* hdeltax2 = new TH1F("hdeltax2","hdeltax2",200,0,0.1);
+
+    TH2F* h2NStrip5Sat1_254_1=new TH2F("h2NStrip5Sat1_254_1","h2NStrip5Sat1_254_1",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+    TH2F* h2NStrip5Sat1_254_2=new TH2F("h2NStrip5Sat1_254_2","h2NStrip5Sat1_254_2",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+    TH2F* h2NStrip5Sat1_254_3=new TH2F("h2NStrip5Sat1_254_3","h2NStrip5Sat1_254_3",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+    TH2F* h2NStrip5Sat1_254_4=new TH2F("h2NStrip5Sat1_254_4","h2NStrip5Sat1_254_4",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+    TH2F* h2NStrip5Sat1_254_5=new TH2F("h2NStrip5Sat1_254_5","h2NStrip5Sat1_254_5",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+
+    TProfile* profNstrip5Sat1_254_1=new TProfile("profNstrip5Sat1_254_1","profNstrip5Sat1_254_1",50,0,1500*pow(10,-6),"");
+    TProfile* profNstrip5Sat1_254_2=new TProfile("profNstrip5Sat1_254_2","profNstrip5Sat1_254_2",50,0,1500*pow(10,-6),"");
+    TProfile* profNstrip5Sat1_254_3=new TProfile("profNstrip5Sat1_254_3","profNstrip5Sat1_254_3",50,0,1500*pow(10,-6),"");
+    TProfile* profNstrip5Sat1_254_4=new TProfile("profNstrip5Sat1_254_4","profNstrip5Sat1_254_4",50,0,1500*pow(10,-6),"");
+    TProfile* profNstrip5Sat1_254_5=new TProfile("profNstrip5Sat1_254_5","profNstrip5Sat1_254_5",50,0,1500*pow(10,-6),"");
+
 
 
     int entries = nentries; 
@@ -277,7 +322,17 @@ int main(int argc,char** argv){
                 bool InArea = SelectedArea(402*pow(10,-6),314*pow(10,-6),402*pow(10,-6),354*pow(10,-6),1297*pow(10,-6),542*pow(10,-6),1297*pow(10,-6),597*pow(10,-6),eloss,charge);
 
                 float charge_recalib = charge;
-                if(InArea==true) charge_recalib = -(0.000255-charge)/0.2327;
+                //charge_recalib      = -(0.000255-charge)/0.2327;
+
+                int thickness       = GetThickness(layerLabel);
+                int pitch           = GetPitch(layerLabel);
+
+                //float PredClusterWidth  = ((float)thickness/(float)pitch)*abs(tan(0.02)+)
+
+                /*float xentry        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits()[0].GetXentry();
+                float xexit         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits()[0].GetXexit();
+
+                float deltax        = abs(xentry-xexit);*/
                 
 
                 clust++;
@@ -336,7 +391,7 @@ int main(int argc,char** argv){
                     
                 }
 
-                for(int nstrip=1;nstrip<6;nstrip++)
+                /*for(int nstrip=1;nstrip<6;nstrip++)
                 {
                     for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
                     {
@@ -344,15 +399,32 @@ int main(int argc,char** argv){
                         {
                             if(layerLabel==5 && cut==false && edge==false)
                             {
-                                VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
-                                VectNStrip_VectNStripSat_h1EvQ[nstrip-1][nstripsat]->Fill(eloss/charge);
-                                VectNStrip_VectNStripSat_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                                VectNStrip_VectNStripSat254_h2EvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                                VectNStrip_VectNStripSat254_h1EvQ[nstrip-1][nstripsat]->Fill(eloss/charge);
+                                VectNStrip_VectNStripSat254_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
                                 if(nstrip==5 && nstripsat==1)
                                 {
                                     h1EvQdr->Fill((charge-eloss)/eloss);
-                                    h1EvQcaldr->Fill((charge_recalib-eloss)/eloss);
+                                    //h1EvQcaldr->Fill((charge_recalib-eloss)/eloss);
                                     h2EvQcal->Fill(eloss,charge_recalib);
+                                    if(InArea) hdeltax1->Fill(deltax);
+                                    else hdeltax2->Fill(deltax);
                                 }
+                            }
+                        }
+                    }
+                }*/
+                for(int nstrip=1;nstrip<6;nstrip++)
+                {
+                    for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
+                    {
+                        if(nstrip==nstrips && nstripsat==nsat255 && nsat254==0) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
+                        {
+                            if(layerLabel==5 && cut==false && edge==false)
+                            {
+                                VectNStrip_VectNStripSat255_h2EvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                                VectNStrip_VectNStripSat255_h1EvQ[nstrip-1][nstripsat]->Fill(eloss/charge);
+                                VectNStrip_VectNStripSat255_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
                             }
                         }
                     }
@@ -453,6 +525,9 @@ int main(int argc,char** argv){
                 }
             }
             
+            float RatioNClusterSat254 = (double)NClustSat254/(double)NCluster;
+            float RatioNClusterSat255 = (double)NClustSat255/(double)NCluster;
+
             hPt_tot->Fill(pt);
             hNClusterPerTrack->Fill(NCluster);
             hNClusterSat254PerTrack->Fill(NClustSat254);
@@ -463,6 +538,78 @@ int main(int argc,char** argv){
             float threshold=0;
 
             int id=GetPartID(b1->GetVectTrack()[track].GetVectClusters(),threshold);
+
+            float PoverM = GetPoverM(p,id);
+
+            for(int clus=0;clus<b1->GetVectTrack()[track].GetNCluster();clus++)
+            {
+                float charge        = b1->GetVectTrack()[track].GetVectClusters()[clus].GetSclusCharge();
+                float eloss         = b1->GetVectTrack()[track].GetVectClusters()[clus].GetEloss();
+                int layer           = b1->GetVectTrack()[track].GetVectClusters()[clus].GetLayer();
+                int layerLabel      = b1->GetVectTrack()[track].GetVectClusters()[clus].GetLayerLabel();
+                bool sat254         = b1->GetVectTrack()[track].GetVectClusters()[clus].GetSat254();
+                bool sat255         = b1->GetVectTrack()[track].GetVectClusters()[clus].GetSat255();
+                int nsimhits        = b1->GetVectTrack()[track].GetVectClusters()[clus].GetNSimHits();
+                int nstrips         = b1->GetVectTrack()[track].GetVectClusters()[clus].GetNStrip();
+                int nsatboth        = b1->GetVectTrack()[track].GetVectClusters()[clus].GetNSatStripBoth();
+                int nsat254         = b1->GetVectTrack()[track].GetVectClusters()[clus].GetNSatStrip(254);
+                int nsat255         = b1->GetVectTrack()[track].GetVectClusters()[clus].GetNSatStrip(255);
+                bool edge           = b1->GetVectTrack()[track].GetVectClusters()[clus].Edge();
+                bool cut            = b1->GetVectTrack()[track].GetVectClusters()[clus].Cut();
+                float charge_recalib = charge;
+                bool InArea = SelectedArea(402*pow(10,-6),314*pow(10,-6),402*pow(10,-6),354*pow(10,-6),1297*pow(10,-6),542*pow(10,-6),1297*pow(10,-6),597*pow(10,-6),eloss,charge);
+                if(RatioNClusterSat254>0.3) charge_recalib = -(0.000255-charge)/0.2327;
+                for(int nstrip=1;nstrip<6;nstrip++)
+                {
+                    for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
+                    {
+                        if(nstrip==nstrips && nstripsat==nsat254 && nsat255==0) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
+                        {
+                            if(layerLabel==5 && cut==false && edge==false)
+                            {
+                                VectNStrip_VectNStripSat254_h2EvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                                VectNStrip_VectNStripSat254_h1EvQ[nstrip-1][nstripsat]->Fill(eloss/charge);
+                                VectNStrip_VectNStripSat254_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                                if(nstrip==5 && nstripsat==1)
+                                {
+                                    h1EvQdr->Fill((charge-eloss)/eloss);
+                                    h1EvQcaldr->Fill((charge_recalib-eloss)/eloss);
+                                    h2EvQcal->Fill(eloss,charge_recalib);
+                                    //if(InArea) hdeltax1->Fill(deltax);
+                                    //else hdeltax2->Fill(deltax);
+                                    if(0.0<PoverM<=0.2)
+                                    {
+                                        h2NStrip5Sat1_254_1->Fill(eloss,charge);
+                                        profNstrip5Sat1_254_1->Fill(eloss,charge);
+                                    }
+                                    if(0.2<PoverM<=0.4) 
+                                    {
+                                        h2NStrip5Sat1_254_2->Fill(eloss,charge);
+                                        profNstrip5Sat1_254_2->Fill(eloss,charge);
+                                    }
+                                    if(0.4<PoverM<=0.6) 
+                                    {
+                                        h2NStrip5Sat1_254_3->Fill(eloss,charge);
+                                        profNstrip5Sat1_254_3->Fill(eloss,charge);
+                                    }
+                                    if(0.6<PoverM<=0.8) 
+                                    {
+                                        h2NStrip5Sat1_254_4->Fill(eloss,charge);
+                                        profNstrip5Sat1_254_4->Fill(eloss,charge);
+                                    }
+                                    if(0.8<PoverM<=1.0) 
+                                    {
+                                        h2NStrip5Sat1_254_5->Fill(eloss,charge);
+                                        profNstrip5Sat1_254_5->Fill(eloss,charge);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            
             
             if(id==2212 || id==-2212) 
             {
@@ -511,6 +658,8 @@ int main(int argc,char** argv){
             profSatPt254->Fill(pt,(double)NClustSat254/(double)NCluster);
             h2RatioSatPartID254->Fill(ReBinPartID(id),(double)NClustSat254/(double)NCluster);
             profSatPartID254->Fill(ReBinPartID(id),(double)NClustSat254/(double)NCluster);
+            h2RatioSatPoverM254->Fill(PoverM,(double)NClustSat254/(double)NCluster);
+            profSatPoverM254->Fill(PoverM,(double)NClustSat254/(double)NCluster);
 
             h2RatioSatEloss255->Fill(estim.GetMean(),(double)NClustSat255/(double)NCluster);
             profSatEloss255->Fill(estim.GetMean(),(double)NClustSat255/(double)NCluster);
@@ -518,6 +667,8 @@ int main(int argc,char** argv){
             profSatPt255->Fill(pt,(double)NClustSat255/(double)NCluster);
             h2RatioSatPartID255->Fill(ReBinPartID(id),(double)NClustSat255/(double)NCluster);
             profSatPartID255->Fill(ReBinPartID(id),(double)NClustSat255/(double)NCluster);
+            h2RatioSatPoverM255->Fill(PoverM,(double)NClustSat255/(double)NCluster);
+            profSatPoverM255->Fill(PoverM,(double)NClustSat255/(double)NCluster);
 
             /*if(testsat254 && testsat255 )//&& b1->GetVectTrack()[track].GetVectClusters().size() <=3)
             {
@@ -553,6 +704,28 @@ int main(int argc,char** argv){
 
     //TFitResultPtr rcalib = calibProf->Fit("pol1","S");
     TFitResultPtr calibGaus = calibh1->Fit("gaus","S");*/
+    
+    TCanvas* cNStrip5Sat1_254_1=new TCanvas("cNStrip5Sat1_254_1","cNStrip5Sat1_254_1",700,400);
+    SuperposedHisto2DProfile(*cNStrip5Sat1_254_1,h2NStrip5Sat1_254_1,profNstrip5Sat1_254_1,"NStrip=5 & NStripSat=1 | TOB1 | Selected Area | 0.0<P/M<0.2","E_{loss}","Q");
+    cNStrip5Sat1_254_1->Write();
+    TCanvas* cNStrip5Sat1_254_2=new TCanvas("cNStrip5Sat1_254_2","cNStrip5Sat1_254_2",700,400);
+    SuperposedHisto2DProfile(*cNStrip5Sat1_254_2,h2NStrip5Sat1_254_2,profNstrip5Sat1_254_2,"NStrip=5 & NStripSat=1 | TOB1 | Selected Area | 0.2<P/M<0.4","E_{loss}","Q");
+    cNStrip5Sat1_254_2->Write();
+    TCanvas* cNStrip5Sat1_254_3=new TCanvas("cNStrip5Sat1_254_3","cNStrip5Sat1_254_3",700,400);
+    SuperposedHisto2DProfile(*cNStrip5Sat1_254_3,h2NStrip5Sat1_254_3,profNstrip5Sat1_254_3,"NStrip=5 & NStripSat=1 | TOB1 | Selected Area | 0.4<P/M<0.6","E_{loss}","Q");
+    cNStrip5Sat1_254_3->Write();
+    TCanvas* cNStrip5Sat1_254_4=new TCanvas("cNStrip5Sat1_254_4","cNStrip5Sat1_254_4",700,400);
+    SuperposedHisto2DProfile(*cNStrip5Sat1_254_4,h2NStrip5Sat1_254_4,profNstrip5Sat1_254_4,"NStrip=5 & NStripSat=1 | TOB1 | Selected Area | 0.6<P/M<0.8","E_{loss}","Q");
+    cNStrip5Sat1_254_4->Write();
+    TCanvas* cNStrip5Sat1_254_5=new TCanvas("cNStrip5Sat1_254_5","cNStrip5Sat1_254_5",700,400);
+    SuperposedHisto2DProfile(*cNStrip5Sat1_254_5,h2NStrip5Sat1_254_5,profNstrip5Sat1_254_5,"NStrip=5 & NStripSat=1 | TOB1 | Selected Area | 0.8<P/M<1.0","E_{loss}","Q");
+    cNStrip5Sat1_254_5->Write();
+
+    fileout->Append(h2NStrip5Sat1_254_1);
+    fileout->Append(h2NStrip5Sat1_254_2);
+    fileout->Append(h2NStrip5Sat1_254_3);
+    fileout->Append(h2NStrip5Sat1_254_4);
+    fileout->Append(h2NStrip5Sat1_254_5);
 
     fileout->Append(h2EvQcal);
 
@@ -656,6 +829,13 @@ int main(int argc,char** argv){
     h2RatioSatPartID255->SetMaximum(800);
     canvas_RatioSatPartID255->Write();
 
+    TCanvas* cRatioSatPoverM_254 = new TCanvas("cRatioSatPoverM_254","cRatioSatPoverM_254");
+    SuperposedHisto2DProfile(*cRatioSatPoverM_254,h2RatioSatPoverM254,profSatPoverM254,"Frac Sat254 = f(P/M)","P/M","#frac{#ClustSat}{#Clust}");
+    cRatioSatPoverM_254->Write();
+
+    TCanvas* cRatioSatPoverM_255 = new TCanvas("cRatioSatPoverM_255","cRatioSatPoverM_255");
+    SuperposedHisto2DProfile(*cRatioSatPoverM_255,h2RatioSatPoverM255,profSatPoverM255,"Frac Sat255 = f(P/M)","P/M","#frac{#ClustSat}{#Clust}");
+    cRatioSatPoverM_255->Write();
 
     DrawHisto(*fileout,hDiff_rel_ElossQ_tot,"Difference relative","(E-Q)/Q");
     DrawHisto(*fileout,hDiff_rel_ElossQ_NoSat,"Difference relative","(E-Q)/Q");
@@ -709,8 +889,6 @@ int main(int argc,char** argv){
 
     float rat254 = (float)clustsat254/(float)clust;
     float rat255 = (float)clustsat255/(float)clust;
-    cout<<"rat254 "<<rat254<<endl;
-    cout<<"rat255 "<<rat255<<endl;
     TLine* line254 = new TLine(0,rat254,21,rat254);
     TLine* line255 = new TLine(0,rat255,21,rat255);
 
@@ -806,7 +984,7 @@ int main(int argc,char** argv){
     canvas_EvQ_Ratio->Write();
 
 // ------------------------------------------
-
+/*
 // ------------------------------------------ Fit E/Q
 
     TF1* f_RatioEvQ = new TF1("f_RatioEvQ","gaus(0)+gaus(3)+gaus(6)+[11]*TMath::Landau(x,[9],[10])",0,8);
@@ -827,7 +1005,7 @@ int main(int argc,char** argv){
     TFitResultPtr Fit_Profile_EvQ_NoSat = profElossVsQ_NoSat->Fit("pol1","S","",0.2*pow(10,-3),0.5*pow(10,-3));
 
 // ------------------------------------------
-
+*/
 
 /*    for(int i=0;i<21;i++)
     {
@@ -864,7 +1042,7 @@ int main(int argc,char** argv){
         DrawHisto(*fileout,VectNStrip_h2EvQ_Sat255[i],("Sat255_"+title).c_str(),"E_{loss}","Q");
         DrawHisto(*fileout,VectNStripSat_h2EvQ_254[i],("Sat254_"+title+"Sat").c_str(),"E_{loss}","Q");
         DrawHisto(*fileout,VectNStripSat_h2EvQ_255[i],("Sat255_"+title+"Sat").c_str(),"E_{loss}","Q");
-    }
+    }*/
 
     for(int i=0;i<4;i++)
     {
@@ -874,34 +1052,113 @@ int main(int argc,char** argv){
         DrawHisto(*fileout,VectPartID_h2EvQ_Sat255[i],("Sat255_"+LoopPartID(i+1)).c_str(),"E_{loss}","Q");
     }
 
-*/
+
+    TLine* linexy = new TLine(0,0,0.0015,0.0015);
 
     for(int nstrip=1;nstrip<6;nstrip++)
     {
-        TCanvas* cNStripNStripSat_h2prof = new TCanvas(("H2 & profile NStrip="+to_string(nstrip)+" | TOB1").c_str(),("H2 & profile NStrip="+to_string(nstrip)+" | TOB1").c_str());
-        TCanvas* cNStripNStripSat_h1 = new TCanvas(("H1 NStrip="+to_string(nstrip)+" | TOB1").c_str(),("H1 NStrip="+to_string(nstrip)+" | TOB1").c_str());
-        TLine* linexy = new TLine(0,0,0.0015,0.0015);
+        TCanvas* cNStripNStripSat254_h2prof = new TCanvas(("H2 & profile NStrip="+to_string(nstrip)+" | Sat254 | TOB1").c_str(),("H2 & profile NStrip="+to_string(nstrip)+" | Sat254 | TOB1").c_str());
+        TCanvas* cNStripNStripSat254_h1 = new TCanvas(("H1 NStrip="+to_string(nstrip)+" | Sat254 | TOB1").c_str(),("H1 NStrip="+to_string(nstrip)+" | Sat254 | TOB1").c_str());
         TLine* linesat254 = new TLine(0,254*(3.61*pow(10,-9)*247),0.0015,254*(3.61*pow(10,-9)*247));
+        TLine* linesat254times2 = new TLine(0,2*254*(3.61*pow(10,-9)*247),0.0015,2*254*(3.61*pow(10,-9)*247));
+        TLine* linesat254times3 = new TLine(0,3*254*(3.61*pow(10,-9)*247),0.0015,3*254*(3.61*pow(10,-9)*247));
+        TLine* linesat254times4 = new TLine(0,4*254*(3.61*pow(10,-9)*247),0.0015,4*254*(3.61*pow(10,-9)*247));
         linesat254->SetLineStyle(4);
+        linesat254times2->SetLineStyle(4);
+        linesat254times3->SetLineStyle(4);
+        linesat254times4->SetLineStyle(4);
         linexy->SetLineStyle(3);
-        cNStripNStripSat_h2prof->Divide(2,nstrip);
-        cNStripNStripSat_h1->Divide(2,nstrip);
+        if(nstrip==1)
+        {
+            cNStripNStripSat254_h2prof->Divide(2,1);
+            cNStripNStripSat254_h1->Divide(2,1);
+        }
+        if(nstrip==2 || nstrip==3)
+        {
+            cNStripNStripSat254_h2prof->Divide(2,2);
+            cNStripNStripSat254_h1->Divide(2,2);
+        }
+        if(nstrip==4 || nstrip==5)
+        {
+            cNStripNStripSat254_h2prof->Divide(2,3);
+            cNStripNStripSat254_h1->Divide(2,3);
+        }
         for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
         {
-            cNStripNStripSat_h2prof->cd(nstripsat+1);
-            SuperposedHisto2DProfile(*cNStripNStripSat_h2prof,VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat],VectNStrip_VectNStripSat_profEvQ[nstrip-1][nstripsat],("H2 & prof NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" | TOB1").c_str(),"E_{loss}","Q");
-            //VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat]->Draw("COLZ");
+            cNStripNStripSat254_h2prof->cd(nstripsat+1);
+            SuperposedHisto2DProfile(*cNStripNStripSat254_h2prof,VectNStrip_VectNStripSat254_h2EvQ[nstrip-1][nstripsat],VectNStrip_VectNStripSat254_profEvQ[nstrip-1][nstripsat],("H2 & prof NStrip="+to_string(nstrip)+" & NStripSat254="+to_string(nstripsat)+" | TOB1").c_str(),"E_{loss}","Q");
+            //VectNStrip_VectNStripSat254_h2EvQ[nstrip-1][nstripsat]->Draw("COLZ");
             linexy->Draw("SAME");
-            linesat254->Draw("SAME");
-            cNStripNStripSat_h1->cd(nstripsat+1);
-            VectNStrip_VectNStripSat_h1EvQ[nstrip-1][nstripsat]->Draw();
-            DrawHisto(*fileout,VectNStrip_VectNStripSat_h2EvQ[nstrip-1][nstripsat],("H2 NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)).c_str(),"E_{loss}","Q");
-            //DrawHisto(*fileout,VectNStrip_VectNStripSat_h1EvQ[nstrip-1][nstripsat],("H1 NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)).c_str(),"E_{loss}");
+            if(nstripsat>=0)linesat254->Draw("SAME");
+            if(nstripsat>=2)linesat254times2->Draw("SAME");
+            if(nstripsat>=3)linesat254times3->Draw("SAME");
+            if(nstripsat>=4)linesat254times4->Draw("SAME");
+            cNStripNStripSat254_h1->cd(nstripsat+1);
+            VectNStrip_VectNStripSat254_h1EvQ[nstrip-1][nstripsat]->Draw();
+            DrawHisto(*fileout,VectNStrip_VectNStripSat254_h2EvQ[nstrip-1][nstripsat],("H2 NStrip="+to_string(nstrip)+" & NStripSat254="+to_string(nstripsat)).c_str(),"E_{loss}","Q");
+            //DrawHisto(*fileout,VectNStrip_VectNStripSat254_h1EvQ[nstrip-1][nstripsat],("H1 NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)).c_str(),"E_{loss}");
 
         }
-        cNStripNStripSat_h2prof->Write();
-        cNStripNStripSat_h1->Write();
+        cNStripNStripSat254_h2prof->Write();
+        cNStripNStripSat254_h1->Write();
     }
+
+    for(int nstrip=1;nstrip<6;nstrip++)
+    {
+        TCanvas* cNStripNStripSat255_h2prof = new TCanvas(("H2 & profile NStrip="+to_string(nstrip)+" | Sat255 | TOB1").c_str(),("H2 & profile NStrip="+to_string(nstrip)+" | Sat255 | TOB1").c_str());
+        TCanvas* cNStripNStripSat255_h1 = new TCanvas(("H1 NStrip="+to_string(nstrip)+" | Sat255 | TOB1").c_str(),("H1 NStrip="+to_string(nstrip)+" | Sat255 | TOB1").c_str());
+        TLine* linesat255 = new TLine(0,255*(3.61*pow(10,-9)*247),0.0015,255*(3.61*pow(10,-9)*247));
+        TLine* linesat255times2 = new TLine(0,2*255*(3.61*pow(10,-9)*247),0.0015,2*255*(3.61*pow(10,-9)*247));
+        TLine* linesat255times3 = new TLine(0,3*255*(3.61*pow(10,-9)*247),0.0015,3*255*(3.61*pow(10,-9)*247));
+        TLine* linesat255times4 = new TLine(0,4*255*(3.61*pow(10,-9)*247),0.0015,4*255*(3.61*pow(10,-9)*247));
+        linesat255->SetLineStyle(4);
+        linesat255times2->SetLineStyle(4);
+        linesat255times3->SetLineStyle(4);
+        linesat255times4->SetLineStyle(4);
+        linexy->SetLineStyle(3);
+        if(nstrip==1)
+        {
+            cNStripNStripSat255_h2prof->Divide(2,1);
+            cNStripNStripSat255_h1->Divide(2,1);
+        }
+        if(nstrip==2 || nstrip==3)
+        {
+            cNStripNStripSat255_h2prof->Divide(2,2);
+            cNStripNStripSat255_h1->Divide(2,2);
+        }
+        if(nstrip==4 || nstrip==5)
+        {
+            cNStripNStripSat255_h2prof->Divide(2,3);
+            cNStripNStripSat255_h1->Divide(2,3);
+        }
+        for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
+        {
+            cNStripNStripSat255_h2prof->cd(nstripsat+1);
+            SuperposedHisto2DProfile(*cNStripNStripSat255_h2prof,VectNStrip_VectNStripSat255_h2EvQ[nstrip-1][nstripsat],VectNStrip_VectNStripSat255_profEvQ[nstrip-1][nstripsat],("H2 & prof NStrip="+to_string(nstrip)+" & NStripSat255="+to_string(nstripsat)+" | TOB1").c_str(),"E_{loss}","Q");
+            //VectNStrip_VectNStripSat255_h2EvQ[nstrip-1][nstripsat]->Draw("COLZ");
+            linexy->Draw("SAME");
+            if(nstripsat>=0) linesat255->Draw("SAME");
+            if(nstripsat>=2) linesat255times2->Draw("SAME");
+            if(nstripsat>=3) linesat255times3->Draw("SAME");
+            if(nstripsat>=4) linesat255times4->Draw("SAME");
+            cNStripNStripSat255_h1->cd(nstripsat+1);
+            VectNStrip_VectNStripSat255_h1EvQ[nstrip-1][nstripsat]->Draw();
+            DrawHisto(*fileout,VectNStrip_VectNStripSat255_h2EvQ[nstrip-1][nstripsat],("H2 NStrip="+to_string(nstrip)+" & NStripSat255="+to_string(nstripsat)).c_str(),"E_{loss}","Q");
+            //DrawHisto(*fileout,VectNStrip_VectNStripSat255_h1EvQ[nstrip-1][nstripsat],("H1 NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)).c_str(),"E_{loss}");
+
+        }
+        cNStripNStripSat255_h2prof->Write();
+        cNStripNStripSat255_h1->Write();
+    }
+
+    TCanvas* cdeltax = new TCanvas();
+    hdeltax1->Scale(1./hdeltax1->Integral());
+    hdeltax2->Scale(1./hdeltax2->Integral());
+    hdeltax1->Draw();
+    hdeltax2->SetLineColor(2);
+    hdeltax2->Draw("SAME");
+    cdeltax->Write();
+
 
     fileout->Write();
     fileout->Close();

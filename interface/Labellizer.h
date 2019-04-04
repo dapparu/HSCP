@@ -37,3 +37,5 @@ int GetPartID(const vector<Cluster> &VectClust,float &threshold);
 int ReBinPartID(int i);
 float GetPoverM(float p,int i);
 string LoopPartID(int i);
+int GetThickness(int layerLabel);
+int GetPitch(int layerLabel);

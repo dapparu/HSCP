@@ -111,7 +111,7 @@ int Cluster::GetLayerLabel() const
 int Cluster::GetNStripLayer(int layerlabel) const
 {
 	if(layerlabel==1 || layerlabel==2 || layerlabel==9 || layerlabel==10) return 768;
-	if(layerlabel==3 || layerlabel==4 || layerlabel==7 || layerlabel==8) return 512;
+	if(layerlabel==3 || layerlabel==4 || layerlabel==7 || layerlabel==8) return 512; //bien traite pour le barrel --> refaire pour les caps
 	else return 0;
 }
 

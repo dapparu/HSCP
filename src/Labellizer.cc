@@ -179,3 +179,19 @@ string LoopPartID(int i)
     if(i==3) return "R^{+}_{#tilde{g}u#bar{d}}";
     else if(i==4) return "R^{+}";
 }
+
+int GetThickness(int layerLabel)
+{
+    if(layerLabel==1 || layerLabel==2) return 80; //en um
+    if(layerLabel==3 || layerLabel==4) return 120;
+    if(layerLabel==5 || layerLabel==6 || layerLabel==7 || layerLabel==8) return 183;
+    if(layerLabel==9 || layerLabel==10) return 122;
+    else return 100;        //attention, a modifier lorsque je m'interesserai aux valeurs pour le TEC 
+}
+
+int GetPitch(int layerLabel)
+{
+    if(layerLabel==1 || layerLabel==2 || layerLabel==3 || layerLabel==4) return 320; //en um
+    if(layerLabel==5 || layerLabel==6 || layerLabel==7 || layerLabel==8 || layerLabel==9 || layerLabel==10) return 500;
+    else return 100;        //attention, a modifier lorsque je m'interesserai aux valeurs pour le TEC 
+}
