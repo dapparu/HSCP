@@ -43,15 +43,27 @@ int main(int argc,char** argv){
     string s1 = argv[1];
     string s2 = s1.substr(0,s1.find('.'))+"_results.root";
 
-    vector<vector<TProfile*>> VectVectProfileFit;
+    vector<vector<vector<vector<TProfile*>>>> VectLayerVectNStripVectNStripSatVectSatTypeProfileFit;
     for(int layer=1;layer<11;layer++)
     {
-        vector<TProfile*> VectProfileFit;
-        for(int nstrip=3;nstrip<6;nstrip++)
+        vector<vector<vector<TProfile*>>> VectNStripVectNStripSatVectSatTypeProfileFit;
+        for(int nstrip=3;nstrip<7;nstrip++)
         {
-            VectProfileFit.push_back(new TProfile((Label(layer)+" NStrip="+to_string(nstrip)).c_str(),(Label(layer)+" NStrip="+to_string(nstrip)).c_str(),50,0,1500*pow(10,-6),""));
+            vector<vector<TProfile*>> VectNStripSatVectSatTypeProfileFit;
+            for(int nstripsat=1;nstripsat<3;nstripsat++)
+            {
+                vector<TProfile*> VectSatTypeProfileFit;
+                for(int sat254=0;sat254<2;sat254++)
+                {
+                    string SatType="254";
+                    if(sat254==1) SatType="255";
+                    VectSatTypeProfileFit.push_back(new TProfile((Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),(Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),50,0,1500*pow(10,-6),""));
+                }
+                VectNStripSatVectSatTypeProfileFit.push_back(VectSatTypeProfileFit);
+            }
+            VectNStripVectNStripSatVectSatTypeProfileFit.push_back(VectNStripSatVectSatTypeProfileFit);
         }
-        VectVectProfileFit.push_back(VectProfileFit);
+        VectLayerVectNStripVectNStripSatVectSatTypeProfileFit.push_back(VectNStripVectNStripSatVectSatTypeProfileFit);
     }
 
     Builder* b1 = new Builder(chain);
@@ -229,12 +241,8 @@ int main(int argc,char** argv){
 
     TH1F* hEmpty = new TH1F("hEmpty","hEmpty",21,0,21); //pour tracer les lignes avec la fonction SetHistoLabel
 
-    TH1F* h1EvQdr = new TH1F("1","1",200,-5,5);
-    TH1F* h1EvQcaldr = new TH1F("2","2",200,-5,5);
-    TH2F* h2EvQcal = new TH2F("h2","h2",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
-
-    TH1F* hdeltax1 = new TH1F("hdeltax1","hdeltax1",200,0,0.1);
-    TH1F* hdeltax2 = new TH1F("hdeltax2","hdeltax2",200,0,0.1);
+    TH1F* h1DiffRelEvQ = new TH1F("h1DiffRelEvQ","h1DiffRelEvQ",200,-5,5);
+    TH1F* h1DiffRelEvQCalib = new TH1F("h1DiffRelEvQCalib","h1DiffRelEvQCalib",200,-5,5);
 
     TH2F* h2NStrip5Sat1_254_1=new TH2F("h2NStrip5Sat1_254_1","h2NStrip5Sat1_254_1",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
     TH2F* h2NStrip5Sat1_254_2=new TH2F("h2NStrip5Sat1_254_2","h2NStrip5Sat1_254_2",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
@@ -253,13 +261,6 @@ int main(int argc,char** argv){
     TH1F* h1TestCutOrEdge = new TH1F("h1TestCutOrEdge","h1TestCutOrEdge",200,0,8);
 
     TH1F* h1ChargeFauxSimHit = new TH1F("h1FauxSimHit","h1FauxSimHit",255,0,255);
-
-    TH2F* htest1_1 = new TH2F("htest1_1","htest1_1",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
-    TH2F* htest2_1 = new TH2F("htest2_1","htest2_1",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
-    TH2F* htest1_2 = new TH2F("htest1_2","htest1_2",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
-    TH2F* htest2_2 = new TH2F("htest2_2","htest2_2",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
-    TH2F* htest1_3 = new TH2F("htest1_3","htest1_3",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
-    TH2F* htest2_3 = new TH2F("htest2_3","htest2_3",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
 
     TH2F* testTOB1 = new TH2F("testTOB1","testTOB1",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
     TH2F* testTOB1_Calib = new TH2F("testTOB1_Calib","testTOB1_Calib",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
@@ -328,11 +329,6 @@ int main(int argc,char** argv){
             }
             else VectPartID_Pt[4]->Fill(pt);
             
-            /*if(((int)id/1000==1009 || (int)id/1000==-1009) && !(id==1009213 || id==-1009213))
-            {
-                VectPartID_Pt[3]->Fill(pt);
-                VectPartID_PoverM[3]->Fill(GetPoverM(p,id));
-            }*/
             
             hPt_tot->Fill(pt);
             hNClusterPerTrack->Fill(NCluster);
@@ -370,31 +366,6 @@ int main(int argc,char** argv){
                 int nsat255         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStrip(255);
                 bool edge           = b1->GetVectTrack()[track].GetVectClusters()[cluster].Edge();
                 bool cut            = b1->GetVectTrack()[track].GetVectClusters()[cluster].Cut();
-                //int thickness       = GetThickness(layerLabel);
-                //int pitch           = GetPitch(layerLabel);
-
-                float charge_recalibTOB1NStrip3 = charge, charge_recalibTOB1NStrip4 = charge, charge_recalibTOB1NStrip5 = charge;
-                /*if(RatioNClusterSat254>0.5)
-                {
-                    charge_recalibTOB1NStrip3 = -(p0_TOB1NStrip3NStripSat1-charge)/p1_TOB1NStrip3NStripSat1;
-                    charge_recalibTOB1NStrip4 = -(p0_TOB1NStrip4NStripSat1-charge)/p1_TOB1NStrip4NStripSat1;
-                    charge_recalibTOB1NStrip5 = -(p0_TOB1NStrip5NStripSat1-charge)/p1_TOB1NStrip5NStripSat1;
-                }*/
-                //if(nstrips>=3) cout<<calibration.Charge(layerLabel,nstrips,charge)<<endl;
-
-                float charge_recalib = charge;
-                
-                if(RatioNClusterSat254>0.5) charge_recalib = -(0.000255-charge)/0.2327;
-
-                //float PredClusterWidth  = ((float)thickness/(float)pitch)*abs(tan(0.02)+)
-
-                /*float xentry        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits()[0].GetXentry();
-                float xexit         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits()[0].GetXexit();
-
-                float deltax        = abs(xentry-xexit);*/
-
-                if(b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits().size()==0) h1ChargeFauxSimHit->Fill(charge);
-                
 
                 clust++;
 
@@ -411,6 +382,7 @@ int main(int argc,char** argv){
                 VectLayer_h2EvQ_Tot[layerLabel-1]->Fill(eloss,charge);
                 VectLayer_h1EvQ_Tot[layerLabel-1]->Fill(eloss/charge);
                 VectLayer_profEvQ_Tot[layerLabel-1]->Fill(eloss,charge);
+
                 if(id==11 || id==-11) 
                 {
                     if(layerLabel==5) VectPartID_Eloss[0]->Fill(eloss);
@@ -467,19 +439,13 @@ int main(int argc,char** argv){
                     if(sat254==true && sat255==false) VectPartID_h2EvQ_Sat254[4]->Fill(eloss,charge);
                     if(sat255==true) VectPartID_h2EvQ_Sat255[4]->Fill(eloss,charge);
                 }
-
-                /*if(((int)id/1000==1009 || (int)id/1000==-1009) && !(id==1009213 || id==-1009213)) //R-hadron autre
-                {
-                    if(layerLabel==5) VectPartID_Eloss[3]->Fill(eloss);
-                    if(sat254==false && sat255==false) VectPartID_h2EvQ_NoSat[3]->Fill(eloss,charge);
-                    if(sat254==true) VectPartID_h2EvQ_Sat[3]->Fill(eloss,charge);
-                    if(sat254==true && sat255==false) VectPartID_h2EvQ_Sat254[3]->Fill(eloss,charge);
-                    if(sat255==true) VectPartID_h2EvQ_Sat255[3]->Fill(eloss,charge);
-                }*/
+                if(b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits().size()==0) h1ChargeFauxSimHit->Fill(charge);
 
                 if(layerLabel==5) 
                 {
-                    testTOB1_Calib->Fill(eloss,calibration.Charge(layerLabel,nstrips,nsat254,charge));
+                    bool IsSat254=false;
+                    if(sat254 && !sat255) IsSat254=true;
+                    testTOB1_Calib->Fill(eloss,calibration.Charge(1,nstrips,nsat254,IsSat254,charge));
                     testTOB1->Fill(eloss,charge);
                 }
 
@@ -500,12 +466,9 @@ int main(int argc,char** argv){
                                 VectNStrip_VectNStripSat255_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
                                 if(nstrip==5 && nstripsat==1)
                                 {
-                                    h1EvQdr->Fill((charge-eloss)/eloss);
-                                    h1EvQcaldr->Fill((charge_recalib-eloss)/eloss);
-                                    h2EvQcal->Fill(eloss,charge_recalib);
+                                    h1DiffRelEvQ->Fill((charge-eloss)/eloss);
+                                    h1DiffRelEvQCalib->Fill((calibration.Charge(layerLabel,nstrip,nstripsat,true,charge)-eloss)/eloss);
                                     
-                                    //if(AreaTOB1NStrip5NSripSat1) hdeltax1->Fill(deltax);
-                                    //else hdeltax2->Fill(deltax);
                                     if(0.0<PoverM<=0.2)
                                     {
                                         h2NStrip5Sat1_254_1->Fill(eloss,charge);
@@ -532,28 +495,19 @@ int main(int argc,char** argv){
                                         profNstrip5Sat1_254_5->Fill(eloss,charge);
                                     }
                                 }
-                                if(RatioNClusterSat254>0.5) 
-                                {
-                                    if(nstrip==3 && nstripsat==1) 
-                                    {
-                                        htest1_1->Fill(eloss,charge);
-                                        htest2_1->Fill(eloss,calibration.Charge(layerLabel,nstrip,nstripsat,charge));
-                                    }
-                                    if(nstrip==4 && nstripsat==1)
-                                    {
-                                        htest1_2->Fill(eloss,charge);
-                                        htest2_2->Fill(eloss,calibration.Charge(layerLabel,nstrip,nstripsat,charge));
-                                    } 
-                                    if(nstrip==5 && nstripsat==1)
-                                    {
-                                        htest1_3->Fill(eloss,charge);
-                                        htest2_3->Fill(eloss,calibration.Charge(layerLabel,nstrip,nstripsat,charge));
-                                    } 
-                                }
                             }
-                            if(calibration.Area(5,3,eloss,charge)) VectVectProfileFit[0][0]->Fill(eloss,charge);
-                            if(calibration.Area(5,4,eloss,charge)) VectVectProfileFit[0][1]->Fill(eloss,charge);
-                            if(calibration.Area(5,5,eloss,charge)) VectVectProfileFit[0][2]->Fill(eloss,charge);
+                        }
+                    }
+                }
+                for(int nstrip=3;nstrip<7;nstrip++)
+                {
+                    for(int nstripsat=1;nstripsat<3;nstripsat++)
+                    {
+                        for(int counter_sat254=0;counter_sat254<2;counter_sat254++)
+                        {
+                            bool IsSat254=true;
+                            if(counter_sat254!=0) IsSat254=false;
+                            if(calibration.Area(5,nstrip,nstripsat,IsSat254,eloss,charge)) VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[0][nstrip-3][nstripsat-1][counter_sat254]->Fill(eloss,charge);
                         }
                     }
                 }
@@ -562,12 +516,10 @@ int main(int argc,char** argv){
                     h2TestCutEdge->Fill(eloss,charge);
                     h1TestCutOrEdge->Fill(eloss/charge);
                 }
-
                 if(cut==false && edge==false)
                 {
                     h1TestNoCutAndNoEdge->Fill(eloss/charge);
                 }
-
                 if(sat254==true && sat255==false) 
                 {
                     hRatio_ElossQ_Sat254->Fill(eloss/charge);
@@ -654,28 +606,6 @@ int main(int argc,char** argv){
         }
     }
 
-    /*Builder* b2 = new Builder(chain);
-    b2->SetBranchAdd();
-    for(int i=0;i<entries;i++)
-    {
-        if(i%1000==0) cout<<"Event "<<i<<endl;
-        b2->SetCalibration(factor,i);
-        for(int track=0;track<b2->GetNtracks();track++)
-        {
-            for(int cluster=0;cluster<b2->GetVectTrack()[track].GetVectClusters().size();cluster++)
-            {
-                float charge = b2->GetVectTrack()[track].GetVectClusters()[cluster].GetSclusCharge();
-                float eloss = b2->GetVectTrack()[track].GetVectClusters()[cluster].GetEloss();
-                calibProf->Fill(eloss,charge);
-                calibh2->Fill(eloss,charge);
-                calibh1->Fill((eloss-charge)/charge);
-            }
-        }
-    }
-
-    //TFitResultPtr rcalib = calibProf->Fit("pol1","S");
-    TFitResultPtr calibGaus = calibh1->Fit("gaus","S");*/
-
 
     TFile* fileout = new TFile(s2.c_str(),"RECREATE");
 
@@ -683,10 +613,18 @@ int main(int argc,char** argv){
 
     for(int layer=1;layer<2;layer++)
     {
-        for(int nstrip=3;nstrip<6;nstrip++)
+        for(int nstrip=3;nstrip<7;nstrip++)
         {
-            TFitResultPtr fit_res = VectVectProfileFit[layer-1][nstrip-3]->Fit("pol1","S");
-            ofile_fit<<(Label(layer+4)+"_NStrip="+to_string(nstrip)).c_str()<<"\t"<<fit_res->Parameter(0)<<"\t"<<fit_res->Parameter(1)<<endl;
+            for(int nstripsat=1;nstripsat<2;nstripsat++)
+            {
+                for(int counter_sat254=0;counter_sat254<2;counter_sat254++)
+                {
+                string SatType="254";
+                if(counter_sat254==1) SatType="255";
+                TFitResultPtr fit_res = VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[layer-1][nstrip-3][nstripsat-1][counter_sat254]->Fit("pol1","S");
+                ofile_fit<<(Label(layer+4)+"_NStrip="+to_string(nstrip)+"_NStripSat="+to_string(nstripsat)+"_SatType="+SatType).c_str()<<"\t"<<fit_res->Parameter(0)<<"\t"<<fit_res->Parameter(1)<<endl;
+                } 
+            }
         }
     }
     
@@ -697,41 +635,6 @@ int main(int argc,char** argv){
 
 
     TLine* linexy = new TLine(0,0,0.0015,0.0015);
-
-
-    TCanvas* ctest1_1 = new TCanvas("ctest1_1","ctest1_1");
-    htest1_1->Draw("COLZ");
-    linexy->Draw("SAME");
-
-    TCanvas* ctest2_1 = new TCanvas("ctest2_1","ctest2_1");
-    htest2_1->Draw("COLZ");
-    linexy->Draw("SAME");
-
-    ctest1_1->Write();
-    ctest2_1->Write();
-
-    TCanvas* ctest1_2 = new TCanvas("ctest1_2","ctest1_2");
-    htest1_2->Draw("COLZ");
-    linexy->Draw("SAME");
-
-    TCanvas* ctest2_2 = new TCanvas("ctest2_2","ctest2_2");
-    htest2_2->Draw("COLZ");
-    linexy->Draw("SAME");
-
-    ctest1_2->Write();
-    ctest2_2->Write();
-
-    TCanvas* ctest1_3 = new TCanvas("ctest1_3","ctest1_3");
-    htest1_3->Draw("COLZ");
-    linexy->Draw("SAME");
-
-    TCanvas* ctest2_3 = new TCanvas("ctest2_3","ctest2_3");
-    htest2_3->Draw("COLZ");
-    linexy->Draw("SAME");
-
-    ctest1_3->Write();
-    ctest2_3->Write();
-    
 
     TCanvas* cTestCutEdge = new TCanvas("cTestCutEdge","cTestCutEdge");
     vector<TH1F*> VectTestCutEdge;
@@ -766,8 +669,8 @@ int main(int argc,char** argv){
 
     TCanvas* cDiffRelChargeCalib_Charge = new TCanvas("cDiffRelChargeCalib_Charge","cDiffRelChargeCalib_Charge");
     vector<TH1F*> VectDiffRelChargeCalib_Charge;
-    VectDiffRelChargeCalib_Charge.push_back(h1EvQdr);
-    VectDiffRelChargeCalib_Charge.push_back(h1EvQcaldr);
+    VectDiffRelChargeCalib_Charge.push_back(h1DiffRelEvQ);
+    VectDiffRelChargeCalib_Charge.push_back(h1DiffRelEvQCalib);
     vector<string> VectLegendDiffRelChargeCalib_Charge;
     VectLegendDiffRelChargeCalib_Charge.push_back("Avant calibration");
     VectLegendDiffRelChargeCalib_Charge.push_back("Apres calibration");
@@ -924,7 +827,7 @@ int main(int argc,char** argv){
     TCanvas* cratioSatLayer = new TCanvas("cratioSatLayer","cratioSatLayer");
     SetHistoLabel(cratioSatLayer,hEmpty);
     cratioSatLayer->cd();
-    hEmpty->GetYaxis()->SetRangeUser(pow(10,-4),0.25);
+    //hEmpty->GetYaxis()->SetRangeUser(pow(10,-4),0.25);
     Ratio_LayerSat254->Draw("SAME");
     Ratio_LayerSat255->SetLineColor(2);
     Ratio_LayerSat255->Draw("SAME");
@@ -933,7 +836,7 @@ int main(int argc,char** argv){
     line255->SetLineStyle(3);
     line255->SetLineColor(2);
     line255->Draw("SAME");
-    cratioSatLayer->SetLogy();
+    //cratioSatLayer->SetLogy();
     TLegend* legratio = new TLegend(0.6,0.8,0.9,0.9);
     legratio->AddEntry(line254,("Saturation 254 : "+to_string(rat254)).c_str(),"l");
     legratio->AddEntry(line255,("Saturation 255 : "+to_string(rat255)).c_str(),"l");
@@ -1190,17 +1093,6 @@ int main(int argc,char** argv){
         cNStripNStripSat255_h2prof->Write();
         cNStripNStripSat255_h1->Write();
     }
-
-    DrawHisto(*fileout,h2EvQcal,"H2 & prof NStrip=5 & NStripSat255=1 | TOB1 | Calibration","E_{loss}","Q");
-
-    TCanvas* cdeltax = new TCanvas();
-    hdeltax1->Scale(1./hdeltax1->Integral());
-    hdeltax2->Scale(1./hdeltax2->Integral());
-    hdeltax1->Draw();
-    hdeltax2->SetLineColor(2);
-    hdeltax2->Draw("SAME");
-    cdeltax->Write();
-
 
     fileout->Write();
     fileout->Close();
