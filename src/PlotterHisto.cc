@@ -59,6 +59,7 @@ void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegen
 
 void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title)
 {
+    float binmax = 0.;
     canvas.cd();
     for(int i=0;i<VectHisto.size();i++)
     {
@@ -67,6 +68,7 @@ void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> 
         VectHisto[i]->SetFillColor(0);
         VectHisto[i]->GetXaxis()->SetTitle(x_title.c_str());
         VectHisto[i]->Draw("SAME");
+        if(VectHisto[i]->GetMaximum()>binmax) binmax=VectHisto[i]->GetMaximum();
     }
     VectHisto[0]->SetTitle(title.c_str());
     TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
@@ -75,6 +77,8 @@ void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> 
         leg->AddEntry(VectHisto[i],VectLegend[i].c_str(),"l");
     }
     leg->Draw("SAME");
+    VectHisto[0]->GetYaxis()->SetRangeUser(0,binmax+0.005);
+
 }
 
 void DrawHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title)

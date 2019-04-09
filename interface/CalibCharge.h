@@ -38,6 +38,7 @@ class CalibCharge
         string TIB1_254_NStrip5_NStripSat1;           float p0_TIB1_254_NStrip5_NStripSat1, p1_TIB1_254_NStrip5_NStripSat1;
         string TIB1_254_NStrip5_NStripSat2;           float p0_TIB1_254_NStrip5_NStripSat2, p1_TIB1_254_NStrip5_NStripSat2;
         string TIB1_254_NStrip6_NStripSat1;           float p0_TIB1_254_NStrip6_NStripSat1, p1_TIB1_254_NStrip6_NStripSat1;
+        string TIB1_254_NStrip6_NStripSat2;           float p0_TIB1_254_NStrip6_NStripSat2, p1_TIB1_254_NStrip6_NStripSat2;
 
         string TIB1_255_NStrip3_NStripSat1;           float p0_TIB1_255_NStrip3_NStripSat1, p1_TIB1_255_NStrip3_NStripSat1;
         string TIB1_255_NStrip4_NStripSat1;           float p0_TIB1_255_NStrip4_NStripSat1, p1_TIB1_255_NStrip4_NStripSat1;
@@ -45,6 +46,7 @@ class CalibCharge
         string TIB1_255_NStrip5_NStripSat1;           float p0_TIB1_255_NStrip5_NStripSat1, p1_TIB1_255_NStrip5_NStripSat1;
         string TIB1_255_NStrip5_NStripSat2;           float p0_TIB1_255_NStrip5_NStripSat2, p1_TIB1_255_NStrip5_NStripSat2;
         string TIB1_255_NStrip6_NStripSat1;           float p0_TIB1_255_NStrip6_NStripSat1, p1_TIB1_255_NStrip6_NStripSat1;
+        string TIB1_255_NStrip6_NStripSat2;           float p0_TIB1_255_NStrip6_NStripSat2, p1_TIB1_255_NStrip6_NStripSat2;
 
         string TIB2_254_NStrip3_NStripSat1;           float p0_TIB2_254_NStrip3_NStripSat1, p1_TIB2_254_NStrip3_NStripSat1;
         string TIB2_254_NStrip4_NStripSat1;           float p0_TIB2_254_NStrip4_NStripSat1, p1_TIB2_254_NStrip4_NStripSat1;
@@ -52,6 +54,7 @@ class CalibCharge
         string TIB2_254_NStrip5_NStripSat1;           float p0_TIB2_254_NStrip5_NStripSat1, p1_TIB2_254_NStrip5_NStripSat1;
         string TIB2_254_NStrip5_NStripSat2;           float p0_TIB2_254_NStrip5_NStripSat2, p1_TIB2_254_NStrip5_NStripSat2;
         string TIB2_254_NStrip6_NStripSat1;           float p0_TIB2_254_NStrip6_NStripSat1, p1_TIB2_254_NStrip6_NStripSat1;
+        string TIB2_254_NStrip6_NStripSat2;           float p0_TIB2_254_NStrip6_NStripSat2, p1_TIB2_254_NStrip6_NStripSat2;
 
         string TIB2_255_NStrip3_NStripSat1;           float p0_TIB2_255_NStrip3_NStripSat1, p1_TIB2_255_NStrip3_NStripSat1;
         string TIB2_255_NStrip4_NStripSat1;           float p0_TIB2_255_NStrip4_NStripSat1, p1_TIB2_255_NStrip4_NStripSat1;
@@ -59,6 +62,7 @@ class CalibCharge
         string TIB2_255_NStrip5_NStripSat1;           float p0_TIB2_255_NStrip5_NStripSat1, p1_TIB2_255_NStrip5_NStripSat1;
         string TIB2_255_NStrip5_NStripSat2;           float p0_TIB2_255_NStrip5_NStripSat2, p1_TIB2_255_NStrip5_NStripSat2;
         string TIB2_255_NStrip6_NStripSat1;           float p0_TIB2_255_NStrip6_NStripSat1, p1_TIB2_255_NStrip6_NStripSat1;
+        string TIB2_255_NStrip6_NStripSat2;           float p0_TIB2_255_NStrip6_NStripSat2, p1_TIB2_255_NStrip6_NStripSat2;
 
         string TIB3_254_NStrip3_NStripSat1;           float p0_TIB3_254_NStrip3_NStripSat1, p1_TIB3_254_NStrip3_NStripSat1;
         string TIB3_254_NStrip4_NStripSat1;           float p0_TIB3_254_NStrip4_NStripSat1, p1_TIB3_254_NStrip4_NStripSat1;
@@ -66,6 +70,7 @@ class CalibCharge
         string TIB3_254_NStrip5_NStripSat1;           float p0_TIB3_254_NStrip5_NStripSat1, p1_TIB3_254_NStrip5_NStripSat1;
         string TIB3_254_NStrip5_NStripSat2;           float p0_TIB3_254_NStrip5_NStripSat2, p1_TIB3_254_NStrip5_NStripSat2;
         string TIB3_254_NStrip6_NStripSat1;           float p0_TIB3_254_NStrip6_NStripSat1, p1_TIB3_254_NStrip6_NStripSat1;
+        string TIB3_254_NStrip6_NStripSat2;           float p0_TIB3_254_NStrip6_NStripSat2, p1_TIB3_254_NStrip6_NStripSat2;
 
         string TIB3_255_NStrip3_NStripSat1;           float p0_TIB3_255_NStrip3_NStripSat1, p1_TIB3_255_NStrip3_NStripSat1;
         string TIB3_255_NStrip4_NStripSat1;           float p0_TIB3_255_NStrip4_NStripSat1, p1_TIB3_255_NStrip4_NStripSat1;
@@ -73,6 +78,7 @@ class CalibCharge
         string TIB3_255_NStrip5_NStripSat1;           float p0_TIB3_255_NStrip5_NStripSat1, p1_TIB3_255_NStrip5_NStripSat1;
         string TIB3_255_NStrip5_NStripSat2;           float p0_TIB3_255_NStrip5_NStripSat2, p1_TIB3_255_NStrip5_NStripSat2;
         string TIB3_255_NStrip6_NStripSat1;           float p0_TIB3_255_NStrip6_NStripSat1, p1_TIB3_255_NStrip6_NStripSat1;
+        string TIB3_255_NStrip6_NStripSat2;           float p0_TIB3_255_NStrip6_NStripSat2, p1_TIB3_255_NStrip6_NStripSat2;
 
         string TIB4_254_NStrip3_NStripSat1;           float p0_TIB4_254_NStrip3_NStripSat1, p1_TIB4_254_NStrip3_NStripSat1;
         string TIB4_254_NStrip4_NStripSat1;           float p0_TIB4_254_NStrip4_NStripSat1, p1_TIB4_254_NStrip4_NStripSat1;
@@ -80,6 +86,7 @@ class CalibCharge
         string TIB4_254_NStrip5_NStripSat1;           float p0_TIB4_254_NStrip5_NStripSat1, p1_TIB4_254_NStrip5_NStripSat1;
         string TIB4_254_NStrip5_NStripSat2;           float p0_TIB4_254_NStrip5_NStripSat2, p1_TIB4_254_NStrip5_NStripSat2;
         string TIB4_254_NStrip6_NStripSat1;           float p0_TIB4_254_NStrip6_NStripSat1, p1_TIB4_254_NStrip6_NStripSat1;
+        string TIB4_254_NStrip6_NStripSat2;           float p0_TIB4_254_NStrip6_NStripSat2, p1_TIB4_254_NStrip6_NStripSat2;
 
         string TIB4_255_NStrip3_NStripSat1;           float p0_TIB4_255_NStrip3_NStripSat1, p1_TIB4_255_NStrip3_NStripSat1;
         string TIB4_255_NStrip4_NStripSat1;           float p0_TIB4_255_NStrip4_NStripSat1, p1_TIB4_255_NStrip4_NStripSat1;
@@ -87,6 +94,7 @@ class CalibCharge
         string TIB4_255_NStrip5_NStripSat1;           float p0_TIB4_255_NStrip5_NStripSat1, p1_TIB4_255_NStrip5_NStripSat1;
         string TIB4_255_NStrip5_NStripSat2;           float p0_TIB4_255_NStrip5_NStripSat2, p1_TIB4_255_NStrip5_NStripSat2;
         string TIB4_255_NStrip6_NStripSat1;           float p0_TIB4_255_NStrip6_NStripSat1, p1_TIB4_255_NStrip6_NStripSat1;
+        string TIB4_255_NStrip6_NStripSat2;           float p0_TIB4_255_NStrip6_NStripSat2, p1_TIB4_255_NStrip6_NStripSat2;
 
         string TOB1_254_NStrip3_NStripSat1;           float p0_TOB1_254_NStrip3_NStripSat1, p1_TOB1_254_NStrip3_NStripSat1;
         string TOB1_254_NStrip4_NStripSat1;           float p0_TOB1_254_NStrip4_NStripSat1, p1_TOB1_254_NStrip4_NStripSat1;
@@ -94,6 +102,7 @@ class CalibCharge
         string TOB1_254_NStrip5_NStripSat1;           float p0_TOB1_254_NStrip5_NStripSat1, p1_TOB1_254_NStrip5_NStripSat1;
         string TOB1_254_NStrip5_NStripSat2;           float p0_TOB1_254_NStrip5_NStripSat2, p1_TOB1_254_NStrip5_NStripSat2;
         string TOB1_254_NStrip6_NStripSat1;           float p0_TOB1_254_NStrip6_NStripSat1, p1_TOB1_254_NStrip6_NStripSat1;
+        string TOB1_254_NStrip6_NStripSat2;           float p0_TOB1_254_NStrip6_NStripSat2, p1_TOB1_254_NStrip6_NStripSat2;
 
         string TOB1_255_NStrip3_NStripSat1;           float p0_TOB1_255_NStrip3_NStripSat1, p1_TOB1_255_NStrip3_NStripSat1;
         string TOB1_255_NStrip4_NStripSat1;           float p0_TOB1_255_NStrip4_NStripSat1, p1_TOB1_255_NStrip4_NStripSat1;
@@ -101,6 +110,7 @@ class CalibCharge
         string TOB1_255_NStrip5_NStripSat1;           float p0_TOB1_255_NStrip5_NStripSat1, p1_TOB1_255_NStrip5_NStripSat1;
         string TOB1_255_NStrip5_NStripSat2;           float p0_TOB1_255_NStrip5_NStripSat2, p1_TOB1_255_NStrip5_NStripSat2;
         string TOB1_255_NStrip6_NStripSat1;           float p0_TOB1_255_NStrip6_NStripSat1, p1_TOB1_255_NStrip6_NStripSat1;
+        string TOB1_255_NStrip6_NStripSat2;           float p0_TOB1_255_NStrip6_NStripSat2, p1_TOB1_255_NStrip6_NStripSat2;
 
         string TOB2_254_NStrip3_NStripSat1;           float p0_TOB2_254_NStrip3_NStripSat1, p1_TOB2_254_NStrip3_NStripSat1;
         string TOB2_254_NStrip4_NStripSat1;           float p0_TOB2_254_NStrip4_NStripSat1, p1_TOB2_254_NStrip4_NStripSat1;
@@ -108,6 +118,7 @@ class CalibCharge
         string TOB2_254_NStrip5_NStripSat1;           float p0_TOB2_254_NStrip5_NStripSat1, p1_TOB2_254_NStrip5_NStripSat1;
         string TOB2_254_NStrip5_NStripSat2;           float p0_TOB2_254_NStrip5_NStripSat2, p1_TOB2_254_NStrip5_NStripSat2;
         string TOB2_254_NStrip6_NStripSat1;           float p0_TOB2_254_NStrip6_NStripSat1, p1_TOB2_254_NStrip6_NStripSat1;
+        string TOB2_254_NStrip6_NStripSat2;           float p0_TOB2_254_NStrip6_NStripSat2, p1_TOB2_254_NStrip6_NStripSat2;
 
         string TOB2_255_NStrip3_NStripSat1;           float p0_TOB2_255_NStrip3_NStripSat1, p1_TOB2_255_NStrip3_NStripSat1;
         string TOB2_255_NStrip4_NStripSat1;           float p0_TOB2_255_NStrip4_NStripSat1, p1_TOB2_255_NStrip4_NStripSat1;
@@ -115,6 +126,7 @@ class CalibCharge
         string TOB2_255_NStrip5_NStripSat1;           float p0_TOB2_255_NStrip5_NStripSat1, p1_TOB2_255_NStrip5_NStripSat1;
         string TOB2_255_NStrip5_NStripSat2;           float p0_TOB2_255_NStrip5_NStripSat2, p1_TOB2_255_NStrip5_NStripSat2;
         string TOB2_255_NStrip6_NStripSat1;           float p0_TOB2_255_NStrip6_NStripSat1, p1_TOB2_255_NStrip6_NStripSat1;
+        string TOB2_255_NStrip6_NStripSat2;           float p0_TOB2_255_NStrip6_NStripSat2, p1_TOB2_255_NStrip6_NStripSat2;
 
         string TOB3_254_NStrip3_NStripSat1;           float p0_TOB3_254_NStrip3_NStripSat1, p1_TOB3_254_NStrip3_NStripSat1;
         string TOB3_254_NStrip4_NStripSat1;           float p0_TOB3_254_NStrip4_NStripSat1, p1_TOB3_254_NStrip4_NStripSat1;
@@ -122,6 +134,7 @@ class CalibCharge
         string TOB3_254_NStrip5_NStripSat1;           float p0_TOB3_254_NStrip5_NStripSat1, p1_TOB3_254_NStrip5_NStripSat1;
         string TOB3_254_NStrip5_NStripSat2;           float p0_TOB3_254_NStrip5_NStripSat2, p1_TOB3_254_NStrip5_NStripSat2;
         string TOB3_254_NStrip6_NStripSat1;           float p0_TOB3_254_NStrip6_NStripSat1, p1_TOB3_254_NStrip6_NStripSat1;
+        string TOB3_254_NStrip6_NStripSat2;           float p0_TOB3_254_NStrip6_NStripSat2, p1_TOB3_254_NStrip6_NStripSat2;
 
         string TOB3_255_NStrip3_NStripSat1;           float p0_TOB3_255_NStrip3_NStripSat1, p1_TOB3_255_NStrip3_NStripSat1;
         string TOB3_255_NStrip4_NStripSat1;           float p0_TOB3_255_NStrip4_NStripSat1, p1_TOB3_255_NStrip4_NStripSat1;
@@ -129,6 +142,7 @@ class CalibCharge
         string TOB3_255_NStrip5_NStripSat1;           float p0_TOB3_255_NStrip5_NStripSat1, p1_TOB3_255_NStrip5_NStripSat1;
         string TOB3_255_NStrip5_NStripSat2;           float p0_TOB3_255_NStrip5_NStripSat2, p1_TOB3_255_NStrip5_NStripSat2;
         string TOB3_255_NStrip6_NStripSat1;           float p0_TOB3_255_NStrip6_NStripSat1, p1_TOB3_255_NStrip6_NStripSat1;
+        string TOB3_255_NStrip6_NStripSat2;           float p0_TOB3_255_NStrip6_NStripSat2, p1_TOB3_255_NStrip6_NStripSat2;
 
         string TOB4_254_NStrip3_NStripSat1;           float p0_TOB4_254_NStrip3_NStripSat1, p1_TOB4_254_NStrip3_NStripSat1;
         string TOB4_254_NStrip4_NStripSat1;           float p0_TOB4_254_NStrip4_NStripSat1, p1_TOB4_254_NStrip4_NStripSat1;
@@ -136,6 +150,7 @@ class CalibCharge
         string TOB4_254_NStrip5_NStripSat1;           float p0_TOB4_254_NStrip5_NStripSat1, p1_TOB4_254_NStrip5_NStripSat1;
         string TOB4_254_NStrip5_NStripSat2;           float p0_TOB4_254_NStrip5_NStripSat2, p1_TOB4_254_NStrip5_NStripSat2;
         string TOB4_254_NStrip6_NStripSat1;           float p0_TOB4_254_NStrip6_NStripSat1, p1_TOB4_254_NStrip6_NStripSat1;
+        string TOB4_254_NStrip6_NStripSat2;           float p0_TOB4_254_NStrip6_NStripSat2, p1_TOB4_254_NStrip6_NStripSat2;
 
         string TOB4_255_NStrip3_NStripSat1;           float p0_TOB4_255_NStrip3_NStripSat1, p1_TOB4_255_NStrip3_NStripSat1;
         string TOB4_255_NStrip4_NStripSat1;           float p0_TOB4_255_NStrip4_NStripSat1, p1_TOB4_255_NStrip4_NStripSat1;
@@ -143,6 +158,7 @@ class CalibCharge
         string TOB4_255_NStrip5_NStripSat1;           float p0_TOB4_255_NStrip5_NStripSat1, p1_TOB4_255_NStrip5_NStripSat1;
         string TOB4_255_NStrip5_NStripSat2;           float p0_TOB4_255_NStrip5_NStripSat2, p1_TOB4_255_NStrip5_NStripSat2;
         string TOB4_255_NStrip6_NStripSat1;           float p0_TOB4_255_NStrip6_NStripSat1, p1_TOB4_255_NStrip6_NStripSat1;
+        string TOB4_255_NStrip6_NStripSat2;           float p0_TOB4_255_NStrip6_NStripSat2, p1_TOB4_255_NStrip6_NStripSat2;
 
         string TOB5_254_NStrip3_NStripSat1;           float p0_TOB5_254_NStrip3_NStripSat1, p1_TOB5_254_NStrip3_NStripSat1;
         string TOB5_254_NStrip4_NStripSat1;           float p0_TOB5_254_NStrip4_NStripSat1, p1_TOB5_254_NStrip4_NStripSat1;
@@ -150,6 +166,7 @@ class CalibCharge
         string TOB5_254_NStrip5_NStripSat1;           float p0_TOB5_254_NStrip5_NStripSat1, p1_TOB5_254_NStrip5_NStripSat1;
         string TOB5_254_NStrip5_NStripSat2;           float p0_TOB5_254_NStrip5_NStripSat2, p1_TOB5_254_NStrip5_NStripSat2;
         string TOB5_254_NStrip6_NStripSat1;           float p0_TOB5_254_NStrip6_NStripSat1, p1_TOB5_254_NStrip6_NStripSat1;
+        string TOB5_254_NStrip6_NStripSat2;           float p0_TOB5_254_NStrip6_NStripSat2, p1_TOB5_254_NStrip6_NStripSat2;
 
         string TOB5_255_NStrip3_NStripSat1;           float p0_TOB5_255_NStrip3_NStripSat1, p1_TOB5_255_NStrip3_NStripSat1;
         string TOB5_255_NStrip4_NStripSat1;           float p0_TOB5_255_NStrip4_NStripSat1, p1_TOB5_255_NStrip4_NStripSat1;
@@ -157,6 +174,7 @@ class CalibCharge
         string TOB5_255_NStrip5_NStripSat1;           float p0_TOB5_255_NStrip5_NStripSat1, p1_TOB5_255_NStrip5_NStripSat1;
         string TOB5_255_NStrip5_NStripSat2;           float p0_TOB5_255_NStrip5_NStripSat2, p1_TOB5_255_NStrip5_NStripSat2;
         string TOB5_255_NStrip6_NStripSat1;           float p0_TOB5_255_NStrip6_NStripSat1, p1_TOB5_255_NStrip6_NStripSat1;
+        string TOB5_255_NStrip6_NStripSat2;           float p0_TOB5_255_NStrip6_NStripSat2, p1_TOB5_255_NStrip6_NStripSat2;
 
         string TOB6_254_NStrip3_NStripSat1;           float p0_TOB6_254_NStrip3_NStripSat1, p1_TOB6_254_NStrip3_NStripSat1;
         string TOB6_254_NStrip4_NStripSat1;           float p0_TOB6_254_NStrip4_NStripSat1, p1_TOB6_254_NStrip4_NStripSat1;
@@ -164,6 +182,7 @@ class CalibCharge
         string TOB6_254_NStrip5_NStripSat1;           float p0_TOB6_254_NStrip5_NStripSat1, p1_TOB6_254_NStrip5_NStripSat1;
         string TOB6_254_NStrip5_NStripSat2;           float p0_TOB6_254_NStrip5_NStripSat2, p1_TOB6_254_NStrip5_NStripSat2;
         string TOB6_254_NStrip6_NStripSat1;           float p0_TOB6_254_NStrip6_NStripSat1, p1_TOB6_254_NStrip6_NStripSat1;
+        string TOB6_254_NStrip6_NStripSat2;           float p0_TOB6_254_NStrip6_NStripSat2, p1_TOB6_254_NStrip6_NStripSat2;
 
         string TOB6_255_NStrip3_NStripSat1;           float p0_TOB6_255_NStrip3_NStripSat1, p1_TOB6_255_NStrip3_NStripSat1;
         string TOB6_255_NStrip4_NStripSat1;           float p0_TOB6_255_NStrip4_NStripSat1, p1_TOB6_255_NStrip4_NStripSat1;
@@ -171,6 +190,9 @@ class CalibCharge
         string TOB6_255_NStrip5_NStripSat1;           float p0_TOB6_255_NStrip5_NStripSat1, p1_TOB6_255_NStrip5_NStripSat1;
         string TOB6_255_NStrip5_NStripSat2;           float p0_TOB6_255_NStrip5_NStripSat2, p1_TOB6_255_NStrip5_NStripSat2;
         string TOB6_255_NStrip6_NStripSat1;           float p0_TOB6_255_NStrip6_NStripSat1, p1_TOB6_255_NStrip6_NStripSat1;
+        string TOB6_255_NStrip6_NStripSat2;           float p0_TOB6_255_NStrip6_NStripSat2, p1_TOB6_255_NStrip6_NStripSat2;
+
+        
 
 
 

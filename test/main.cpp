@@ -57,7 +57,7 @@ int main(int argc,char** argv){
                 {
                     string SatType="254";
                     if(sat254==1) SatType="255";
-                    VectSatTypeProfileFit.push_back(new TProfile((Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),(Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),50,0,1500*pow(10,-6),""));
+                    VectSatTypeProfileFit.push_back(new TProfile((Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),(Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),50,0,4500*pow(10,-6),""));
                 }
                 VectNStripSatVectSatTypeProfileFit.push_back(VectSatTypeProfileFit);
             }
@@ -86,10 +86,10 @@ int main(int argc,char** argv){
     TH1F* hRatio_ElossQ_Sat254 = new TH1F("hRatio_ElossQ_Sat254","hRatio_ElossQ_Sat254",200,0,8);
     TH1F* hRatio_ElossQ_Sat255 = new TH1F("hRatio_ElossQ_Sat255","hRatio_ElossQ_Sat255",200,0,8);
 
-    TH2F* h2ElossvQ_tot = new TH2F("h2ElossvQ_tot","h2ElossvQ_tot",300,0,900*pow(10,-6),300,0,900*pow(10,-6));
-    TH2F* h2ElossvQ_NoSat = new TH2F("h2ElossvQ_NoSat","h2ElossvQ_NoSat",300,0,900*pow(10,-6),300,0,900*pow(10,-6));
-    TH2F* h2ElossvQ_Sat = new TH2F("h2ElossvQ_Sat","h2ElossvQ_Sat",300,0,900*pow(10,-6),300,0,900*pow(10,-6));
-    TH2F* h2ElossvQ_Sat254 = new TH2F("h2ElossvQ_Sat254","h2ElossvQ_Sat254",300,0,900*pow(10,-6),300,0,900*pow(10,-6));
+    TH2F* h2ElossvQ_tot = new TH2F("h2ElossvQ_tot","h2ElossvQ_tot",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+    TH2F* h2ElossvQ_NoSat = new TH2F("h2ElossvQ_NoSat","h2ElossvQ_NoSat",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+    TH2F* h2ElossvQ_Sat = new TH2F("h2ElossvQ_Sat","h2ElossvQ_Sat",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+    TH2F* h2ElossvQ_Sat254 = new TH2F("h2ElossvQ_Sat254","h2ElossvQ_Sat254",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
     TH2F* h2ElossvQ_Sat255 = new TH2F("h2ElossvQ_Sat255","h2ElossvQ_Sat255",300,0,3000*pow(10,-6),300,0,3000*pow(10,-6));
 
     TProfile* profElossVsQ_tot = new TProfile("profElossVsQ_tot","profElossVsQ_tot",50,0,900*pow(10,-6),"");
@@ -163,9 +163,9 @@ int main(int argc,char** argv){
             VectNStripSat254_h2EvQ.push_back(h2EvQVectVectSat254);
             VectNStripSat254_h1EvQ.push_back(h1EvQVectVectSat254);
             VectNStripSat254_profEvQ.push_back(profEvQVectVectSat254);
-            TH2F* h2EvQVectVectSat255 = new TH2F(("H2 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),("H2 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),300,0,3000*pow(10,-6),300,0,3000*pow(10,-6));
+            TH2F* h2EvQVectVectSat255 = new TH2F(("H2 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),("H2 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),300,0,6000*pow(10,-6),300,0,6000*pow(10,-6));
             TH1F* h1EvQVectVectSat255 = new TH1F(("H1 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),("H1 NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),200,0,8);
-            TProfile* profEvQVectVectSat255 = new TProfile(("prof NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),("prof NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),50,0,3000*pow(10,-6));
+            TProfile* profEvQVectVectSat255 = new TProfile(("prof NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),("prof NStrip="+str_i+" & NStripSat255="+str_j+" | TOB1").c_str(),50,0,6000*pow(10,-6));
             VectNStripSat255_h2EvQ.push_back(h2EvQVectVectSat255);
             VectNStripSat255_h1EvQ.push_back(h1EvQVectVectSat255);
             VectNStripSat255_profEvQ.push_back(profEvQVectVectSat255);
@@ -241,9 +241,6 @@ int main(int argc,char** argv){
 
     TH1F* hEmpty = new TH1F("hEmpty","hEmpty",21,0,21); //pour tracer les lignes avec la fonction SetHistoLabel
 
-    TH1F* h1DiffRelEvQ = new TH1F("h1DiffRelEvQ","h1DiffRelEvQ",200,-5,5);
-    TH1F* h1DiffRelEvQCalib = new TH1F("h1DiffRelEvQCalib","h1DiffRelEvQCalib",200,-5,5);
-
     TH2F* h2NStrip5Sat1_254_1=new TH2F("h2NStrip5Sat1_254_1","h2NStrip5Sat1_254_1",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
     TH2F* h2NStrip5Sat1_254_2=new TH2F("h2NStrip5Sat1_254_2","h2NStrip5Sat1_254_2",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
     TH2F* h2NStrip5Sat1_254_3=new TH2F("h2NStrip5Sat1_254_3","h2NStrip5Sat1_254_3",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
@@ -262,9 +259,11 @@ int main(int argc,char** argv){
 
     TH1F* h1ChargeFauxSimHit = new TH1F("h1FauxSimHit","h1FauxSimHit",255,0,255);
 
-    TH2F* testTOB1 = new TH2F("testTOB1","testTOB1",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
-    TH2F* testTOB1_Calib = new TH2F("testTOB1_Calib","testTOB1_Calib",300,0,1500*pow(10,-6),300,0,1500*pow(10,-6));
+    TH2F* testTOB1 = new TH2F("testTOB1","testTOB1",300,0,6000*pow(10,-6),300,0,6000*pow(10,-6));
+    TH2F* testTOB1_Calib = new TH2F("testTOB1_Calib","testTOB1_Calib",300,0,6000*pow(10,-6),300,0,6000*pow(10,-6));
 
+    TH1F* h1DiffRelEvQ = new TH1F("h1DiffRelEvQ","h1DiffRelEvQ",1000,-1.5,5);
+    TH1F* h1DiffRelEvQCalib = new TH1F("h1DiffRelEvQCalib","h1DiffRelEvQCalib",1000,-1.5,5);
 
 
     int entries = nentries;
@@ -441,12 +440,14 @@ int main(int argc,char** argv){
                 }
                 if(b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits().size()==0) h1ChargeFauxSimHit->Fill(charge);
 
-                if(layerLabel==5) 
+                if((layerLabel==1) && (!sat255 && sat254) )
                 {
-                    bool IsSat254=false;
-                    if(sat254 && !sat255) IsSat254=true;
-                    testTOB1_Calib->Fill(eloss,calibration.Charge(1,nstrips,nsat254,IsSat254,charge));
+                    bool IsSat254=false; int NStripSat=nsat255;
+                    if(sat254 && !sat255) {IsSat254=true; NStripSat=nsat254;}
+                    testTOB1_Calib->Fill(eloss,calibration.Charge(layerLabel,nstrips,NStripSat,IsSat254,charge));
                     testTOB1->Fill(eloss,charge);
+                    h1DiffRelEvQ->Fill((charge-eloss)/eloss);
+                    h1DiffRelEvQCalib->Fill((calibration.Charge(layerLabel,nstrips,NStripSat,IsSat254,charge)-eloss)/eloss);
                 }
 
                    
@@ -454,21 +455,15 @@ int main(int argc,char** argv){
                 {
                     for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
                     {
-                        if(nstrip==nstrips && nstripsat==nsat254 && nsat255==0) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
+                        if(layerLabel==3) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
                         {
-                            if(layerLabel==5 && cut==false && edge==false)
+                            if(nstrip==nstrips && nstripsat==nsat254 && nsat255==0)
                             {
                                 VectNStrip_VectNStripSat254_h2EvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
                                 VectNStrip_VectNStripSat254_h1EvQ[nstrip-1][nstripsat]->Fill(eloss/charge);
                                 VectNStrip_VectNStripSat254_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
-                                VectNStrip_VectNStripSat255_h2EvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
-                                VectNStrip_VectNStripSat255_h1EvQ[nstrip-1][nstripsat]->Fill(eloss/charge);
-                                VectNStrip_VectNStripSat255_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
                                 if(nstrip==5 && nstripsat==1)
-                                {
-                                    h1DiffRelEvQ->Fill((charge-eloss)/eloss);
-                                    h1DiffRelEvQCalib->Fill((calibration.Charge(layerLabel,nstrip,nstripsat,true,charge)-eloss)/eloss);
-                                    
+                                {   
                                     if(0.0<PoverM<=0.2)
                                     {
                                         h2NStrip5Sat1_254_1->Fill(eloss,charge);
@@ -496,18 +491,27 @@ int main(int argc,char** argv){
                                     }
                                 }
                             }
+                            if(nstrip==nstrips && nstripsat==nsat255 && nsat254==0)
+                            {
+                                VectNStrip_VectNStripSat255_h2EvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                                VectNStrip_VectNStripSat255_h1EvQ[nstrip-1][nstripsat]->Fill(eloss/charge);
+                                VectNStrip_VectNStripSat255_profEvQ[nstrip-1][nstripsat]->Fill(eloss,charge);
+                            }
                         }
                     }
                 }
-                for(int nstrip=3;nstrip<7;nstrip++)
+                for(int counter_layer=1;counter_layer<11;counter_layer++)
                 {
-                    for(int nstripsat=1;nstripsat<3;nstripsat++)
+                    for(int nstrip=3;nstrip<7;nstrip++)
                     {
-                        for(int counter_sat254=0;counter_sat254<2;counter_sat254++)
+                        for(int nstripsat=1;nstripsat<3;nstripsat++)
                         {
-                            bool IsSat254=true;
-                            if(counter_sat254!=0) IsSat254=false;
-                            if(calibration.Area(5,nstrip,nstripsat,IsSat254,eloss,charge)) VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[0][nstrip-3][nstripsat-1][counter_sat254]->Fill(eloss,charge);
+                            for(int counter_sat254=0;counter_sat254<2;counter_sat254++)
+                            {
+                                bool IsSat254=true;
+                                if(counter_sat254!=0) IsSat254=false;
+                                if(calibration.Area(counter_layer,nstrip,nstripsat,IsSat254,eloss,charge)) VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[counter_layer-1][nstrip-3][nstripsat-1][counter_sat254]->Fill(eloss,charge);
+                            }
                         }
                     }
                 }
@@ -611,27 +615,43 @@ int main(int argc,char** argv){
 
     ofstream ofile_fit("./data/fit_res.txt",ios::out | ios::trunc);
 
-    for(int layer=1;layer<2;layer++)
+    for(int layer=1;layer<11;layer++)
     {
+        for(int counter_sat254=0;counter_sat254<2;counter_sat254++)
+{
         for(int nstrip=3;nstrip<7;nstrip++)
         {
-            for(int nstripsat=1;nstripsat<2;nstripsat++)
+            for(int nstripsat=1;nstripsat<3;nstripsat++)
             {
-                for(int counter_sat254=0;counter_sat254<2;counter_sat254++)
-                {
-                string SatType="254";
-                if(counter_sat254==1) SatType="255";
-                TFitResultPtr fit_res = VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[layer-1][nstrip-3][nstripsat-1][counter_sat254]->Fit("pol1","S");
-                ofile_fit<<(Label(layer+4)+"_NStrip="+to_string(nstrip)+"_NStripSat="+to_string(nstripsat)+"_SatType="+SatType).c_str()<<"\t"<<fit_res->Parameter(0)<<"\t"<<fit_res->Parameter(1)<<endl;
-                } 
+                
+                    string SatType="254";
+                    if(counter_sat254==1) SatType="255";
+                    if(VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[layer-1][nstrip-3][nstripsat-1][counter_sat254]->GetEntries()>10)
+                    {
+                        TFitResultPtr fit_res = VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[layer-1][nstrip-3][nstripsat-1][counter_sat254]->Fit("pol1","S");
+                        ofile_fit<<(Label(layer)+"_NStrip="+to_string(nstrip)+"_NStripSat="+to_string(nstripsat)+"_SatType="+SatType).c_str()<<"\t"<<fit_res->Parameter(0)<<"\t"<<fit_res->Parameter(1)<<endl;
+                    }
+                    else if(!(nstrip==3 && nstripsat==2))ofile_fit<<(Label(layer)+"_NStrip="+to_string(nstrip)+"_NStripSat="+to_string(nstripsat)+"_SatType="+SatType).c_str()<<"\t"<<0<<"\t"<<1<<endl;
+                
             }
         }
     }
+}
     
     ofile_fit.close();
 
     testTOB1->Write();
     testTOB1_Calib->Write();
+
+    TCanvas* cDiffRelChargeCalib_Charge = new TCanvas("cDiffRelChargeCalib_Charge","cDiffRelChargeCalib_Charge");
+    vector<TH1F*> VectDiffRelChargeCalib_Charge;
+    VectDiffRelChargeCalib_Charge.push_back(h1DiffRelEvQ);
+    VectDiffRelChargeCalib_Charge.push_back(h1DiffRelEvQCalib);
+    vector<string> VectLegendDiffRelChargeCalib_Charge;
+    VectLegendDiffRelChargeCalib_Charge.push_back("Avant calibration");
+    VectLegendDiffRelChargeCalib_Charge.push_back("Apres calibration");
+    DrawHistoNormalized(*cDiffRelChargeCalib_Charge,VectDiffRelChargeCalib_Charge,VectLegendDiffRelChargeCalib_Charge,"Calibration","#frac{Q-E_{loss}}{E_{loss}}");
+    cDiffRelChargeCalib_Charge->Write();
 
 
     TLine* linexy = new TLine(0,0,0.0015,0.0015);
@@ -666,16 +686,6 @@ int main(int argc,char** argv){
     DrawHisto(*fileout,h1ChargeFauxSimHit,"Distribution de charge des faux SimHits","Q");
     DrawHisto(*fileout,h2TestCutEdge,"Cut or Edge","E_{loss}","Q");
     DrawHisto(*fileout,h1TestCutOrEdge,"Cut or edge","E/Q");
-
-    TCanvas* cDiffRelChargeCalib_Charge = new TCanvas("cDiffRelChargeCalib_Charge","cDiffRelChargeCalib_Charge");
-    vector<TH1F*> VectDiffRelChargeCalib_Charge;
-    VectDiffRelChargeCalib_Charge.push_back(h1DiffRelEvQ);
-    VectDiffRelChargeCalib_Charge.push_back(h1DiffRelEvQCalib);
-    vector<string> VectLegendDiffRelChargeCalib_Charge;
-    VectLegendDiffRelChargeCalib_Charge.push_back("Avant calibration");
-    VectLegendDiffRelChargeCalib_Charge.push_back("Apres calibration");
-    DrawHisto(*cDiffRelChargeCalib_Charge,VectDiffRelChargeCalib_Charge,VectLegendDiffRelChargeCalib_Charge,"Calibration","#frac{E_{loss}}{Q}");
-    cDiffRelChargeCalib_Charge->Write();
 
     vector<string> VectLegendPartId;
     VectLegendPartId.push_back("e^{+/-}");
