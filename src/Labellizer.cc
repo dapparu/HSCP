@@ -3,9 +3,11 @@
 using namespace std;
 
 
-const float m_proton = 938.27*pow(10,-3); //masse du proton en MeV
-const float m_pion = 139.57*pow(10,-3); //masse du pion en MeV
-const float m_Rhadrons = 2400; //masse des R-hadrons (proche masse gluino) en MeV 
+const float m_electron = 511*pow(10,-6); //masse de l'electron en GeV
+const float m_pion = 139.57*pow(10,-3); //masse du pion en GeV
+const float m_kaon = 439.68*pow(10,-3); //masse du kaon en GeV
+const float m_proton = 938.27*pow(10,-3); //masse du proton en GeV
+const float m_Rhadrons = 2400; //masse des R-hadrons (proche masse gluino) en GeV 
 
 const char* StringToChar(string str)
 {
@@ -66,45 +68,27 @@ void SetHistoLabel(TCanvas* canvas,TH1F* histo)
 
 void SetHistoLabelPartID(TCanvas* canvas,TH2F* histo)
 {
-    histo->GetXaxis()->SetBinLabel(1+1,"#pi^{+/-}");
-    histo->GetXaxis()->SetBinLabel(1+2,"p/#bar{p}");
-    histo->GetXaxis()->SetBinLabel(1+3,"R^{+/-}_{#tilde{g}u#bar{d}}");
-    histo->GetXaxis()->SetBinLabel(1+4,"R^{+/-}");
+    histo->GetXaxis()->SetBinLabel(1,"e^{+/-}");
+    histo->GetXaxis()->SetBinLabel(2,"#pi^{+/-}");
+    histo->GetXaxis()->SetBinLabel(3,"K^{+/-}");
+    histo->GetXaxis()->SetBinLabel(4,"p/#bar{p}");
+    histo->GetXaxis()->SetBinLabel(5,"SM particle");
+    histo->GetXaxis()->SetBinLabel(6,"R^{+/-}_{#tilde{g}u#bar{d}}");
+    histo->GetXaxis()->SetBinLabel(7,"SUSY particle");
     canvas->cd();
     histo->Draw();
 }
 
-string Label(int i)
-{
-    if(i==1)   return "TIB1";
-    if(i==2)   return "TIB2";
-    if(i==3)   return "TIB3";
-    if(i==4)   return "TIB4";
-    if(i==5)   return "TOB1";
-    if(i==6)   return "TOB2";
-    if(i==7)   return "TOB3";
-    if(i==8)   return "TOB4";
-    if(i==9)   return "TOB5";
-    if(i==10)  return "TOB6";
-    if(i==11)  return "TID1";
-    if(i==12)  return "TID2";
-    if(i==13)  return "TEC1";
-    if(i==14)  return "TEC2";
-    if(i==15)  return "TEC3";
-    if(i==16)  return "TEC4";
-    if(i==17)  return "TEC5";
-    if(i==18)  return "TEC6";
-    if(i==19)  return "TEC7";
-    if(i==20)  return "TEC8";
-    if(i==21)  return "TEC9";
-}
-
 string LabelParticle(int i)
 {
-    if(i==211 || i==-211) return "#pi";
-    if(i==2212 || i==-2212) return "p";
+    if(i==11 || i==-11) return "e^{+/-}";
+    if(i==321 || i==-321) return "K^{+/-}";
+    if(i==211 || i==-211) return "#pi^{+/-}";
+    if(i==2212 || i==-2212) return "p/#bar{p}";
     if(i==1009213 || i==-1009213) return "R^{+}_{#tilde{g}u#bar{d}}";
-    else if((int)i/1000==1009 || (int)i/1000==-1009) return "R^{+}";
+    //if(((int)i/1000==1009 || (int)i/1000==-1009) && !(i==1009213 || i==-1009213)) return "R^{+}";
+    if((1000001<=i && i<=2000015) || (-2000015<=i && i<=-1000001)) return "SUSY particle";
+    else return "SM particle";
 }
 
 int GetPartID(const vector<Cluster> &VectClust,float &threshold)
@@ -159,25 +143,59 @@ int GetPartID(const vector<Cluster> &VectClust,float &threshold)
 
 int ReBinPartID(int i)
 {
-    if(i==211 || i==-211) return 1;
-    else if(i==2212 || i==-2212) return 2;
-    else if(i==1009213 || i==-1009213) return 3;
-    else if((int)i/1000==1009 || (int)i/1000==-1009) return 4;
+    if(i==11 || i==-11) return 0; //electron
+    if(i==211 || i==-211) return 1; //pion
+    if(i==321 || i==-321) return 2; //kaon
+    if(i==2212 || i==-2212) return 3; //proton
+    if(i==1009213 || i==-1009213) return 5; //R-hadron 
+    //if(((int)i/1000==1009 || (int)i/1000==-1009) && !(i==1009213 || i==-1009213)) return 6;
+    if((1000001<=i && i<=2000015) || (-2000015<=i && i<=-1000001)) return 6; //SUSY
+    else return 4; //SM
 }
 
 float GetPoverM(float p,int i)
 {
+    if(i==11 || i==-11) return p/m_electron;
+    if(i==321 || i==-321) return p/m_kaon;
     if(i==211 || i==-211) return p/m_pion;
-    if(i==2212 || i==2212) return p/m_proton;
-    if((int)i/1000==1009 || (int)i/1000==-1009) return p/m_Rhadrons;
+    if(i==2212 || i==-2212) return p/m_proton;
+    if(i==1009213 || i==-1009213) return p/m_Rhadrons;
 }
 
 string LoopPartID(int i)
 {
-    if(i==1) return "#pi";
-    if(i==2) return "p";
-    if(i==3) return "R^{+}_{#tilde{g}u#bar{d}}";
-    else if(i==4) return "R^{+}";
+    if(i==0) return "e^{+/-}";
+    if(i==1) return "#pi^{+/-}";
+    if(i==2) return "K^{+/-}";
+    if(i==3) return "p/#bar{p}";
+    if(i==4) return "SM";
+    if(i==5) return "R^{+/-}_{#tilde{g}u#bar{d}}";
+    if(i==6) return "SUSY";
+}
+
+string Label(int i)
+{
+    if(i==1)   return "TIB1";
+    if(i==2)   return "TIB2";
+    if(i==3)   return "TIB3";
+    if(i==4)   return "TIB4";
+    if(i==5)   return "TOB1";
+    if(i==6)   return "TOB2";
+    if(i==7)   return "TOB3";
+    if(i==8)   return "TOB4";
+    if(i==9)   return "TOB5";
+    if(i==10)  return "TOB6";
+    if(i==11)  return "TID1";
+    if(i==12)  return "TID2";
+    if(i==13)  return "TEC1";
+    if(i==14)  return "TEC2";
+    if(i==15)  return "TEC3";
+    if(i==16)  return "TEC4";
+    if(i==17)  return "TEC5";
+    if(i==18)  return "TEC6";
+    if(i==19)  return "TEC7";
+    if(i==20)  return "TEC8";
+    if(i==21)  return "TEC9";
 }
 
 int GetThickness(int layerLabel)

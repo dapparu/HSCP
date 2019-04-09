@@ -18,7 +18,7 @@ Cluster::Cluster()
 	partid_				= 0;
 }
 
-Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,bool sat254,bool sat255,int firstsclus,const vector<ClusterStrip> &VectStrips,const vector<SimHit> &VectSimHits)
+Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,bool sat254,bool sat255,int firstsclus,int partId,const vector<ClusterStrip> &VectStrips,const vector<SimHit> &VectSimHits)
 {
 	dedx_charge_		= dedx_charge;
 	sclus_charge_		= sclus_charge;
@@ -33,7 +33,7 @@ Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float elo
 	firstsclus_			= firstsclus;
 	VectStrips_			= VectStrips;
 	VectSimHits_ 		= VectSimHits;
-	partid_				= 0;
+	partid_				= partId;
 }
 
 Cluster::~Cluster()

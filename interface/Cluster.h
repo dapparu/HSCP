@@ -29,7 +29,7 @@ class Cluster{
 	public:	
 		
 		Cluster();
-		Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid, int subdetid,bool sat254,bool sat255,int firstsclus,const vector<ClusterStrip> &VectStrip,const vector<SimHit> &VectSimHit);
+		Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid, int subdetid,bool sat254,bool sat255,int firstsclus,int partId,const vector<ClusterStrip> &VectStrip,const vector<SimHit> &VectSimHit);
 		~Cluster();
 		float GetDedxCharge() const;
 		float GetSclusCharge() const;

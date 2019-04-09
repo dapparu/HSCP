@@ -20,6 +20,7 @@ class Builder{
 		TChain* chain_;
 		vector<Track> VectTrack_;
 		float ThresholdPartId_;
+		float ThresholdPt_;
 
 		Int_t           runNumber;
    		Int_t           event;
@@ -94,6 +95,8 @@ class Builder{
 		void SetCalibration(float factor,int entries);///loop on the tree and recalibration 
 		void SetThresholdPartId(float threshold);
 		float GetThresholdPartId() const;
+		void SetThresholdPt(float pf);
+		float GetThresholdPt() const;
 
 };
 

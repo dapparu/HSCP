@@ -18,6 +18,7 @@ Builder::Builder(TChain &chain)
     ntracks=0;
 
 	ThresholdPartId_ = 0.;
+	ThresholdPt_	 = 0.;
 
 	for(int i=0;i<ngenpart_max;i++){
 		gen_pdg[i]=0;
@@ -135,16 +136,18 @@ void Builder::SetBranchAdd()
 
 void Builder::GetEntry(int i)
 {
-	float ThresholdPartId=0;
 	VectTrack_.clear();
     chain_->GetEntry(i);
+	vector<int> 	VectPartID_Cluster;
+	int SizeSimHit=0;
     if(ntracks>0)
     {
         for(int itrack=0;itrack<ntracks;itrack++)
         {
 			//cout<<"track "<<itrack<<endl;
-            if(track_pt[itrack]>0 && track_p[itrack]>0 && track_chi2[itrack]<=5 && track_nvalidhits[itrack]>=8) //on applique des selections sur nos traces, des criteres de qualite
-            {
+            if(track_pt[itrack]>ThresholdPt_ && track_p[itrack]>0 && track_chi2[itrack]<=5 && track_nvalidhits[itrack]>=8) //on applique des selections sur nos traces, des criteres de qualite. On veut minimum pt>threshold GeV 
+            {	
+				float ThresholdPartId=1;
                 vector<Cluster> VectClust;
                 for(int iclust=track_index_hit[itrack];iclust<track_index_hit[itrack]+track_nhits[itrack];iclust++)
                 {
@@ -162,19 +165,60 @@ void Builder::GetEntry(int i)
                         {
                             SimHit simhit1(simhit_pid[isimhit],simhit_p[isimhit],simhit_eloss[isimhit],simhit_tof[isimhit],simhit_xentry[isimhit],simhit_xexit[isimhit]);
                             VectSimHits.push_back(simhit1);
+							VectPartID_Cluster.push_back(simhit_pid[isimhit]);
                         }
-                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_firstsclus[iclust],VectStrips,VectSimHits);
+                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_firstsclus[iclust],VectPartID_Cluster[0],VectStrips,VectSimHits);
                         VectClust.push_back(clust1);
+						SizeSimHit=VectSimHits.size();
                     }
                 }
-				for(int iclust=0;iclust<VectClust.size();iclust++) VectClust[iclust].SetPartId(GetPartID(VectClust,ThresholdPartId));
-                Track track1(track_pt[itrack],track_p[itrack],track_nhits[itrack],ndedxhits,VectClust);
-				//cout<<ThresholdPartId_<<endl;
-                if(VectClust.size()>=3 && ThresholdPartId>=ThresholdPartId_) //on veut des traces avec minimum trois clusters et au minimum threshold% de meme partID
+				if(VectClust.size()>=3)
 				{
+					if(SizeSimHit!=VectClust.size())
+					{
+						sort(VectPartID_Cluster.begin(),VectPartID_Cluster.end());
+    					vector<int> VectPartID;
+    					vector<int> counter;
+    					VectPartID.push_back(VectPartID_Cluster[0]);
+    					counter.push_back(1);
+    					int j=0;
+    					for(int i=1;i<VectPartID_Cluster.size();i++)
+    					{
+    					    if(VectPartID_Cluster[i]==VectPartID[j])
+    					    {
+    					        counter[j]++;
+    					    }
+    					    else
+    					    {
+    					        VectPartID.push_back(VectPartID_Cluster[i]);
+    					        counter.push_back(1);
+    					        j++;
+    					    }
+    					}
+    					vector<float> ratio;
+    					for(int i=0;i<counter.size();i++)
+    					{
+    					    ratio.push_back((float)counter[i]/(float)VectPartID_Cluster.size());
+    					}
+    					float max=0;
+    					int indice=0;
+    					for(int i=0;i<ratio.size();i++)
+    					{
+    					    if(ratio[i]>max)
+    					    {
+    					        max=ratio[i];
+    					        indice=i;
+    					    }
+    					}
+    					ThresholdPartId=max;
+						for(int iclust=0;iclust<VectClust.size();iclust++) VectClust[iclust].SetPartId(VectPartID[indice]);
+						VectPartID.clear();
+					}
+					Track track1(track_pt[itrack],track_p[itrack],track_nhits[itrack],ndedxhits,VectClust);
 					track1.SetPartId(VectClust[0].GetPartId());
-					VectTrack_.push_back(track1); 
-				} 
+					if(ThresholdPartId>=ThresholdPartId_) VectTrack_.push_back(track1); //on ne garde que les traces qui verifient la condition d'au minimum threshold% de partId identique
+					VectPartID_Cluster.clear();
+				}	
             }
         }
     }
@@ -205,6 +249,15 @@ float Builder::GetThresholdPartId() const
 	return ThresholdPartId_;
 }
 
+void Builder::SetThresholdPt(float threshold)
+{
+	ThresholdPt_ = threshold;
+}
+
+float Builder::GetThresholdPt() const
+{
+	return ThresholdPt_;
+}
 
 /*void Builder::SetCalibration(float factor,int entries)
 {
