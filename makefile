@@ -28,7 +28,7 @@ INT		= $(INT_PATH)/Estimator.h \
 		  $(INT_PATH)/ClusterStrip.h \
 		  $(INT_PATH)/PlotterHisto.h \
 		  $(INT_PATH)/Labellizer.h \
-		  $(INT_PATH)/CalibCharge.h
+		  $(INT_PATH)/CalibCharge.h 
 
 SRC		= $(SRC_PATH)/Estimator.cc \
 		  $(SRC_PATH)/Builder.cc \
