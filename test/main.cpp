@@ -31,6 +31,7 @@
 #include "../interface/PlotterHisto.h"
 #include "../interface/Labellizer.h" 
 #include "../interface/CalibCharge.h"
+#include "../interface/Calibration.h"
 
 using namespace std;
 
@@ -43,21 +44,21 @@ int main(int argc,char** argv){
     string s1 = argv[1];
     string s2 = s1.substr(0,s1.find('.'))+"_results.root";
 
-    vector<vector<vector<vector<TProfile*>>>> VectLayerVectNStripVectNStripSatVectSatTypeProfileFit;
+    vector<vector<vector<vector<TH2F*>>>> VectLayerVectNStripVectNStripSatVectSatTypeProfileFit;
     for(int layer=1;layer<11;layer++)
     {
-        vector<vector<vector<TProfile*>>> VectNStripVectNStripSatVectSatTypeProfileFit;
+        vector<vector<vector<TH2F*>>> VectNStripVectNStripSatVectSatTypeProfileFit;
         for(int nstrip=3;nstrip<7;nstrip++)
         {
-            vector<vector<TProfile*>> VectNStripSatVectSatTypeProfileFit;
+            vector<vector<TH2F*>> VectNStripSatVectSatTypeProfileFit;
             for(int nstripsat=1;nstripsat<3;nstripsat++)
             {
-                vector<TProfile*> VectSatTypeProfileFit;
+                vector<TH2F*> VectSatTypeProfileFit;
                 for(int sat254=0;sat254<2;sat254++)
                 {
                     string SatType="254";
                     if(sat254==1) SatType="255";
-                    VectSatTypeProfileFit.push_back(new TProfile((Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),(Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),50,0,4500*pow(10,-6),""));
+                    VectSatTypeProfileFit.push_back(new TH2F((Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),(Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),300,0,6000*pow(10,-6),300,0,6000*pow(10,-6)));
                 }
                 VectNStripSatVectSatTypeProfileFit.push_back(VectSatTypeProfileFit);
             }
@@ -455,7 +456,7 @@ int main(int argc,char** argv){
                 {
                     for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
                     {
-                        if(layerLabel==3) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
+                        if(layerLabel==5) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
                         {
                             if(nstrip==nstrips && nstripsat==nsat254 && nsat255==0)
                             {
@@ -609,8 +610,7 @@ int main(int argc,char** argv){
             }*/
         }
     }
-
-
+    
     TFile* fileout = new TFile(s2.c_str(),"RECREATE");
 
     ofstream ofile_fit("./data/fit_res.txt",ios::out | ios::trunc);
@@ -1108,6 +1108,17 @@ int main(int argc,char** argv){
     fileout->Close();
 
     delete fileout;
+
+    Calibration calib;
+    calib.SetFileAndTree("test.root","tree");
+    calib.SetHisto(*VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[0][0][0][0]);
+    calib.FillHisto(0.0002);
+    calib.FillProfile();
+    calib.FitProfile();
+    calib.SetBranch();
+    calib.Write(4,2,0,1);
+    calib.WriteFile();
+
 
     system(("mv "+s2+" ./data/.").c_str());
     

@@ -44,18 +44,22 @@ class Calibration
         int nstripsat_;
         bool IsSat255_;
         TProfile* profile_;
+        TH2F* histo_;
+        TFitResultPtr FitRes_;
 
     public:
         Calibration();
-        Calibration(TFile &file);
+        Calibration(TH2F &histo);
         ~Calibration();
         float CalibCharge(int entry,float charge);
+        void FillHisto(float threshold);
         void SetFileAndTree(string file_name,string tree_name);
         void SetBranch();
-        void Write(float p0,float p1,float chi2);
+        void Write(int layerLabel,int NStrip,int NStripSat,bool IsSat255);
         void WriteFile();
         void Read(TFile *file);
         int GetGoodEntry(int layerLabel,int nstrip,int nstripsat,bool IsSat255);
-        void FillProfile(float E,float Q);
-
+        void FillProfile();
+        void FitProfile();
+        void SetHisto(TH2F &histo);
 };
