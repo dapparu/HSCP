@@ -30,7 +30,6 @@
 #include "../interface/Estimator.h"
 #include "../interface/PlotterHisto.h"
 #include "../interface/Labellizer.h" 
-#include "../interface/CalibCharge.h"
 #include "../interface/Calibration.h"
 
 using namespace std;
@@ -44,63 +43,9 @@ int main(int argc,char** argv){
     string s1 = argv[1];
     string s2 = s1.substr(0,s1.find('.'))+"_results.root";
 
-    vector<vector<vector<vector<TH2F*>>>> VectLayerVectNStripVectNStripSatVectSatTypeProfileFit;
-    for(int layer=1;layer<11;layer++)
-    {
-        vector<vector<vector<TH2F*>>> VectNStripVectNStripSatVectSatTypeProfileFit;
-        for(int nstrip=3;nstrip<7;nstrip++)
-        {
-            vector<vector<TH2F*>> VectNStripSatVectSatTypeProfileFit;
-            for(int nstripsat=1;nstripsat<3;nstripsat++)
-            {
-                vector<TH2F*> VectSatTypeProfileFit;
-                for(int sat254=0;sat254<2;sat254++)
-                {
-                    string SatType="254";
-                    if(sat254==1) SatType="255";
-                    if(sat254==0) VectSatTypeProfileFit.push_back(new TH2F((Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),(Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),300,0,1500*pow(10,-6),300,0,1500*pow(10,-6)));
-                    if(sat254==1) VectSatTypeProfileFit.push_back(new TH2F((Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),(Label(layer)+" NStrip="+to_string(nstrip)+" & NStripSat="+to_string(nstripsat)+" Sat"+SatType).c_str(),300,0,6000*pow(10,-6),300,0,6000*pow(10,-6)));
-                }
-                VectNStripSatVectSatTypeProfileFit.push_back(VectSatTypeProfileFit);
-            }
-            VectNStripVectNStripSatVectSatTypeProfileFit.push_back(VectNStripSatVectSatTypeProfileFit);
-        }
-        VectLayerVectNStripVectNStripSatVectSatTypeProfileFit.push_back(VectNStripVectNStripSatVectSatTypeProfileFit);
-    }
-    vector<vector<vector<vector<TH2F*>>>> VectLayerVectNStripVectNStripSat254VectNStripSat255Histo;
-    for(int layer=1;layer<11;layer++)
-    {
-        vector<vector<vector<TH2F*>>> VectNStripVectNStripSat254VectNStripSat255Histo;
-        for(int nstrip=3;nstrip<7;nstrip++)
-        {
-            vector<vector<TH2F*>> VectNStripSat254VectNStripSat255Histo;
-            for(int nstripsat254=0;nstripsat254<nstrip+1;nstripsat254++)
-            {
-                vector<TH2F*> VectNStripSat255Histo;
-                for(int nstripsat255=0;nstripsat255<nstrip-nstripsat254+1;nstripsat255++)
-                {
-                    string title = Label(layer)+" NStrip="+to_string(nstrip)+" NStripSat254="+to_string(nstripsat254)+" NStripSat255="+to_string(nstripsat255);
-                    VectNStripSat255Histo.push_back(new TH2F(title.c_str(),title.c_str(),300,0,6000*pow(10,-6),300,0,6000*pow(10,-6)));
-                }
-                VectNStripSat254VectNStripSat255Histo.push_back(VectNStripSat255Histo);
-            }
-            VectNStripVectNStripSat254VectNStripSat255Histo.push_back(VectNStripSat254VectNStripSat255Histo);
-        }
-        VectLayerVectNStripVectNStripSat254VectNStripSat255Histo.push_back(VectNStripVectNStripSat254VectNStripSat255Histo);
-    }
-
     Builder* b1 = new Builder(chain);
     b1->SetBranchAdd();
     int nentries = b1->GetEntries();
-
-    CalibCharge calibration;
-
-    calibration.SetParameters();
-
-    Calibration cal1;
-    TFile* file1 = TFile::Open("test.root");
-    TTree* tree1 = (TTree*) file1->Get("tree");
-    cal1.SetTree(*tree1);
 
     TH1F* hDiff_rel_ElossQ_tot = new TH1F("hDiff_rel_ElossQ_tot","hDiff_rel_ElossQ_tot",200,-1,5);
     TH1F* hDiff_rel_ElossQ_NoSat = new TH1F("hDiff_rel_ElossQ_NoSat","hDiff_rel_ElossQ_NoSat",200,-1,5);
@@ -167,7 +112,7 @@ int main(int argc,char** argv){
     TH2F* h2RatioSatPoverM255 = new TH2F("h2RatioSatPoverM255","h2RatioSatPoverM255",100,0,10,20,0,1.05);
     TProfile* profSatPoverM255 = new TProfile("profSatPoverM255","profSatPoverM255",100,0,10,"");
 
-    vector<vector<TH2F*>> VectNStrip_VectNStripSat254_h2EvQ;
+    /*vector<vector<TH2F*>> VectNStrip_VectNStripSat254_h2EvQ;
     vector<vector<TH1F*>> VectNStrip_VectNStripSat254_h1EvQ;
     vector<vector<TProfile*>> VectNStrip_VectNStripSat254_profEvQ;
     vector<vector<TH2F*>> VectNStrip_VectNStripSat255_h2EvQ;
@@ -204,7 +149,7 @@ int main(int argc,char** argv){
         VectNStrip_VectNStripSat255_h2EvQ.push_back(VectNStripSat255_h2EvQ);
         VectNStrip_VectNStripSat255_h1EvQ.push_back(VectNStripSat255_h1EvQ);
         VectNStrip_VectNStripSat255_profEvQ.push_back(VectNStripSat255_profEvQ);
-    }
+    }*/
     
     vector<TH2F*> VectPartID_h2EvQ_NoSat;
     vector<TH2F*> VectPartID_h2EvQ_Sat;
@@ -293,8 +238,34 @@ int main(int argc,char** argv){
     TH1F* h1DiffRelEvQ = new TH1F("h1DiffRelEvQ","h1DiffRelEvQ",1000,-1.5,5);
     TH1F* h1DiffRelEvQCalib = new TH1F("h1DiffRelEvQCalib","h1DiffRelEvQCalib",1000,-1.5,5);
 
+    vector<vector<vector<vector<TH2F*>>>> VectLayerVectNStripVectNStripSat254VectNStripSat255Histo;
+    for(int layer=1;layer<11;layer++)
+    {
+        vector<vector<vector<TH2F*>>> VectNStripVectNStripSat254VectNStripSat255Histo;
+        for(int nstrip=3;nstrip<7;nstrip++)
+        {
+            vector<vector<TH2F*>> VectNStripSat254VectNStripSat255Histo;
+            for(int nstripsat254=0;nstripsat254<nstrip+1;nstripsat254++)
+            {
+                vector<TH2F*> VectNStripSat255Histo;
+                for(int nstripsat255=0;nstripsat255<nstrip-nstripsat254+1;nstripsat255++)
+                {
+                    string title = Label(layer)+" NStrip="+to_string(nstrip)+" NStripSat254="+to_string(nstripsat254)+" NStripSat255="+to_string(nstripsat255);
+                    VectNStripSat255Histo.push_back(new TH2F(title.c_str(),title.c_str(),300,0,6000*pow(10,-6),300,0,6000*pow(10,-6)));
+                }
+                VectNStripSat254VectNStripSat255Histo.push_back(VectNStripSat255Histo);
+            }
+            VectNStripVectNStripSat254VectNStripSat255Histo.push_back(VectNStripSat254VectNStripSat255Histo);
+        }
+        VectLayerVectNStripVectNStripSat254VectNStripSat255Histo.push_back(VectNStripVectNStripSat254VectNStripSat255Histo);
+    }
+
+
+
 
     int entries = nentries;
+
+
 
 
     bool testsat254 = false; 
@@ -474,31 +445,6 @@ int main(int argc,char** argv){
                 }
                 if(b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits().size()==0) h1ChargeFauxSimHit->Fill(charge);
 
-                /*if((layerLabel==1) && (!sat255 && sat254) )
-                {
-                    bool IsSat254=false; int NStripSat=nsat255;
-                    if(sat254 && !sat255) {IsSat254=true; NStripSat=nsat254;}
-                    float chargecalib = cal1.CalibCharge(cal1.GetGoodEntry(layerLabel,nstrips,NStripSat,IsSat254),charge);
-                    //testTOB1_Calib->Fill(eloss,calibration.Charge(layerLabel,nstrips,NStripSat,IsSat254,charge));
-                    testTOB1_Calib->Fill(eloss,chargecalib);
-                    testTOB1->Fill(eloss,charge);
-                    h1DiffRelEvQ->Fill((charge-eloss)/eloss);
-                    //h1DiffRelEvQCalib->Fill((calibration.Charge(layerLabel,nstrips,NStripSat,IsSat254,charge)-eloss)/eloss);
-                    h1DiffRelEvQCalib->Fill((chargecalib-eloss)/eloss);
-                    //cout<<cal1.CalibCharge(cal1.GetGoodEntry(layerLabel,nstrips,NStripSat,!IsSat254),charge)<<endl;
-                    
-                }*/
-                /*if(layerLabel<=10)
-                {
-                    float rec_charge = charge;
-                    if(RatioNClusterSat255>0. && sat255 && nsat254==0) rec_charge=cal1.RecCharge(charge,layerLabel,nstrips,nsat255,0);
-                    else if(RatioNClusterSat254>0. && sat254 && nsat255==0) rec_charge=cal1.RecCharge(charge,layerLabel,nstrips,nsat254,1);
-                    testTOB1_Calib->Fill(eloss,rec_charge);
-                    testTOB1->Fill(eloss,charge);
-                    h1DiffRelEvQ->Fill((charge-eloss)/eloss); 
-                    h1DiffRelEvQCalib->Fill((rec_charge-eloss)/eloss);
-                }*/
-
                 if(layerLabel<=10)
                 {
                     float ChargeCalib=charge;
@@ -510,11 +456,11 @@ int main(int argc,char** argv){
                 }
 
                    
-                for(int nstrip=1;nstrip<10;nstrip++)
+                /*for(int nstrip=1;nstrip<10;nstrip++)
                 {
                     for(int nstripsat=0;nstripsat<nstrip+1;nstripsat++)
                     {
-                        if(layerLabel==1) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
+                        if(layerLabel==5) //on se place dans TOB1 pour ne pas melanger differents effets + selection sans les bords ou les cuts
                         {
                             if(nstrip==nstrips && nstripsat==nsat254 && nsat255==0)
                             {
@@ -558,24 +504,7 @@ int main(int argc,char** argv){
                             }
                         }
                     }
-                }
-                for(int counter_layer=1;counter_layer<11;counter_layer++)
-                {
-                    for(int nstrip=3;nstrip<7;nstrip++)
-                    {
-                        for(int nstripsat=1;nstripsat<3;nstripsat++)
-                        {
-                            if(counter_layer==layerLabel && nstrip==nstrips && nstripsat==nsat254 && nsat255==0)
-                            {
-                                VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[counter_layer-1][nstrip-3][nstripsat-1][0]->Fill(eloss,charge);
-                            }
-                            if(counter_layer==layerLabel && nstrip==nstrips && nstripsat==nsat255 && nsat254==0)
-                            {
-                                VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[counter_layer-1][nstrip-3][nstripsat-1][1]->Fill(eloss,charge);
-                            }
-                        }
-                    }
-                }
+                }*/
                 for(int countlayer=1;countlayer<11;countlayer++)
                 {
                     for(int countnstrip=3;countnstrip<7;countnstrip++)
@@ -685,33 +614,6 @@ int main(int argc,char** argv){
     }
     
     TFile* fileout = new TFile(s2.c_str(),"RECREATE");
-
-    ofstream ofile_fit("./data/fit_res.txt",ios::out | ios::trunc);
-
-    /*for(int layer=1;layer<11;layer++)
-    {
-        for(int counter_sat254=0;counter_sat254<2;counter_sat254++)
-        {
-        for(int nstrip=3;nstrip<7;nstrip++)
-        {
-            for(int nstripsat=1;nstripsat<3;nstripsat++)
-            {
-                
-                    string SatType="254";
-                    if(counter_sat254==1) SatType="255";
-                    if(VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[layer-1][nstrip-3][nstripsat-1][counter_sat254]->GetEntries()>10)
-                    {
-                        TFitResultPtr fit_res = VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[layer-1][nstrip-3][nstripsat-1][counter_sat254]->Fit("pol1","S");
-                        ofile_fit<<(Label(layer)+"_NStrip="+to_string(nstrip)+"_NStripSat="+to_string(nstripsat)+"_SatType="+SatType).c_str()<<"\t"<<fit_res->Parameter(0)<<"\t"<<fit_res->Parameter(1)<<endl;
-                    }
-                    else if(!(nstrip==3 && nstripsat==2))ofile_fit<<(Label(layer)+"_NStrip="+to_string(nstrip)+"_NStripSat="+to_string(nstripsat)+"_SatType="+SatType).c_str()<<"\t"<<0<<"\t"<<1<<endl;
-                
-            }
-        }
-        }
-    }*/
-    
-    ofile_fit.close();
 
     testTOB1->Write();
     testTOB1_Calib->Write();
@@ -1051,7 +953,7 @@ int main(int argc,char** argv){
     
 
     
-    for(int nstrip=1;nstrip<10;nstrip++)
+    /*for(int nstrip=1;nstrip<10;nstrip++)
     {
         TCanvas* cNStripNStripSat254_h2prof = new TCanvas(("H2 & profile NStrip="+to_string(nstrip)+" | Sat254 | TOB1").c_str(),("H2 & profile NStrip="+to_string(nstrip)+" | Sat254 | TOB1").c_str());
         TCanvas* cNStripNStripSat254_h1 = new TCanvas(("H1 NStrip="+to_string(nstrip)+" | Sat254 | TOB1").c_str(),("H1 NStrip="+to_string(nstrip)+" | Sat254 | TOB1").c_str());
@@ -1112,9 +1014,9 @@ int main(int argc,char** argv){
         }
         cNStripNStripSat254_h2prof->Write();
         cNStripNStripSat254_h1->Write();
-    }
+    }*/
 
-    for(int nstrip=1;nstrip<10;nstrip++)
+    /*for(int nstrip=1;nstrip<10;nstrip++)
     {
         TCanvas* cNStripNStripSat255_h2prof = new TCanvas(("H2 & profile NStrip="+to_string(nstrip)+" | Sat255 | TOB1").c_str(),("H2 & profile NStrip="+to_string(nstrip)+" | Sat255 | TOB1").c_str());
         TCanvas* cNStripNStripSat255_h1 = new TCanvas(("H1 NStrip="+to_string(nstrip)+" | Sat255 | TOB1").c_str(),("H1 NStrip="+to_string(nstrip)+" | Sat255 | TOB1").c_str());
@@ -1175,50 +1077,15 @@ int main(int argc,char** argv){
         }
         cNStripNStripSat255_h2prof->Write();
         cNStripNStripSat255_h1->Write();
-    }
-
-    VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[0][0][0][0]->Write();
+    }*/
 
     fileout->Write();
     fileout->Close();
 
     delete fileout;
 
-    Calibration calib;
-    calib.SetFileAndTreeName("test.root","tree");
-    /*calib.SetHisto(*VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[0][1][0][0]);
-    calib.FillHisto(0.1);
-    calib.FillProfile();
-    calib.FitProfile();
-    */
-
-    /*calib.SetBranch();
-
-    for(int layer=1;layer<11;layer++)
-    {
-        for(int counter_sat254=0;counter_sat254<2;counter_sat254++)
-        {
-            for(int nstrip=3;nstrip<7;nstrip++)
-            {
-                for(int nstripsat=1;nstripsat<3;nstripsat++)
-                {
-                    //cout<<"layer "<<layer<<" countersat "<<counter_sat254<<" nstrip "<<nstrip<<" nstripsat "<<nstripsat<<endl;
-                    bool issat255=true;
-                    if(counter_sat254!=0) issat255=false; 
-                    calib.SetHisto(*VectLayerVectNStripVectNStripSatVectSatTypeProfileFit[layer-1][nstrip-3][nstripsat-1][counter_sat254]);
-                    calib.FillHisto(0.1);
-                    calib.FillProfile();
-                    calib.Write(layer,nstrip,nstripsat,issat255);
-                }
-            }
-        }
-    }
-    
-    calib.WriteFile();*/
-
-
     /*Calibration calCharge;
-    calCharge.SetFileAndTreeName("FitRes.root","tree");
+    calCharge.SetFileAndTreeName("./data/FitRes.root","tree");
     calCharge.SetBranch();
     for(int countlayer=1;countlayer<11;countlayer++)
     {
