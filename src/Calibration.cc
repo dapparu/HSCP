@@ -5,28 +5,36 @@ using namespace std;
 Calibration::Calibration()
 {
     p0_     = 0.;
-    p1_     = 0.;
+    p1_     = 1.;
     p0err_  = 0.;
     p1err_  = 0.;
     chi2_   = 0.;
+    Ndf_    = 0;
+    Chi2overNdf_ = 1.;
     layerLabel_ = 0;
     nstrip_ = 0;
     nstripsat_ = 0;
     IsSat255_ = false;
+    nstripsat254_   = 0;
+    nstripsat255_   = 0;
 }
 
 Calibration::Calibration(TH2F &histo)
 {
     histo_ = &histo;
     p0_     = 0.;
-    p1_     = 0.;
+    p1_     = 1.;
     p0err_  = 0.;
     p1err_  = 0.;
     chi2_   = 0.;
+    Ndf_    = 0;
+    Chi2overNdf_ = 1.;
     layerLabel_ = 0;
     nstrip_ = 0;
     nstripsat_ = 0;
     IsSat255_ = false;
+    nstripsat254_   = 0;
+    nstripsat255_   = 0;
 }
 
 Calibration::~Calibration()
@@ -36,16 +44,9 @@ Calibration::~Calibration()
 
 void Calibration::SetHisto(TH2F &histo)
 {
-    histo_ = &histo;
-}
 
-float Calibration::CalibCharge(int entry,float charge)
-{
-    TTree* tree = (TTree*) file_->Get("tree");   
-    tree->SetBranchAddress("p0",&p0_);
-    tree->SetBranchAddress("p1",&p1_);
-    tree->GetEntry(entry);
-    return -(p0_-charge)/p1_;
+    histo_ = &histo;
+    histo_->Write();
 }
 
 void Calibration::FillHisto(float threshold)
@@ -60,7 +61,7 @@ void Calibration::FillHisto(float threshold)
         {
             float LowEdgeY = histo_->GetXaxis()->GetBinLowEdge(j);
             float WidthY = histo_->GetXaxis()->GetBinWidth(j);
-            if(LowEdgeX>LowEdgeY+threshold)
+            if(LowEdgeX>LowEdgeY /*&& LowEdgeX>0.0006*/ && LowEdgeX<0.002)
             {
                 histo_clone->SetBinContent(i,j,histo_->GetBinContent(i,j));
                 histo_clone->SetBinError(i,j,histo_->GetBinError(i,j));
@@ -68,22 +69,31 @@ void Calibration::FillHisto(float threshold)
         }
     }
     histo_ = histo_clone;
+    histo_->Write();
 }
 
 void Calibration::FillProfile()
 {
     profile_ = histo_->ProfileX();
+    profile_->Rebin(6);
+    delete histo_;
 }
 
-void Calibration::FitProfile()
+/*void Calibration::FitProfile()
 {
-    FitRes_ = profile_->Fit("pol1","S");
-}
+    if(profile_->GetEntries()>30) FitRes_ = profile_->Fit("pol1","S");
+    else FitRes_=0;
+}*/
 
-void Calibration::SetFileAndTree(string file_name,string tree_name)
+void Calibration::SetFileAndTreeName(string file_name,string tree_name)
 {
     file_ = new TFile(file_name.c_str(),"RECREATE");
     tree_ = new TTree(tree_name.c_str(),tree_name.c_str());
+}
+
+void Calibration::SetTree(TTree &tree)
+{
+    tree_ = &tree;
 }
 
 void Calibration::SetBranch()
@@ -93,25 +103,77 @@ void Calibration::SetBranch()
     tree_->Branch("p0err",&p0err_,"p0err/F");
     tree_->Branch("p1err",&p1err_,"p1err/F");
     tree_->Branch("chi2",&chi2_,"chi2/F");
+    tree_->Branch("ndf",&Ndf_,"ndf/I");
+    tree_->Branch("chi2overndf",&Chi2overNdf_,"chi2overndf/F");
     tree_->Branch("layerLabel",&layerLabel_,"layerLabel/I");
     tree_->Branch("nstrip",&nstrip_,"nstrip/I");
     tree_->Branch("nstripsat",&nstripsat_,"nstripsat/I");
     tree_->Branch("issat255",&IsSat255_,"issat255/O");
-    tree_->Branch("histo","TH2F",&histo_,32000,0);
-    tree_->Branch("profile","TProfile",&profile_,32000,0);
+//    tree_->Branch("histo","TH2F",&histo_,0,0);
+//    tree_->Branch("profile","TProfile",&profile_,0,0);
+    tree_->Branch("nstripsat254",&nstripsat254_,"nstripsat254/I");
+    tree_->Branch("nstripsat255",&nstripsat255_,"nstripsat255/I");
 }
 
 void Calibration::Write(int layerLabel,int NStrip,int NStripSat,bool IsSat255)
 {
-    p0_     = FitRes_->Parameter(0);
-    p1_     = FitRes_->Parameter(1);
-    p0err_  = FitRes_->Error(0);
-    p1err_  = FitRes_->Error(1);
-    chi2_   = FitRes_->Chi2();
+    if(profile_->GetEntries()>5)
+    {    
+        TFitResultPtr FitRes_ = profile_->Fit("pol1","SQ");
+        p0_     = FitRes_->Parameter(0);
+        p1_     = FitRes_->Parameter(1);
+        p0err_  = FitRes_->Error(0);
+        p1err_  = FitRes_->Error(1);
+        chi2_   = FitRes_->Chi2();
+        Ndf_    = FitRes_->Ndf();
+        Chi2overNdf_ = (float)chi2_/(float)Ndf_;
+    //    tree_->Branch("fitresult","TFitResultPtr",&FitRes_,0,0);
+    }
+    else
+    {
+        p0_     = 0.;
+        p1_     = 1.;
+        p0err_  = 0.;
+        p1err_  = 0.;
+        chi2_   = 0.;
+        Ndf_    = 0;
+        Chi2overNdf_ = 1.;
+    }
     layerLabel_ = layerLabel;
     nstrip_ = NStrip;
     nstripsat_  = NStripSat;
     IsSat255_   = IsSat255;
+    tree_->Fill();
+}
+
+void Calibration::Write(int layerLabel,int nstrip,int nstripsat254,int nstripsat255)
+{
+    if(profile_->GetEntries()>100 && (nstripsat254!=0 || nstripsat255!=0))
+    {    
+        TFitResultPtr FitRes_ = profile_->Fit("pol1","SQ");
+        p0_     = FitRes_->Parameter(0);
+        p1_     = FitRes_->Parameter(1);
+        p0err_  = FitRes_->Error(0);
+        p1err_  = FitRes_->Error(1);
+        chi2_   = FitRes_->Chi2();
+        Ndf_    = FitRes_->Ndf();
+        Chi2overNdf_ = (float)chi2_/(float)Ndf_;
+    //    tree_->Branch("fitresult","TFitResultPtr",&FitRes_,0,0);
+    }
+    else
+    {
+        p0_     = 0.;
+        p1_     = 1.;
+        p0err_  = 0.;
+        p1err_  = 0.;
+        chi2_   = 0.;
+        Ndf_    = 0;
+        Chi2overNdf_ = 0.;
+    }
+    layerLabel_ = layerLabel;
+    nstrip_ = nstrip;
+    nstripsat254_ = nstripsat254;
+    nstripsat255_ = nstripsat255;
     tree_->Fill();
 }
 
@@ -148,4 +210,57 @@ int Calibration::GetGoodEntry(int layerLabel,int nstrip,int nstripsat,bool IsSat
         if(layerLabel_==layerLabel && nstrip_==nstrip && nstripsat_==nstripsat && IsSat255_==IsSat255) indice=i;
     }
     return indice;
+}
+
+float Calibration::CalibCharge(int entry,float charge)
+{
+    if(entry==0) return charge;
+    else
+    { 
+    tree_->SetBranchAddress("p0",&p0_);
+    tree_->SetBranchAddress("p1",&p1_);
+    tree_->GetEntry(entry);
+    return -(p0_-charge)/p1_;
+    }
+    
+}
+
+float Calibration::RecCharge(float charge,int layerlabel,int nstrip,int nstripsat,bool issat255)
+{
+    float res=charge;
+    tree_->SetBranchAddress("p0",&p0_);
+    tree_->SetBranchAddress("p1",&p1_);
+    tree_->SetBranchAddress("layerLabel",&layerLabel_);
+    tree_->SetBranchAddress("nstrip",&nstrip_);
+    tree_->SetBranchAddress("nstripsat",&nstripsat_);
+    tree_->SetBranchAddress("issat255",&IsSat255_);
+    for(int i=0;i<tree_->GetEntries();i++)
+    {
+        tree_->GetEntry(i);
+        if(nstrip>=6) nstrip=6;
+        if(nstripsat>=2) nstripsat=2;
+        //if(nstrip==4 && nstripsat==1) {p0_=0.000294361;p1_=0.148644;}
+        if(layerlabel==layerLabel_ && nstrip==nstrip_ && nstripsat==nstripsat_ && issat255==IsSat255_) {res=-(p0_-charge)/p1_;}
+    }
+    return res;
+}
+
+float Calibration::ChargeCalib(float charge,int layerLabel,int nstrip,int nstripsat254,int nstripsat255)
+{
+    float res=charge;
+    tree_->SetBranchAddress("p0",&p0_);
+    tree_->SetBranchAddress("p1",&p1_);
+    tree_->SetBranchAddress("layerLabel",&layerLabel_);
+    tree_->SetBranchAddress("nstrip",&nstrip_);
+    tree_->SetBranchAddress("nstripsat254",&nstripsat254_);
+    tree_->SetBranchAddress("nstripsat255",&nstripsat255_);
+    for(int i=0;i<tree_->GetEntries();i++)
+    {
+        tree_->GetEntry(i);
+        if(nstrip>=6) nstrip=6;
+        if(nstripsat254>=2) nstripsat254=2;
+        if(nstripsat255>=2) nstripsat255=2;
+        if(layerLabel==layerLabel_ && nstrip==nstrip_ && nstripsat254==nstripsat254_ && nstripsat255==nstripsat255_) {res=-(p0_-charge)/p1_;}
+    }
+    return res;
 }

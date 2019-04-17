@@ -39,13 +39,17 @@ class Calibration
         float p0err_;
         float p1err_;
         float chi2_;
+        int Ndf_;
+        float Chi2overNdf_;
         int layerLabel_;
         int nstrip_;
         int nstripsat_;
         bool IsSat255_;
+        int nstripsat254_;
+        int nstripsat255_;
         TProfile* profile_;
         TH2F* histo_;
-        TFitResultPtr FitRes_;
+        //TFitResultPtr FitRes_;
 
     public:
         Calibration();
@@ -53,13 +57,17 @@ class Calibration
         ~Calibration();
         float CalibCharge(int entry,float charge);
         void FillHisto(float threshold);
-        void SetFileAndTree(string file_name,string tree_name);
+        void SetFileAndTreeName(string file_name,string tree_name);
+        void SetTree(TTree &tree);
         void SetBranch();
         void Write(int layerLabel,int NStrip,int NStripSat,bool IsSat255);
+        void Write(int layerLabel,int nstrip,int nstripsat254,int nstripsat255);
         void WriteFile();
         void Read(TFile *file);
         int GetGoodEntry(int layerLabel,int nstrip,int nstripsat,bool IsSat255);
         void FillProfile();
         void FitProfile();
         void SetHisto(TH2F &histo);
+        float RecCharge(float charge,int layerlabel,int nstrip,int nstripsat,bool issat255);
+        float ChargeCalib(float charge,int layerLabel,int nstrip,int nstripsat254,int nstripsat255);
 };
