@@ -13,6 +13,8 @@ class Track{
 		
 		float				pt_;
 		float				p_;
+		float 				eta_;
+		float 				phi_;
 		float				nhits_;
 		int					ndedxhits_;
 		vector<Cluster>		VectClusters_;
@@ -21,10 +23,12 @@ class Track{
 	public:
 
 		Track();
-		Track(float pt,float p,float nhits,int ndedxhits,const vector<Cluster> &VectClusters);
+		Track(float pt,float p,float eta,float phi,float nhits,int ndedxhits,const vector<Cluster> &VectClusters);
 		~Track();
 		float GetPt() const;
 		float GetP() const;
+		float GetEta() const;
+		float GetPhi() const;
 		int GetNhits() const;
 		int GetNCluster() const;
 		int GetNSatCluster(int sat) const;

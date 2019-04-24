@@ -49,8 +49,18 @@ void Calibration::SetHisto(TH2F &histo)
     histo_->Write();
 }
 
-void Calibration::FillHisto(float threshold)
+void Calibration::FillHisto(int nstrip,int nstripsat254,int nstripsat255)
 {
+    float lowedgexu = 1.;
+    float lowedgexd = 0.;
+    if(nstrip>=5)
+    {
+        if(nstripsat255==0) 
+        {
+            lowedgexu=0.0015;lowedgexd=0.0005;
+            if(nstripsat254==2) {lowedgexu=0.001;lowedgexd=0.0006;}
+        }
+    }
     TH2F* histo_clone = (TH2F*) histo_->Clone();
     histo_clone->Reset();
     for(int i=0;i<histo_clone->GetNbinsX()+2;i++)
@@ -61,7 +71,7 @@ void Calibration::FillHisto(float threshold)
         {
             float LowEdgeY = histo_->GetXaxis()->GetBinLowEdge(j);
             float WidthY = histo_->GetXaxis()->GetBinWidth(j);
-            if(LowEdgeX>LowEdgeY /*&& LowEdgeX>0.0006*/ && LowEdgeX<0.002)
+            if(LowEdgeX>LowEdgeY)// && LowEdgeX>lowedgexd && LowEdgeX<lowedgexu)
             {
                 histo_clone->SetBinContent(i,j,histo_->GetBinContent(i,j));
                 histo_clone->SetBinError(i,j,histo_->GetBinError(i,j));
@@ -74,8 +84,8 @@ void Calibration::FillHisto(float threshold)
 
 void Calibration::FillProfile()
 {
-    profile_ = histo_->ProfileX();
-    profile_->Rebin(6);
+    profile_ = histo_->ProfileX("_pfx",1,-1,"");
+    profile_->Rebin(10);
     delete histo_;
 }
 
@@ -148,7 +158,7 @@ void Calibration::Write(int layerLabel,int NStrip,int NStripSat,bool IsSat255)
 
 void Calibration::Write(int layerLabel,int nstrip,int nstripsat254,int nstripsat255)
 {
-    if(profile_->GetEntries()>100 && (nstripsat254!=0 || nstripsat255!=0))
+    if(profile_->GetEntries()>40 && (nstripsat254!=0 || nstripsat255!=0))
     {    
         TFitResultPtr FitRes_ = profile_->Fit("pol1","SQ");
         p0_     = FitRes_->Parameter(0);

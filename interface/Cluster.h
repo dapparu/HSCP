@@ -22,6 +22,7 @@ class Cluster{
 		int firstsclus_;
 		bool sat254_;
 		bool sat255_;
+		bool shape_;
 		vector<ClusterStrip>	VectStrips_;
 		vector<SimHit>	VectSimHits_;
 		int partid_;
@@ -29,7 +30,7 @@ class Cluster{
 	public:	
 		
 		Cluster();
-		Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid, int subdetid,bool sat254,bool sat255,int firstsclus,int partId,const vector<ClusterStrip> &VectStrip,const vector<SimHit> &VectSimHit);
+		Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid, int subdetid,bool sat254,bool sat255,bool shape,int firstsclus,int partId,const vector<ClusterStrip> &VectStrip,const vector<SimHit> &VectSimHit);
 		~Cluster();
 		float GetDedxCharge() const;
 		float GetSclusCharge() const;
@@ -41,6 +42,7 @@ class Cluster{
 		int GetNStripLayer(int layerlabel) const;
 		bool GetSat254() const;
 		bool GetSat255() const;
+		bool GetShape() const;
 		int GetNSatStrip(int sat) const;
 		int GetNSatStripBoth() const;
 		int GetNStrip() const;
@@ -52,5 +54,7 @@ class Cluster{
 		bool Cut() const;
 		void SetPartId(int partid);
 		int GetPartId() const;
+		int GetDetId() const;
+		int GetSubDetId() const;
 
 };

@@ -15,10 +15,11 @@ Cluster::Cluster()
 	firstsclus_			= 0;
 	sat254_				= false;
 	sat255_				= false;
+	shape_				= false;
 	partid_				= 0;
 }
 
-Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,bool sat254,bool sat255,int firstsclus,int partId,const vector<ClusterStrip> &VectStrips,const vector<SimHit> &VectSimHits)
+Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,bool sat254,bool sat255,bool shape,int firstsclus,int partId,const vector<ClusterStrip> &VectStrips,const vector<SimHit> &VectSimHits)
 {
 	dedx_charge_		= dedx_charge;
 	sclus_charge_		= sclus_charge;
@@ -30,6 +31,7 @@ Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float elo
 	subdetid_			= subdetid;
 	sat254_				= sat254;
 	sat255_				= sat255;
+	shape_				= shape;
 	firstsclus_			= firstsclus;
 	VectStrips_			= VectStrips;
 	VectSimHits_ 		= VectSimHits;
@@ -127,6 +129,11 @@ bool Cluster::GetSat255() const
 	return sat255_;
 }
 
+bool Cluster::GetShape() const
+{
+	return shape_;
+}
+
 int Cluster::GetNSatStrip(int sat) const
 {
 	int nsat=0;
@@ -212,4 +219,14 @@ int Cluster::GetPartId() const
 void Cluster::SetPartId(int partid)
 {
 	partid_ = partid;
+}
+
+int Cluster::GetDetId() const
+{
+	return detid_;
+}
+
+int Cluster::GetSubDetId() const
+{
+	return subdetid_;
 }

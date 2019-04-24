@@ -42,6 +42,7 @@ int main(int argc,char** argv){
 
     string s1 = argv[1];
     string s2 = s1.substr(0,s1.find('.'))+"_results.root";
+    string s3 = s1.substr(0,s1.find('.'))+"_FitRes.root";
 
     Builder* b1 = new Builder(chain);
     b1->SetBranchAdd();
@@ -232,8 +233,8 @@ int main(int argc,char** argv){
 
     TH1F* h1ChargeFauxSimHit = new TH1F("h1FauxSimHit","h1FauxSimHit",255,0,255);
 
-    TH2F* testTOB1 = new TH2F("testTOB1","testTOB1",300,0,6000*pow(10,-6),300,0,6000*pow(10,-6));
-    TH2F* testTOB1_Calib = new TH2F("testTOB1_Calib","testTOB1_Calib",300,0,6000*pow(10,-6),300,0,6000*pow(10,-6));
+    TH2F* EvQbarrel = new TH2F("EvQbarrel","EvQbarrel",300,0,6000*pow(10,-6),300,0,6000*pow(10,-6));
+    TH2F* EvQbarrel_Calib = new TH2F("EvQbarrel_Calib","EvQbarrel_Calib",300,0,6000*pow(10,-6),300,0,6000*pow(10,-6));
 
     TH1F* h1DiffRelEvQ = new TH1F("h1DiffRelEvQ","h1DiffRelEvQ",1000,-1.5,5);
     TH1F* h1DiffRelEvQCalib = new TH1F("h1DiffRelEvQCalib","h1DiffRelEvQCalib",1000,-1.5,5);
@@ -260,6 +261,16 @@ int main(int argc,char** argv){
         VectLayerVectNStripVectNStripSat254VectNStripSat255Histo.push_back(VectNStripVectNStripSat254VectNStripSat255Histo);
     }
 
+    TH1F* hInvestigationEta = new TH1F("hInvestigationEta","hInvestigationEta",50,-5,5);
+    TH1F* hInvestigationPhi = new TH1F("hInvestigationPhi","hInvestigationPhi",50,-5,5);
+    TH1F* hInvestigationEloss = new TH1F("hInvestigationEloss","hInvestigationEloss",100,0,0.006);
+    TH1F* hInvestigationCharge = new TH1F("hInvestigationCharge","hInvestigationCharge",100,0,0.006);
+    TH2F* h2InvestigationEvQ = new TH2F("h2InvestigationEvQ","h2InvestigationEvQ",300,0,0.006,300,0,0.006);
+    TH1F* hInvestigationDetId = new TH1F("hInvestigationDetId","hInvestigationDetId",1000,0,500000000);
+    TH1F* hInvestigationEntries = new TH1F("hInvestigationEntries","hInvestigationEntries",1000,0,16000);
+    TH1F* hInvestigationShape = new TH1F("hInvestigationShape","hInvestigationShape",2,0,2);
+    TH1F* hInvestigationSimHits = new TH1F("hInvestigationSimHits","hInvestigationSimHits",5,0,5);
+
 
 
 
@@ -278,7 +289,7 @@ int main(int argc,char** argv){
 
 
     Calibration Charge;
-    TFile* file2 = TFile::Open("FitRes.root");
+    TFile* file2 = TFile::Open(s3.c_str());
     TTree* tree2 = (TTree*) file2->Get("tree");
     Charge.SetTree(*tree2);
 
@@ -294,6 +305,8 @@ int main(int argc,char** argv){
             testsat255              = false;
             float pt                = b1->GetVectTrack()[track].GetPt();
             float p                 = b1->GetVectTrack()[track].GetP();
+            float eta               = b1->GetVectTrack()[track].GetEta();
+            float phi               = b1->GetVectTrack()[track].GetPhi();
             int NCluster            = b1->GetVectTrack()[track].GetNCluster();
             int NClustSat254        = b1->GetVectTrack()[track].GetNSatCluster(254);
             int NClustSat255        = b1->GetVectTrack()[track].GetNSatCluster(255);
@@ -363,13 +376,16 @@ int main(int argc,char** argv){
                 int layerLabel      = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetLayerLabel();
                 bool sat254         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetSat254();
                 bool sat255         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetSat255();
-                //int nsimhits        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSimHits();
+                bool shape          = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetShape();
+                int nsimhits        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSimHits();
                 int nstrips         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNStrip();
                 //int nsatboth        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStripBoth();
                 int nsat254         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStrip(254);
                 int nsat255         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetNSatStrip(255);
                 bool edge           = b1->GetVectTrack()[track].GetVectClusters()[cluster].Edge();
                 bool cut            = b1->GetVectTrack()[track].GetVectClusters()[cluster].Cut();
+                int detid           = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetDetId();
+                int subdetid        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetSubDetId();
 
                 clust++;
 
@@ -448,11 +464,33 @@ int main(int argc,char** argv){
                 if(layerLabel<=10)
                 {
                     float ChargeCalib=charge;
-                    if(RatioNClusterSat254>0.5 || RatioNClusterSat255>0.1)ChargeCalib=Charge.ChargeCalib(charge,layerLabel,nstrips,nsat254,nsat255);
-                    testTOB1_Calib->Fill(eloss,ChargeCalib);
-                    testTOB1->Fill(eloss,charge);
+                    if(RatioNClusterSat254>0.7 || RatioNClusterSat255>0.2)ChargeCalib=Charge.ChargeCalib(charge,layerLabel,nstrips,nsat254,nsat255);
+                    EvQbarrel_Calib->Fill(eloss,ChargeCalib);
+                    EvQbarrel->Fill(eloss,charge);
                     h1DiffRelEvQ->Fill((charge-eloss)/eloss); 
                     h1DiffRelEvQCalib->Fill((ChargeCalib-eloss)/eloss);
+                    /*if(charge<=0.00085)
+                    {
+                        hInvestigationCharge->Fill(charge);
+                        hInvestigationEloss->Fill(eloss);
+                        hInvestigationEta->Fill(eta);
+                        hInvestigationPhi->Fill(phi);
+                        hInvestigationDetId->Fill(detid);
+                        h2InvestigationEvQ->Fill(eloss,charge);
+                        hInvestigationEntries->Fill(i);
+                        hInvestigationShape->Fill(shape);
+                        hInvestigationSimHits->Fill(nsimhits);
+                        cout<<"particle : "<<LabelParticle(id)<<endl;
+                        cout<<"detid="<<detid<<" subdetid="<<subdetid<<endl;
+                        cout<<"eta="<<eta<<" phi="<<phi<<endl;
+                        cout<<"eloss="<<eloss/(3.61*pow(10,-9)*247)<<" q="<<charge<<endl;
+                        TCanvas* c_profClust = new TCanvas();
+                        TProfile* profDistribStrip = &b1->GetVectTrack()[track].GetVectClusters()[cluster].GetDistribStrip();
+                        profDistribStrip->SetLineColor(kBlue);
+                        profDistribStrip->Draw();
+                        c_profClust->SaveAs("./data/ProfileClust.pdf");
+                        getchar();
+                    }*/
                 }
 
                    
@@ -613,10 +651,36 @@ int main(int argc,char** argv){
         }
     }
     
+    ofstream ofile("parameters.txt");
+    ofile<<"Avant calib"<<endl;
+    ofile<<"Mean : "<<h1DiffRelEvQ->GetMean()<<"\tError : "<<h1DiffRelEvQ->GetMeanError()<<endl;
+    ofile<<"StdDev : "<<h1DiffRelEvQ->GetStdDev()<<"\tError : "<<h1DiffRelEvQ->GetStdDevError()<<endl;
+    ofile<<"Apres calib"<<endl;
+    ofile<<"Mean : "<<h1DiffRelEvQCalib->GetMean()<<"\tError : "<<h1DiffRelEvQCalib->GetMeanError()<<endl;
+    ofile<<"StdDev : "<<h1DiffRelEvQCalib->GetStdDev()<<"\tError : "<<h1DiffRelEvQCalib->GetStdDevError()<<endl;
+
     TFile* fileout = new TFile(s2.c_str(),"RECREATE");
 
-    testTOB1->Write();
-    testTOB1_Calib->Write();
+    hInvestigationCharge->Write();
+    hInvestigationEloss->Write();
+    h2InvestigationEvQ->Write();
+    hInvestigationEta->Write();
+    hInvestigationPhi->Write();
+    hInvestigationDetId->Write();
+    hInvestigationEntries->Write();
+    hInvestigationShape->Write();
+    hInvestigationSimHits->Write();
+
+    TLine* linexy = new TLine(0,0,0.006,0.006);
+    linexy->SetLineStyle(4);
+    TCanvas* cEvQbarrel = new TCanvas("EvQbarrel","EvQbarrel");
+    EvQbarrel->Draw();
+    linexy->Draw("SAME");
+    cEvQbarrel->Write();
+    TCanvas* cEvQbarrel_Calib = new TCanvas("cEvQbarrel_Calib","cEvQbarrel_Calib");
+    EvQbarrel_Calib->Draw();
+    linexy->Draw("SAME");
+    cEvQbarrel_Calib->Write();
 
     TCanvas* cDiffRelChargeCalib_Charge = new TCanvas("cDiffRelChargeCalib_Charge","cDiffRelChargeCalib_Charge");
     vector<TH1F*> VectDiffRelChargeCalib_Charge;
@@ -629,7 +693,7 @@ int main(int argc,char** argv){
     cDiffRelChargeCalib_Charge->Write();
 
 
-    TLine* linexy = new TLine(0,0,0.0015,0.0015);
+    
 
     TCanvas* cTestCutEdge = new TCanvas("cTestCutEdge","cTestCutEdge");
     vector<TH1F*> VectTestCutEdge;
@@ -1084,8 +1148,8 @@ int main(int argc,char** argv){
 
     delete fileout;
 
-    /*Calibration calCharge;
-    calCharge.SetFileAndTreeName("./data/FitRes.root","tree");
+    Calibration calCharge;
+    calCharge.SetFileAndTreeName(s3.c_str(),"tree");
     calCharge.SetBranch();
     for(int countlayer=1;countlayer<11;countlayer++)
     {
@@ -1096,14 +1160,14 @@ int main(int argc,char** argv){
                 for(int countnstripsat255=0;countnstripsat255<countnstrip-countnstripsat254+1;countnstripsat255++)
                 {
                     calCharge.SetHisto(*VectLayerVectNStripVectNStripSat254VectNStripSat255Histo[countlayer-1][countnstrip-3][countnstripsat254][countnstripsat255]);
-                    calCharge.FillHisto(0);
+                    calCharge.FillHisto(countnstrip,countnstripsat254,countnstripsat255);
                     calCharge.FillProfile();
                     calCharge.Write(countlayer,countnstrip,countnstripsat254,countnstripsat255);
                 }
             }
         }
     }
-    calCharge.WriteFile();*/
+    calCharge.WriteFile();
 
 
     system(("mv "+s2+" ./data/.").c_str());

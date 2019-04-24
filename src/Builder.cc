@@ -168,8 +168,8 @@ void Builder::GetEntry(int i)
                             VectSimHits.push_back(simhit1);
 							VectPartID_Cluster.push_back(simhit_pid[isimhit]);
                         }
-                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_firstsclus[iclust],VectPartID_Cluster[0],VectStrips,VectSimHits);
-                        if(clust1.Cut()==false && clust1.Edge()==false)VectClust.push_back(clust1);
+                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_shape[iclust],sclus_firstsclus[iclust],VectPartID_Cluster[0],VectStrips,VectSimHits);
+                        if(clust1.Cut()==false && clust1.Edge()==false && clust1.GetShape()==true) VectClust.push_back(clust1); //filtre sur les clusters
 						SizeSimHit=VectSimHits.size();
                     }
                 }
@@ -215,7 +215,7 @@ void Builder::GetEntry(int i)
 						for(int iclust=0;iclust<VectClust.size();iclust++) VectClust[iclust].SetPartId(VectPartID[indice]);
 						VectPartID.clear();
 					}
-					Track track1(track_pt[itrack],track_p[itrack],track_nhits[itrack],ndedxhits,VectClust);
+					Track track1(track_pt[itrack],track_p[itrack],track_eta[itrack],track_phi[itrack],track_nhits[itrack],ndedxhits,VectClust);
 					track1.SetPartId(VectClust[0].GetPartId());
 					if(ThresholdPartId>=ThresholdPartId_) VectTrack_.push_back(track1); //on ne garde que les traces qui verifient la condition d'au minimum threshold% de partId identique
 					VectPartID_Cluster.clear();

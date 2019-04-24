@@ -8,14 +8,18 @@ Track::Track()
 {
 	pt_			= .0;
 	p_			= .0;
+	eta_		= .0;
+	phi_		= .0;
 	nhits_		= .0;
 	ndedxhits_	= 0;
 }
 
-Track::Track(float pt,float p,float nhits,int ndedxhits,const vector<Cluster> &VectClusters)
+Track::Track(float pt,float p,float eta,float phi,float nhits,int ndedxhits,const vector<Cluster> &VectClusters)
 {
 	pt_		= pt;
 	p_		= p;
+	eta_	= eta;
+	phi_	= phi;
 	nhits_	= nhits;
 	ndedxhits_	= ndedxhits;
 	VectClusters_	= VectClusters;
@@ -38,6 +42,16 @@ float Track::GetPt() const
 float Track::GetP() const
 {
 	return p_;
+}
+
+float Track::GetEta() const
+{
+	return eta_;
+}
+
+float Track::GetPhi() const
+{
+	return phi_;
 }
 
 int Track::GetNhits() const
