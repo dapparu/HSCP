@@ -38,11 +38,13 @@ int main(int argc,char** argv){
 
     TChain chain;
 	chain.SetName("stage/ttree");
-	for(int i=1;i<argc;i++) chain.Add(argv[i]);
+	for(int i=1;i<argc-1;i++) chain.Add(argv[i]);
 
     string s1 = argv[1];
     string s2 = s1.substr(0,s1.find('.'))+"_results.root";
     string s3 = s1.substr(0,s1.find('.'))+"_FitRes.root";
+
+    float ratiosat = atof(argv[argc-1]);
 
     Builder* b1 = new Builder(chain);
     b1->SetBranchAdd();
@@ -95,6 +97,9 @@ int main(int argc,char** argv){
     TH2F* h2RatioSatEloss254 = new TH2F("h2RatioSatEloss254","h2RatioSatEloss254",300,0,900*pow(10,-6),20,0,1.05);
     TProfile* profSatEloss254 = new TProfile("profSatEloss254","profSatEloss254",300,0,900*pow(10,-6),"");
 
+    TH2F* h2RatioSatQ254 = new TH2F("h2RatioSatQ254","h2RatioSatQ254",300,0,1200*pow(10,-6),20,0,1.05);
+    TProfile* profSatQ254 = new TProfile("profSatQ254","profSatQ254",300,0,1200*pow(10,-6),"");
+
     TH2F* h2RatioSatPartID254 = new TH2F("h2RatioSatPartID254","h2RatioSatPartID254",7,0,7,20,0,1.05);
     TProfile* profSatPartID254 = new TProfile("profSatPartID254","profSatPartID254",7,0,7,"");
 
@@ -112,6 +117,9 @@ int main(int argc,char** argv){
 
     TH2F* h2RatioSatPoverM255 = new TH2F("h2RatioSatPoverM255","h2RatioSatPoverM255",100,0,10,20,0,1.05);
     TProfile* profSatPoverM255 = new TProfile("profSatPoverM255","profSatPoverM255",100,0,10,"");
+    
+    TH2F* h2RatioSatQ255 = new TH2F("h2RatioSatQ255","h2RatioSatQ255",300,0,1200*pow(10,-6),20,0,1.05);
+    TProfile* profSatQ255 = new TProfile("profSatQ255","profSatQ255",300,0,1200*pow(10,-6),"");
 
     /*vector<vector<TH2F*>> VectNStrip_VectNStripSat254_h2EvQ;
     vector<vector<TH1F*>> VectNStrip_VectNStripSat254_h1EvQ;
@@ -261,6 +269,45 @@ int main(int argc,char** argv){
         VectLayerVectNStripVectNStripSat254VectNStripSat255Histo.push_back(VectNStripVectNStripSat254VectNStripSat255Histo);
     }
 
+    TH1F* hNStripPerCluster = new TH1F("hNStripPerCluster","hNStripPerCluster",10,0,10);
+    TH1F* hStripMax = new TH1F("hStripMax","hStripMax",260,0,260);
+    TH2F* h2StripMaxEoverQ = new TH2F("h2StripMaxEoverQ","h2StripMaxEoverQ",260,0,260,100,0,5);
+    TH1F* hDeDxHarmo = new TH1F("hDeDxHarmo","hDeDxHarmo",1000,0,0.3);
+    TH1F* hDeDxTrunc = new TH1F("hDeDxTrunc","hDeDxTrunc",1000,0,0.3);
+    
+    TH2F* h2PoverMDeDx = new TH2F("h2PoverMDeDx","h2PoverMDeDx",1000,0,5,1000,0,300);
+    TH2F* h2PoverMDqDx = new TH2F("h2PoverMDqDx","h2PoverMDqDx",1000,0,5,1000,0,300);
+    TH2F* h2PoverMDqcalibDx = new TH2F("h2PoverMDqcalibDx","h2PoverMDqcalibDx",1000,0,5,1000,0,300);
+    
+    TH2F* h2PoverMDeDxNoEstim = new TH2F("h2PoverMDeDxNoEstim","h2PoverMDeDxNoEstim",1000,0,5,1000,0,300);
+    TH2F* h2PoverMDqDxNoEstim = new TH2F("h2PoverMDqDxNoEstim","h2PoverMDqDxNoEstim",1000,0,5,1000,0,300);
+    TH2F* h2PoverMDqcalibDxNoEstim = new TH2F("h2PoverMDqcalibDxNoEstim","h2PoverMDqcalibDxNoEstim",1000,0,5,1000,0,300);
+
+    TH2F* h2PoverMDeDxLarge = new TH2F("h2PoverMDeDxLarge","h2PoverMDeDxLarge",1000,0,50,1000,0,1000000);
+    TH2F* h2PoverMDqDxLarge = new TH2F("h2PoverMDqDxLarge","h2PoverMDqDxLarge",1000,0,50,1000,0,1000000);
+    TH2F* h2PoverMDqcalibDxLarge = new TH2F("h2PoverMDqcalibDxLarge","h2PoverMDqcalibDxLarge",1000,0,50,1000,0,1000000);
+    
+    TH2F* h2PoverMDeDxLargeNoEstim = new TH2F("h2PoverMDeDxLargeNoEstim","h2PoverMDeDxLargeNoEstim",1000,0,50,1000,0,1000000);
+    TH2F* h2PoverMDqDxLargeNoEstim = new TH2F("h2PoverMDqDxLargeNoEstim","h2PoverMDqDxLargeNoEstim",1000,0,50,1000,0,1000000);
+    TH2F* h2PoverMDqcalibDxLargeNoEstim = new TH2F("h2PoverMDqcalibDxLargeNoEstim","h2PoverMDqcalibDxLargeNoEstim",1000,0,50,1000,0,1000000);
+    
+    TH2F* h2PDeDx = new TH2F("h2PDeDx","h2PDeDx",1000,0,5,1000,0,150);
+    TH2F* h2PDqDx = new TH2F("h2PDqDx","h2PDqDx",1000,0,5,1000,0,150);
+    TH2F* h2PDqcalibDx = new TH2F("h2PDqcalibDx","h2PDqcalibDx",1000,0,5,1000,0,150);
+
+    TH2F* h2PDeDxLarge = new TH2F("h2PDeDxLarge","h2PDeDxLarge",1000,0,1000,1000,0,1000000);
+    TH2F* h2PDqDxLarge = new TH2F("h2PDqDxLarge","h2PDqDxLarge",1000,0,1000,1000,0,1000000);
+    TH2F* h2PDqcalibDxLarge = new TH2F("h2PDqcalibDxLarge","h2PDqcalibDxLarge",1000,0,1000,1000,0,1000000);
+    
+    TH2F* h2PDeDxNoEstim = new TH2F("h2PDeDxNoEstim","h2PDeDxNoEstim",1000,0,5,1000,0,150);
+    TH2F* h2PDqDxNoEstim = new TH2F("h2PDqDxNoEstim","h2PDqDxNoEstim",1000,0,5,1000,0,150);
+    TH2F* h2PDqcalibDxNoEstim = new TH2F("h2PDqcalibDxNoEstim","h2PDqcalibDxNoEstim",1000,0,5,1000,0,150);
+    
+    TH2F* h2PDeDxLargeNoEstim = new TH2F("h2PDeDxLargeNoEstim","h2PDeDxLargeNoEstim",1000,0,1000,1000,0,1000000);
+    TH2F* h2PDqDxLargeNoEstim = new TH2F("h2PDqDxLargeNoEstim","h2PDqDxLargeNoEstim",1000,0,1000,1000,0,1000000);
+    TH2F* h2PDqcalibDxLargeNoEstim = new TH2F("h2PDqcalibDxLargeNoEstim","h2PDqcalibDxLargeNoEstim",1000,0,1000,1000,0,1000000);
+    
+
     TH1F* hInvestigationEta = new TH1F("hInvestigationEta","hInvestigationEta",50,-5,5);
     TH1F* hInvestigationPhi = new TH1F("hInvestigationPhi","hInvestigationPhi",50,-5,5);
     TH1F* hInvestigationEloss = new TH1F("hInvestigationEloss","hInvestigationEloss",100,0,0.006);
@@ -270,7 +317,9 @@ int main(int argc,char** argv){
     TH1F* hInvestigationEntries = new TH1F("hInvestigationEntries","hInvestigationEntries",1000,0,16000);
     TH1F* hInvestigationShape = new TH1F("hInvestigationShape","hInvestigationShape",2,0,2);
     TH1F* hInvestigationSimHits = new TH1F("hInvestigationSimHits","hInvestigationSimHits",5,0,5);
-
+    TH1F* hInvestigationPt = new TH1F("hInvestigationPt","hInvestigationPt",100,0,3000);
+    TH2F* h2Shape = new TH2F("h2Shape","h2Shape",300,0,6000*pow(10,-6),300,0,6000*pow(10,-6));
+    TH1F* hShapePartID = new TH1F("ShapePartID","ShapePartID",7,0,7);
 
 
 
@@ -281,6 +330,7 @@ int main(int argc,char** argv){
 
     bool testsat254 = false; 
     bool testsat255 = false;
+    bool testshape  = true;
 
     int clust=0,clustsat254=0,clustsat255=0;
 
@@ -301,8 +351,13 @@ int main(int argc,char** argv){
         {
             vector<int> vect_partID;
             vector<float> vect_eloss;
+            vector<float> vect_charge;
+            vector<float> vect_dedx;
+            vector<float> vect_dqdx;
+            vector<float> vect_dqcalibdx;
             testsat254              = false;
             testsat255              = false;
+            testshape               = true;
             float pt                = b1->GetVectTrack()[track].GetPt();
             float p                 = b1->GetVectTrack()[track].GetP();
             float eta               = b1->GetVectTrack()[track].GetEta();
@@ -367,11 +422,13 @@ int main(int argc,char** argv){
             profSatPartID255->Fill(ReBinPartID(id),RatioNClusterSat255);
             h2RatioSatPoverM255->Fill(PoverM,RatioNClusterSat255);
             profSatPoverM255->Fill(PoverM,RatioNClusterSat255);
+
             
             for(int cluster=0;cluster<b1->GetVectTrack()[track].GetNCluster();cluster++)
             {
                 float charge        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetSclusCharge();
                 float eloss         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetEloss();
+                float pathlength    = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetPathLength();
                 int layer           = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetLayer();
                 int layerLabel      = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetLayerLabel();
                 bool sat254         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetSat254();
@@ -386,10 +443,21 @@ int main(int argc,char** argv){
                 bool cut            = b1->GetVectTrack()[track].GetVectClusters()[cluster].Cut();
                 int detid           = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetDetId();
                 int subdetid        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetSubDetId();
+                int maxstrip        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetMaxStrip();
+                //bool test_ilot      = SelectedArea()
+                float ChargeCalib   = charge;
+                
 
                 clust++;
 
-                vect_eloss.push_back(eloss);
+                /*vect_eloss.push_back(eloss);
+                vect_charge.push_back(charge);
+                vect_dedx.push_back(eloss/pathlength);
+                vect_dqdx.push_back(charge/pathlength);
+
+                hNStripPerCluster->Fill(nstrips);
+                hStripMax->Fill(maxstrip);
+                h2StripMaxEoverQ->Fill(maxstrip,eloss/charge);*/
 
                 h2ElossvQ_tot->Fill(eloss,charge);
                 hDiff_rel_ElossQ_tot->Fill((eloss-charge)/charge);
@@ -402,6 +470,7 @@ int main(int argc,char** argv){
                 VectLayer_h2EvQ_Tot[layerLabel-1]->Fill(eloss,charge);
                 VectLayer_h1EvQ_Tot[layerLabel-1]->Fill(eloss/charge);
                 VectLayer_profEvQ_Tot[layerLabel-1]->Fill(eloss,charge);
+
 
                 if(id==11 || id==-11) 
                 {
@@ -461,14 +530,29 @@ int main(int argc,char** argv){
                 }
                 if(b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits().size()==0) h1ChargeFauxSimHit->Fill(charge);
 
-                if(layerLabel<=10)
+                if((nsat254==0 || nsat255==0) && layerLabel<=10 && RatioNClusterSat254>=ratiosat)
                 {
-                    float ChargeCalib=charge;
-                    if(RatioNClusterSat254>0.7 || RatioNClusterSat255>0.2)ChargeCalib=Charge.ChargeCalib(charge,layerLabel,nstrips,nsat254,nsat255);
+                    if(RatioNClusterSat254>=ratiosat) ChargeCalib=Charge.ChargeCalib(charge,layerLabel,nstrips,nsat254,nsat255);
                     EvQbarrel_Calib->Fill(eloss,ChargeCalib);
                     EvQbarrel->Fill(eloss,charge);
-                    h1DiffRelEvQ->Fill((charge-eloss)/eloss); 
+                    h1DiffRelEvQ->Fill((charge-eloss)/eloss);  
                     h1DiffRelEvQCalib->Fill((ChargeCalib-eloss)/eloss);
+                    vect_eloss.push_back(eloss);
+                    vect_charge.push_back(charge);
+                    vect_dedx.push_back(eloss/pathlength);
+                    vect_dqdx.push_back(charge/pathlength);
+                    vect_dqcalibdx.push_back(ChargeCalib/pathlength);
+    
+                    hNStripPerCluster->Fill(nstrips);
+                    hStripMax->Fill(maxstrip);
+                    h2StripMaxEoverQ->Fill(maxstrip,eloss/charge);
+
+                    if(shape==0)
+                    {
+                        h2Shape->Fill(eloss,charge);
+                        testshape=false;
+                    } 
+
                     /*if(charge<=0.00085)
                     {
                         hInvestigationCharge->Fill(charge);
@@ -492,6 +576,9 @@ int main(int argc,char** argv){
                         getchar();
                     }*/
                 }
+
+                //vect_dqcalibdx.push_back(ChargeCalib/pathlength);
+                //if(nsimhits>=2 && (id==11 || id==-11)) DrawClusterProfile(&b1->GetVectTrack()[track].GetVectClusters()[cluster]);
 
                    
                 /*for(int nstrip=1;nstrip<10;nstrip++)
@@ -543,6 +630,10 @@ int main(int argc,char** argv){
                         }
                     }
                 }*/
+
+                
+
+
                 for(int countlayer=1;countlayer<11;countlayer++)
                 {
                     for(int countnstrip=3;countnstrip<7;countnstrip++)
@@ -551,7 +642,11 @@ int main(int argc,char** argv){
                         {
                             for(int countnstripsat255=0;countnstripsat255<countnstrip-countnstripsat254+1;countnstripsat255++)
                             {
-                                if(countlayer==layerLabel && countnstrip==nstrips && countnstripsat254==nsat254 && countnstripsat255==nsat255) VectLayerVectNStripVectNStripSat254VectNStripSat255Histo[countlayer-1][countnstrip-3][countnstripsat254][countnstripsat255]->Fill(eloss,charge);
+                                if(countlayer==layerLabel && countnstrip==nstrips && countnstripsat254==nsat254 && countnstripsat255==nsat255)
+                                {
+                                    if(layerLabel<=4) VectLayerVectNStripVectNStripSat254VectNStripSat255Histo[countlayer-1][countnstrip-3][countnstripsat254][countnstripsat255]->Fill(eloss,charge);
+                                    if(layerLabel>=5 && layerLabel<=10 && shape ) VectLayerVectNStripVectNStripSat254VectNStripSat255Histo[countlayer-1][countnstrip-3][countnstripsat254][countnstripsat255]->Fill(eloss,charge);
+                                } 
                             }
                         }
                     }
@@ -629,14 +724,66 @@ int main(int argc,char** argv){
             {
                 hPt_NoSat->Fill(pt);
             }
+            
             Estimator estim(vect_eloss);
 
             h2RatioSatEloss254->Fill(estim.GetMean(),RatioNClusterSat254);
             profSatEloss254->Fill(estim.GetMean(),RatioNClusterSat254);
             h2RatioSatEloss255->Fill(estim.GetMean(),RatioNClusterSat255);
             profSatEloss255->Fill(estim.GetMean(),RatioNClusterSat255);
+
+            estim.SetVect(vect_charge);
+            h2RatioSatQ254->Fill(estim.GetMean(),RatioNClusterSat254);
+            profSatQ254->Fill(estim.GetMean(),RatioNClusterSat254);
+            h2RatioSatQ255->Fill(estim.GetMean(),RatioNClusterSat255);
+            profSatQ255->Fill(estim.GetMean(),RatioNClusterSat255);
             
-            
+            estim.SetVect(vect_dedx);
+            hDeDxHarmo->Fill(estim.GetHarmonic2());
+            hDeDxTrunc->Fill(estim.GetTrunc40());
+
+            h2PoverMDeDx->Fill(PoverM,estim.GetHarmonic2()*pow(10,3));
+            h2PoverMDeDxLarge->Fill(PoverM,estim.GetHarmonic2()*pow(10,3));
+            h2PDeDx->Fill(p,estim.GetHarmonic2()*pow(10,3));
+            h2PDeDxLarge->Fill(p,estim.GetHarmonic2()*pow(10,3));
+
+            for(int nclust=0;nclust<vect_dedx.size();nclust++) 
+            {
+                h2PoverMDeDxNoEstim->Fill(PoverM,vect_dedx[nclust]*pow(10,3));
+                h2PoverMDeDxLargeNoEstim->Fill(PoverM,vect_dedx[nclust]*pow(10,3));
+                h2PDeDxNoEstim->Fill(p,vect_dedx[nclust]*pow(10,3));
+                h2PDeDxLargeNoEstim->Fill(p,vect_dedx[nclust]*pow(10,3));
+            }
+
+            estim.SetVect(vect_dqdx);
+            h2PoverMDqDx->Fill(PoverM,estim.GetHarmonic2()*pow(10,3));
+            h2PoverMDqDxLarge->Fill(PoverM,estim.GetHarmonic2()*pow(10,3));
+            h2PDqDx->Fill(p,estim.GetHarmonic2()*pow(10,3));
+            h2PDqDxLarge->Fill(p,estim.GetHarmonic2()*pow(10,3));
+
+            for(int nclust=0;nclust<vect_dqdx.size();nclust++) 
+            {
+                h2PoverMDqDxNoEstim->Fill(PoverM,vect_dqdx[nclust]*pow(10,3));
+                h2PoverMDqDxLargeNoEstim->Fill(PoverM,vect_dqdx[nclust]*pow(10,3));
+                h2PDqDxNoEstim->Fill(p,vect_dqdx[nclust]*pow(10,3));
+                h2PDqDxLargeNoEstim->Fill(p,vect_dqdx[nclust]*pow(10,3));
+            }
+
+            estim.SetVect(vect_dqcalibdx);
+            h2PoverMDqcalibDx->Fill(PoverM,estim.GetHarmonic2()*pow(10,3));
+            h2PoverMDqcalibDxLarge->Fill(PoverM,estim.GetHarmonic2()*pow(10,3));
+            h2PDqcalibDx->Fill(p,estim.GetHarmonic2()*pow(10,3));
+            h2PDqcalibDxLarge->Fill(p,estim.GetHarmonic2()*pow(10,3));
+
+            for(int nclust=0;nclust<vect_dqcalibdx.size();nclust++) 
+            {
+                h2PoverMDqcalibDxNoEstim->Fill(PoverM,vect_dqcalibdx[nclust]*pow(10,3));
+                h2PoverMDqcalibDxLargeNoEstim->Fill(PoverM,vect_dqcalibdx[nclust]*pow(10,3));
+                h2PDqcalibDxNoEstim->Fill(p,vect_dqcalibdx[nclust]*pow(10,3));
+                h2PDqcalibDxLargeNoEstim->Fill(p,vect_dqcalibdx[nclust]*pow(10,3));
+            }
+
+
 
             /*if(testsat254 && testsat255 )//&& b1->GetVectTrack()[track].GetVectClusters().size() <=3)
             {
@@ -674,13 +821,15 @@ int main(int argc,char** argv){
     TLine* linexy = new TLine(0,0,0.006,0.006);
     linexy->SetLineStyle(4);
     TCanvas* cEvQbarrel = new TCanvas("EvQbarrel","EvQbarrel");
-    EvQbarrel->Draw();
+    EvQbarrel->Draw("colz");
     linexy->Draw("SAME");
     cEvQbarrel->Write();
-    TCanvas* cEvQbarrel_Calib = new TCanvas("cEvQbarrel_Calib","cEvQbarrel_Calib");
-    EvQbarrel_Calib->Draw();
+    TCanvas* cEvQbarrel_Calib = new TCanvas("EvQbarrel_Calib","EvQbarrel_Calib");
+    EvQbarrel_Calib->Draw("colz");
     linexy->Draw("SAME");
     cEvQbarrel_Calib->Write();
+
+    DrawHisto(*fileout,h2Shape,"Shape=false","E_{loss}","Q");
 
     TCanvas* cDiffRelChargeCalib_Charge = new TCanvas("cDiffRelChargeCalib_Charge","cDiffRelChargeCalib_Charge");
     vector<TH1F*> VectDiffRelChargeCalib_Charge;
@@ -738,14 +887,69 @@ int main(int argc,char** argv){
     TCanvas* cPtPartID = new TCanvas("cPtPartID","cPtPartID");
     StackHisto(*cPtPartID,VectPartID_Pt,VectLegendPartId,"Distribution en p_{T} pour differentes particules","p_{T}");
     cPtPartID->Write();
+    TCanvas* cPtPartIDNormalized = new TCanvas("cPtPartIDNormalized","cPtPartIDNormalized");
+    DrawHistoNormalized(*cPtPartIDNormalized,VectPartID_Pt,VectLegendPartId,"Distribution en p_{T} pour differentes particules","p_{T}");
+    cPtPartIDNormalized->Write();
 
     TCanvas* cElossPartID = new TCanvas("cElossPartID","cElossPartID");
     StackHisto(*cElossPartID,VectPartID_Eloss,VectLegendPartId,"Distribution E_{loss} pour differentes particules dans TOB1","E_{loss}");
     cElossPartID->Write();
+    TCanvas* cElossPartIDNormalized = new TCanvas("cElossPartIDNormalized","cElossPartIDNormalized");
+    DrawHistoNormalized(*cElossPartIDNormalized,VectPartID_Eloss,VectLegendPartId,"Distribution E_{loss} pour differentes particules dans TOB1","E_{loss}");
+    cElossPartIDNormalized->Write();
 
     TCanvas* cPoverMPartID = new TCanvas("cPoverMPartID","cPoverMPartID");
     StackHisto(*cPoverMPartID,VectPartID_PoverM,VectLegendPartId,"Distribution du P/M pour differentes particules","P/M");
     cPoverMPartID->Write();
+    TCanvas* cPoverMPartIDNormalized = new TCanvas("cPoverMPartIDNormalized","cPoverMPartIDNormalized");
+    DrawHistoNormalized(*cPoverMPartIDNormalized,VectPartID_PoverM,VectLegendPartId,"Distribution du P/M pour differentes particules","P/M");
+    cPoverMPartIDNormalized->Write();
+
+    DrawHisto(*fileout,hNStripPerCluster,"Distribution du nombre de strips par cluster","# Strip");
+    DrawHisto(*fileout,hStripMax,"Distribution strip max","Q_{max}");
+    DrawHisto(*fileout,h2StripMaxEoverQ,"E/Q=f(Q_{max})","Q_{max}","E/Q");
+    vector<TH1F*> VectDeDx;
+    VectDeDx.push_back(hDeDxHarmo);
+    VectDeDx.push_back(hDeDxTrunc);
+    vector<string> VectLegendDeDx;
+    VectLegendDeDx.push_back("Harmonique");
+    VectLegendDeDx.push_back("Troncature");
+    TCanvas* cDeDx = new TCanvas("cDeDx","cDeDx");
+    DrawHistoNormalized(*cDeDx,VectDeDx,VectLegendDeDx,"Distribution de #frac{dE}{dx} pour differents estimateurs","#frac{dE}{dx}");
+    cDeDx->Write();
+
+    DrawHisto(*fileout,h2PoverMDeDx,"Bethe & Bloch","P/M","#frac{dE}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PoverMDqDx,"Bethe & Bloch","P/M","#frac{dQ}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PoverMDqcalibDx,"Bethe & Bloch","P/M","#frac{dQ_{calib}}{dx} [MeV/cm]");
+
+    DrawHisto(*fileout,h2PoverMDeDxNoEstim,"Bethe & Bloch","P/M","#frac{dE}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PoverMDqDxNoEstim,"Bethe & Bloch","P/M","#frac{dQ}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PoverMDqcalibDxNoEstim,"Bethe & Bloch","P/M","#frac{dQ_{calib}}{dx} [MeV/cm]");
+
+    DrawHisto(*fileout,h2PDeDx,"","momentum [GeV]","#frac{dE}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PDqDx,"","momentum [GeV]","#frac{dQ}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PDqcalibDx,"","momentum [GeV]","#frac{dQ_{calib}}{dx} [MeV/cm]");
+
+    DrawHisto(*fileout,h2PDeDxNoEstim,"","momentum [GeV]","#frac{dE}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PDqDxNoEstim,"","momentum [GeV]","#frac{dQ}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PDqcalibDxNoEstim,"","momentum [GeV]","#frac{dQ_{calib}}{dx} [MeV/cm]");
+
+    DrawHisto(*fileout,h2PoverMDeDxLarge,"Bethe & Bloch","P/M","#frac{dE}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PoverMDqDxLarge,"Bethe & Bloch","P/M","#frac{dQ}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PoverMDqcalibDxLarge,"Bethe & Bloch","P/M","#frac{dQ_{calib}}{dx} [MeV/cm]");
+
+    DrawHisto(*fileout,h2PoverMDeDxLargeNoEstim,"Bethe & Bloch","P/M","#frac{dE}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PoverMDqDxLargeNoEstim,"Bethe & Bloch","P/M","#frac{dQ}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PoverMDqcalibDxLargeNoEstim,"Bethe & Bloch","P/M","#frac{dQ_{calib}}{dx} [MeV/cm]");
+
+    DrawHisto(*fileout,h2PDeDxLarge,"","momentum [GeV]","#frac{dE}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PDqDxLarge,"","momentum [GeV]","#frac{dQ}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PDqcalibDxLarge,"","momentum [GeV]","#frac{dQ_{calib}}{dx} [MeV/cm]");
+
+    DrawHisto(*fileout,h2PDeDxLargeNoEstim,"","momentum [GeV]","#frac{dE}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PDqDxLargeNoEstim,"","momentum [GeV]","#frac{dQ}{dx} [MeV/cm]");
+    DrawHisto(*fileout,h2PDqcalibDxLargeNoEstim,"","momentum [GeV]","#frac{dQ_{calib}}{dx} [MeV/cm]");
+    
 
     TCanvas* cPoverMPartIDNormal = new TCanvas("cPoverMPartIDNormal","cPoverMPartIDNormal");
     vector<TH1F*> VectPartID_PoverM_Normalized;
@@ -780,6 +984,10 @@ int main(int argc,char** argv){
     SuperposedHisto2DProfile(*cRatioSatEloss254,h2RatioSatEloss254,profSatEloss254,"Ratio de clusters qui saturent a 254 en fonction de E_{loss}","E_{loss}","#frac{#ClusterSat}{#Cluster}");
     cRatioSatEloss254->Write();
 
+    TCanvas* cRatioSatQ254 = new TCanvas("cRatioSatQ254","cRatioSatQ254");
+    SuperposedHisto2DProfile(*cRatioSatQ254,h2RatioSatQ254,profSatQ254,"Ratio de clusters qui saturent a 254 en fonction de Q","Q","#frac{#ClusterSat}{#Cluster}");
+    cRatioSatQ254->Write();
+
     TCanvas* cRatioSatPartID254 = new TCanvas("cRatioSatPartID254","cRatioSatPartID254");
     SetHistoLabelPartID(cRatioSatPartID254,h2RatioSatPartID254);
     profSatPartID254->SetMarkerStyle(2);
@@ -798,6 +1006,10 @@ int main(int argc,char** argv){
     TCanvas* cRatioSatEloss255 = new TCanvas("cRatioSatEloss255","cRatioSatEloss255");
     SuperposedHisto2DProfile(*cRatioSatEloss255,h2RatioSatEloss255,profSatEloss255,"Ratio de clusters qui saturent a 255 en fonction de E_{loss}","E_{loss}","#frac{#ClusterSat}{#Cluster}");
     cRatioSatEloss255->Write();
+
+    TCanvas* cRatioSatQ255 = new TCanvas("cRatioSatQ255","cRatioSatQ255");
+    SuperposedHisto2DProfile(*cRatioSatQ255,h2RatioSatQ255,profSatQ255,"Ratio de clusters qui saturent a 255 en fonction de Q","Q","#frac{#ClusterSat}{#Cluster}");
+    cRatioSatQ255->Write();
 
     TCanvas* cRatioSatPartID255 = new TCanvas("cRatioSatPartID255","cRatioSatPartID255");
     SetHistoLabelPartID(cRatioSatPartID255,h2RatioSatPartID255);
@@ -1148,7 +1360,7 @@ int main(int argc,char** argv){
 
     delete fileout;
 
-    Calibration calCharge;
+    /*Calibration calCharge;
     calCharge.SetFileAndTreeName(s3.c_str(),"tree");
     calCharge.SetBranch();
     for(int countlayer=1;countlayer<11;countlayer++)
@@ -1160,15 +1372,21 @@ int main(int argc,char** argv){
                 for(int countnstripsat255=0;countnstripsat255<countnstrip-countnstripsat254+1;countnstripsat255++)
                 {
                     calCharge.SetHisto(*VectLayerVectNStripVectNStripSat254VectNStripSat255Histo[countlayer-1][countnstrip-3][countnstripsat254][countnstripsat255]);
-                    calCharge.FillHisto(countnstrip,countnstripsat254,countnstripsat255);
+                    calCharge.FillHisto(countlayer,countnstrip,countnstripsat254,countnstripsat255);
                     calCharge.FillProfile();
                     calCharge.Write(countlayer,countnstrip,countnstripsat254,countnstripsat255);
                 }
             }
         }
     }
-    calCharge.WriteFile();
-
+    calCharge.WriteFile();*/
+    
+    TFile* ofilecalib = new TFile(("results_ratiosat"+to_string(ratiosat)+".root").c_str(),"RECREATE");
+    cDiffRelChargeCalib_Charge->Write();
+    h1DiffRelEvQCalib->Write();
+    ofilecalib->Write();
+    ofilecalib->Close();
+    delete ofilecalib;
 
     system(("mv "+s2+" ./data/.").c_str());
     

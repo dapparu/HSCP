@@ -56,7 +56,7 @@ class Calibration
         Calibration(TH2F &histo);
         ~Calibration();
         float CalibCharge(int entry,float charge);
-        void FillHisto(int nstrip,int nstripsat254,int nstripsat255);
+        void FillHisto(int layer,int nstrip,int nstripsat254,int nstripsat255);
         void SetFileAndTreeName(string file_name,string tree_name);
         void SetTree(TTree &tree);
         void SetBranch();

@@ -49,18 +49,22 @@ void Calibration::SetHisto(TH2F &histo)
     histo_->Write();
 }
 
-void Calibration::FillHisto(int nstrip,int nstripsat254,int nstripsat255)
+void Calibration::FillHisto(int layer,int nstrip,int nstripsat254,int nstripsat255)
 {
     float lowedgexu = 1.;
     float lowedgexd = 0.;
-    if(nstrip>=5)
+    float lowedgeyu = 1.;
+    /*if(nstrip>=5)
     {
         if(nstripsat255==0) 
         {
             lowedgexu=0.0015;lowedgexd=0.0005;
             if(nstripsat254==2) {lowedgexu=0.001;lowedgexd=0.0006;}
         }
-    }
+    }*/
+    if(layer<=10 && nstrip==4 && nstripsat254==1 && nstripsat255==0) lowedgeyu=0.0004;
+    if(layer<=10 && nstrip==5 && nstripsat254==1 && nstripsat255==0) lowedgeyu=0.00048;
+    if(layer>=5 && layer<=10 && nstrip>=3 && nstripsat254==1 && nstripsat255==0) lowedgexu=0.004;
     TH2F* histo_clone = (TH2F*) histo_->Clone();
     histo_clone->Reset();
     for(int i=0;i<histo_clone->GetNbinsX()+2;i++)
@@ -71,7 +75,7 @@ void Calibration::FillHisto(int nstrip,int nstripsat254,int nstripsat255)
         {
             float LowEdgeY = histo_->GetXaxis()->GetBinLowEdge(j);
             float WidthY = histo_->GetXaxis()->GetBinWidth(j);
-            if(LowEdgeX>LowEdgeY)// && LowEdgeX>lowedgexd && LowEdgeX<lowedgexu)
+            if(LowEdgeX>LowEdgeY /*&& LowEdgeX>lowedgexd*/ && LowEdgeX<lowedgexu && LowEdgeY<lowedgeyu)
             {
                 histo_clone->SetBinContent(i,j,histo_->GetBinContent(i,j));
                 histo_clone->SetBinError(i,j,histo_->GetBinError(i,j));
@@ -85,7 +89,7 @@ void Calibration::FillHisto(int nstrip,int nstripsat254,int nstripsat255)
 void Calibration::FillProfile()
 {
     profile_ = histo_->ProfileX("_pfx",1,-1,"");
-    profile_->Rebin(10);
+    profile_->Rebin(5);
     delete histo_;
 }
 
@@ -158,7 +162,7 @@ void Calibration::Write(int layerLabel,int NStrip,int NStripSat,bool IsSat255)
 
 void Calibration::Write(int layerLabel,int nstrip,int nstripsat254,int nstripsat255)
 {
-    if(profile_->GetEntries()>40 && (nstripsat254!=0 || nstripsat255!=0))
+    if(profile_->GetEntries()>10 && (nstripsat254!=0 || nstripsat255!=0))
     {    
         TFitResultPtr FitRes_ = profile_->Fit("pol1","SQ");
         p0_     = FitRes_->Parameter(0);
@@ -264,12 +268,16 @@ float Calibration::ChargeCalib(float charge,int layerLabel,int nstrip,int nstrip
     tree_->SetBranchAddress("nstrip",&nstrip_);
     tree_->SetBranchAddress("nstripsat254",&nstripsat254_);
     tree_->SetBranchAddress("nstripsat255",&nstripsat255_);
+    tree_->SetBranchAddress("chi2overndf",&Chi2overNdf_);
     for(int i=0;i<tree_->GetEntries();i++)
     {
         tree_->GetEntry(i);
         if(nstrip>=6) nstrip=6;
         if(nstripsat254>=2) nstripsat254=2;
         if(nstripsat255>=2) nstripsat255=2;
+        //if(layerLabel==2) layerLabel=1;
+        //if(layerLabel==4) layerLabel=3;
+        //if(layerLabel>=6 && layerLabel<=10) layerLabel=5;
         if(layerLabel==layerLabel_ && nstrip==nstrip_ && nstripsat254==nstripsat254_ && nstripsat255==nstripsat255_) {res=-(p0_-charge)/p1_;}
     }
     return res;

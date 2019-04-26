@@ -169,7 +169,7 @@ void Builder::GetEntry(int i)
 							VectPartID_Cluster.push_back(simhit_pid[isimhit]);
                         }
                         Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_shape[iclust],sclus_firstsclus[iclust],VectPartID_Cluster[0],VectStrips,VectSimHits);
-                        if(clust1.Cut()==false && clust1.Edge()==false && clust1.GetShape()==true) VectClust.push_back(clust1); //filtre sur les clusters
+                        if(clust1.Cut()==false && clust1.Edge()==false) VectClust.push_back(clust1); //filtre sur les clusters
 						SizeSimHit=VectSimHits.size();
                     }
                 }

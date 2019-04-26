@@ -176,11 +176,14 @@ const vector<SimHit>& Cluster::GetVectSimHits() const
 
 TProfile& Cluster::GetDistribStrip() const
 {
-	TProfile* profDistribStrip = new TProfile("DistripStrip","DistribStrip",16,0,15);
-	profDistribStrip->SetBins(VectStrips_.size()+2,0,VectStrips_.size()+2);
+	//TProfile* profDistribStrip = new TProfile("DistripStrip","DistribStrip",16,0,15);
+	TProfile* profDistribStrip = new TProfile("DistripStrip","DistribStrip",770,0,770);
+	//profDistribStrip->SetBins(VectStrips_.size()+2,0,VectStrips_.size()+2);
+	profDistribStrip->SetBins(VectStrips_.size()+2,firstsclus_,firstsclus_+VectStrips_.size()+2);
 	for(int i=0;i<VectStrips_.size();i++)
 	{
-		profDistribStrip->Fill(i+1,VectStrips_[i].GetAmpl());
+		//profDistribStrip->Fill(i+1,VectStrips_[i].GetAmpl());
+		profDistribStrip->Fill(firstsclus_+i+1,VectStrips_[i].GetAmpl());
 	}
 	if(sat254_ && !sat255_) profDistribStrip->SetLineColor(2);
 	if(sat255_) profDistribStrip->SetLineColor(3);
@@ -229,4 +232,14 @@ int Cluster::GetDetId() const
 int Cluster::GetSubDetId() const
 {
 	return subdetid_;
+}
+
+int Cluster::GetMaxStrip() const
+{
+	int max=0;
+	for(int i=0;i<VectStrips_.size();i++)
+	{
+		if(VectStrips_[i].GetAmpl()>=max) max=VectStrips_[i].GetAmpl();
+	}
+	return max;
 }

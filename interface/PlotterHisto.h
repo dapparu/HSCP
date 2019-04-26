@@ -33,3 +33,5 @@ void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string 
 void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title);
 void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title);
 void DrawHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title);
+void DrawClusterProfile(const Cluster* clus);
+bool SelectedArea(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4,float x,float y);

@@ -99,3 +99,31 @@ void DrawHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend
     }
     leg->Draw("SAME");
 }
+
+void DrawClusterProfile(const Cluster* clus)
+{
+    TCanvas* c_profClust = new TCanvas();
+    TProfile* profDistribStrip = &clus->GetDistribStrip();
+    profDistribStrip->SetLineColor(kBlue);
+    profDistribStrip->Draw();
+    c_profClust->SaveAs("./data/ProfileClust.pdf");
+    getchar();
+}
+
+bool SelectedArea(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4,float x,float y)
+{
+    x1*=pow(10,-6),x2*=pow(10,-6),x3*=pow(10,-6),x4*=pow(10,-6);
+    y1*=pow(10,-6),y2*=pow(10,-6),y3*=pow(10,-6),y4*=pow(10,-6);
+    bool res=false;
+    float coef1 = (y3-y1)/(x3-x1);
+    float coef2 = (y4-y2)/(x4-x2);
+    float orign1 = y1-coef1*x1;
+    float orign2 = y4-coef2*x4;
+    /*float coef3 = (y2-y1)/(x2-x1);
+    float coef4 = (y4-y3)/(x4-x3);
+    float orign3 = y2-coef3*x2;
+    float orign4 = y3-coef4*x3;*/
+    //if(x>=(y-orign3)/coef3 && x<=(y-orign4)/coef4 && y>=coef1*x+orign1 && y<=coef2*x+orign2) res=true;
+    if(x>=x1 && x>=x2 && x<=x3 && x<=x4 && y>=coef1*x+orign1 && y<=coef2*x+orign2) res=true;
+    return res;    
+}

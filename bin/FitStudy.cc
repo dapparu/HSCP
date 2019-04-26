@@ -23,6 +23,7 @@
 #include "Rtypes.h"
 #include "TLatex.h"
 #include "TMathText.h"
+#include "TGraphErrors.h"
 
 using namespace std;
 
@@ -87,21 +88,64 @@ int main(int argc,char** argv)
     TH1F* hChi2overNdf = new TH1F("Chi2/Ndf","Chi2/Ndf",200,0,10);
     TH2F* HistoOfInterest;
     TProfile* ProfileOfInterest;
+    vector<float> vect_p0;
+    vector<float> vect_p1;
+    vector<float> vect_p0err;
+    vector<float> vect_p1err;
+    vector<float> vect_nstripsat;
+
+    /*float tablayer[10]={1,2,3,4,5,6,7,8,9,10};
+    float tabp0[10];//={0,0,0,0,0,0,0,0,0,0};
+    float tabp0err[10]={0,0,0,0,0,0,0,0,0,0};*/
+    float tabx[740];
+    float tabp0[740];
+    float tabp0err[740];
+    float tabp1[740];
+    float tabp1err[740];
+    for(int i=0;i<740;i++) tabx[i]=i;
+
+
+int count=0;
 
     for(int i=0;i<tree->GetEntries();i++)
     {
+
         tree->GetEntry(i);
-        hChi2overNdf->Fill(chi2overndf);
-        //if(layerLabel>=5 && layerLabel<=10)
+        if(layerLabel==5 && nstripsat254>=1 && nstripsat255==0)
         {
+            hChi2overNdf->Fill(chi2overndf);
             string str_histo = Label(layerLabel)+" NStrip="+to_string(nstrip)+" NStripSat254="+to_string(nstripsat254)+" NStripSat255="+to_string(nstripsat255);
             HistoOfInterest = (TH2F*) ifile->Get(str_histo.c_str());
-            HistoOfInterest->Write();
+            //HistoOfInterest->Write();
             string str_profile = str_histo+"_pfx";
             ProfileOfInterest = (TProfile*) ifile->Get(str_profile.c_str());
-            ProfileOfInterest->Write();
+            //ProfileOfInterest->Write();
+            TCanvas* CanvasOfInterest = new TCanvas(str_histo.c_str(),str_histo.c_str());
+            HistoOfInterest->Draw("colz");
+            ProfileOfInterest->Draw("same");
+            CanvasOfInterest->Write();
         }
+        tabp0[i]=p0;
+        tabp0err[i]=p0err;
+        tabp1[i]=p1;
+        tabp1err[i]=p1err;
     }
+    //TGraphErrors* gr = new TGraphErrors(vect_nstripsat.size(),&vect_nstripsat[0],&vect_p0[0],0,&vect_p0err[0]);
+    TCanvas* cgr = new TCanvas("graph","graph");
+    TGraphErrors* grTIB1 = new TGraphErrors(74,tabx,tabp0,0,tabp0err); 
+    grTIB1->SetTitle("TIB1 | p0");
+    grTIB1->Draw("AP");
+    cgr->Write();
+    TGraphErrors* gr1 = new TGraphErrors(740,tabx,tabp0,0,tabp0err);
+    gr1->SetTitle("p0");
+    gr1->GetYaxis()->SetTitle("p0");
+    gr1->Draw("AP");
+    cgr->Write();
+    TGraphErrors* gr2 = new TGraphErrors(740,tabx,tabp1,0,tabp1err);
+    gr2->SetTitle("p1");
+    gr2->GetYaxis()->SetTitle("p1");
+    gr2->Draw("AP");
+    cgr->Write();
     ofile->Write();
     ofile->Close();
     delete ofile;

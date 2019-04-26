@@ -56,5 +56,6 @@ class Cluster{
 		int GetPartId() const;
 		int GetDetId() const;
 		int GetSubDetId() const;
+		int GetMaxStrip() const;
 
 };
