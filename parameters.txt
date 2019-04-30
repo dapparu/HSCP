@@ -1,6 +1,6 @@
 Avant calib
-Mean : -0.31658	Error : 0.000903169
-StdDev : 0.14887	Error : 0.000638637
+Mean : 0	Error : 0
+StdDev : 0	Error : 0
 Apres calib
-Mean : 0.0750186	Error : 0.00255487
-StdDev : 0.421058	Error : 0.00180657
+Mean : 0	Error : 0
+StdDev : 0	Error : 0

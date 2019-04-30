@@ -7,7 +7,7 @@ const float m_electron = 511*pow(10,-6); //masse de l'electron en GeV
 const float m_pion = 139.57*pow(10,-3); //masse du pion en GeV
 const float m_kaon = 439.68*pow(10,-3); //masse du kaon en GeV
 const float m_proton = 938.27*pow(10,-3); //masse du proton en GeV
-const float m_Rhadrons = 2400; //masse des R-hadrons (proche masse gluino) en GeV 
+const float m_Rhadrons = 1400; //masse des R-hadrons (proche masse gluino) en GeV 
 
 const char* StringToChar(string str)
 {

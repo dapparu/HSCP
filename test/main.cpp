@@ -34,6 +34,9 @@
 
 using namespace std;
 
+const float C = 2.43835; //obtenus avec fit du proton
+const float K = 2.79636;
+
 int main(int argc,char** argv){
 
     TChain chain;
@@ -42,7 +45,8 @@ int main(int argc,char** argv){
 
     string s1 = argv[1];
     string s2 = s1.substr(0,s1.find('.'))+"_results.root";
-    string s3 = s1.substr(0,s1.find('.'))+"_FitRes.root";
+    //string s3 = s1.substr(0,s1.find('.'))+"_FitRes.root";
+    string s3 = "~/Documents/Internship/merge_FitRes.root";
 
     float ratiosat = atof(argv[argc-1]);
 
@@ -283,29 +287,29 @@ int main(int argc,char** argv){
     TH2F* h2PoverMDqDxNoEstim = new TH2F("h2PoverMDqDxNoEstim","h2PoverMDqDxNoEstim",1000,0,5,1000,0,300);
     TH2F* h2PoverMDqcalibDxNoEstim = new TH2F("h2PoverMDqcalibDxNoEstim","h2PoverMDqcalibDxNoEstim",1000,0,5,1000,0,300);
 
-    TH2F* h2PoverMDeDxLarge = new TH2F("h2PoverMDeDxLarge","h2PoverMDeDxLarge",1000,0,50,1000,0,1000000);
-    TH2F* h2PoverMDqDxLarge = new TH2F("h2PoverMDqDxLarge","h2PoverMDqDxLarge",1000,0,50,1000,0,1000000);
-    TH2F* h2PoverMDqcalibDxLarge = new TH2F("h2PoverMDqcalibDxLarge","h2PoverMDqcalibDxLarge",1000,0,50,1000,0,1000000);
+    TH2F* h2PoverMDeDxLarge = new TH2F("h2PoverMDeDxLarge","h2PoverMDeDxLarge",1000,0,50,1000,0,1500);
+    TH2F* h2PoverMDqDxLarge = new TH2F("h2PoverMDqDxLarge","h2PoverMDqDxLarge",1000,0,50,1000,0,1500);
+    TH2F* h2PoverMDqcalibDxLarge = new TH2F("h2PoverMDqcalibDxLarge","h2PoverMDqcalibDxLarge",1000,0,50,1000,0,1500);
     
-    TH2F* h2PoverMDeDxLargeNoEstim = new TH2F("h2PoverMDeDxLargeNoEstim","h2PoverMDeDxLargeNoEstim",1000,0,50,1000,0,1000000);
-    TH2F* h2PoverMDqDxLargeNoEstim = new TH2F("h2PoverMDqDxLargeNoEstim","h2PoverMDqDxLargeNoEstim",1000,0,50,1000,0,1000000);
-    TH2F* h2PoverMDqcalibDxLargeNoEstim = new TH2F("h2PoverMDqcalibDxLargeNoEstim","h2PoverMDqcalibDxLargeNoEstim",1000,0,50,1000,0,1000000);
+    TH2F* h2PoverMDeDxLargeNoEstim = new TH2F("h2PoverMDeDxLargeNoEstim","h2PoverMDeDxLargeNoEstim",1000,0,50,1000,0,1500);
+    TH2F* h2PoverMDqDxLargeNoEstim = new TH2F("h2PoverMDqDxLargeNoEstim","h2PoverMDqDxLargeNoEstim",1000,0,50,1000,0,1500);
+    TH2F* h2PoverMDqcalibDxLargeNoEstim = new TH2F("h2PoverMDqcalibDxLargeNoEstim","h2PoverMDqcalibDxLargeNoEstim",1000,0,50,1000,0,1500);
     
-    TH2F* h2PDeDx = new TH2F("h2PDeDx","h2PDeDx",1000,0,5,1000,0,150);
-    TH2F* h2PDqDx = new TH2F("h2PDqDx","h2PDqDx",1000,0,5,1000,0,150);
-    TH2F* h2PDqcalibDx = new TH2F("h2PDqcalibDx","h2PDqcalibDx",1000,0,5,1000,0,150);
+    TH2F* h2PDeDx = new TH2F("h2PDeDx","h2PDeDx",1000,0,2,1000,0,15);
+    TH2F* h2PDqDx = new TH2F("h2PDqDx","h2PDqDx",1000,0,2,1000,0,15);
+    TH2F* h2PDqcalibDx = new TH2F("h2PDqcalibDx","h2PDqcalibDx",1000,0,2,1000,0,15);
 
-    TH2F* h2PDeDxLarge = new TH2F("h2PDeDxLarge","h2PDeDxLarge",1000,0,1000,1000,0,1000000);
-    TH2F* h2PDqDxLarge = new TH2F("h2PDqDxLarge","h2PDqDxLarge",1000,0,1000,1000,0,1000000);
-    TH2F* h2PDqcalibDxLarge = new TH2F("h2PDqcalibDxLarge","h2PDqcalibDxLarge",1000,0,1000,1000,0,1000000);
+    TH2F* h2PDeDxLarge = new TH2F("h2PDeDxLarge","h2PDeDxLarge",1000,0,3000,1000,0,100);
+    TH2F* h2PDqDxLarge = new TH2F("h2PDqDxLarge","h2PDqDxLarge",1000,0,3000,1000,0,100);
+    TH2F* h2PDqcalibDxLarge = new TH2F("h2PDqcalibDxLarge","h2PDqcalibDxLarge",1000,0,3000,1000,0,100);
     
     TH2F* h2PDeDxNoEstim = new TH2F("h2PDeDxNoEstim","h2PDeDxNoEstim",1000,0,5,1000,0,150);
     TH2F* h2PDqDxNoEstim = new TH2F("h2PDqDxNoEstim","h2PDqDxNoEstim",1000,0,5,1000,0,150);
     TH2F* h2PDqcalibDxNoEstim = new TH2F("h2PDqcalibDxNoEstim","h2PDqcalibDxNoEstim",1000,0,5,1000,0,150);
     
-    TH2F* h2PDeDxLargeNoEstim = new TH2F("h2PDeDxLargeNoEstim","h2PDeDxLargeNoEstim",1000,0,1000,1000,0,1000000);
-    TH2F* h2PDqDxLargeNoEstim = new TH2F("h2PDqDxLargeNoEstim","h2PDqDxLargeNoEstim",1000,0,1000,1000,0,1000000);
-    TH2F* h2PDqcalibDxLargeNoEstim = new TH2F("h2PDqcalibDxLargeNoEstim","h2PDqcalibDxLargeNoEstim",1000,0,1000,1000,0,1000000);
+    TH2F* h2PDeDxLargeNoEstim = new TH2F("h2PDeDxLargeNoEstim","h2PDeDxLargeNoEstim",1000,0,3000,1000,0,100);
+    TH2F* h2PDqDxLargeNoEstim = new TH2F("h2PDqDxLargeNoEstim","h2PDqDxLargeNoEstim",1000,0,3000,1000,0,100);
+    TH2F* h2PDqcalibDxLargeNoEstim = new TH2F("h2PDqcalibDxLargeNoEstim","h2PDqcalibDxLargeNoEstim",1000,0,3000,1000,0,100);
     
 
     TH1F* hInvestigationEta = new TH1F("hInvestigationEta","hInvestigationEta",50,-5,5);
@@ -321,6 +325,9 @@ int main(int argc,char** argv){
     TH2F* h2Shape = new TH2F("h2Shape","h2Shape",300,0,6000*pow(10,-6),300,0,6000*pow(10,-6));
     TH1F* hShapePartID = new TH1F("ShapePartID","ShapePartID",7,0,7);
 
+    TH1F* hDistribMassSM = new TH1F("hDistribMassSM","hDistribMassSM",10000,0,10);
+    TH1F* hDistribMassSUSY = new TH1F("hDistribMassSUSY","hDistribMassSUSY",10000,0,3000);
+
 
 
     int entries = nentries;
@@ -335,7 +342,7 @@ int main(int argc,char** argv){
     int clust=0,clustsat254=0,clustsat255=0;
 
     b1->SetThresholdPartId(0.7); //on veut un minimum de 70% de simhits identiques
-    b1->SetThresholdPt(60); //on veut des traces avec un minimum de 60 GeV en pt
+    b1->SetThresholdPt(0); //on veut des traces avec un minimum de 60 GeV en pt
 
 
     Calibration Charge;
@@ -425,7 +432,7 @@ int main(int argc,char** argv){
 
             
             for(int cluster=0;cluster<b1->GetVectTrack()[track].GetNCluster();cluster++)
-            {
+            {//cout<<"Entry "<<i<<" track "<<track<<" cluster "<<cluster<<endl;
                 float charge        = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetSclusCharge();
                 float eloss         = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetEloss();
                 float pathlength    = b1->GetVectTrack()[track].GetVectClusters()[cluster].GetPathLength();
@@ -530,7 +537,7 @@ int main(int argc,char** argv){
                 }
                 if(b1->GetVectTrack()[track].GetVectClusters()[cluster].GetVectSimHits().size()==0) h1ChargeFauxSimHit->Fill(charge);
 
-                if((nsat254==0 || nsat255==0) && layerLabel<=10 && RatioNClusterSat254>=ratiosat)
+                if(/*(nsat254==0 && nsat255==0) && */layerLabel<=10 /*&& RatioNClusterSat254>=ratiosat*/ /*&& (1000001<=id && id<=2000015) || (-2000015<=id && id<=-1000001)*/)
                 {
                     if(RatioNClusterSat254>=ratiosat) ChargeCalib=Charge.ChargeCalib(charge,layerLabel,nstrips,nsat254,nsat255);
                     EvQbarrel_Calib->Fill(eloss,ChargeCalib);
@@ -774,7 +781,6 @@ int main(int argc,char** argv){
             h2PoverMDqcalibDxLarge->Fill(PoverM,estim.GetHarmonic2()*pow(10,3));
             h2PDqcalibDx->Fill(p,estim.GetHarmonic2()*pow(10,3));
             h2PDqcalibDxLarge->Fill(p,estim.GetHarmonic2()*pow(10,3));
-
             for(int nclust=0;nclust<vect_dqcalibdx.size();nclust++) 
             {
                 h2PoverMDqcalibDxNoEstim->Fill(PoverM,vect_dqcalibdx[nclust]*pow(10,3));
@@ -782,7 +788,15 @@ int main(int argc,char** argv){
                 h2PDqcalibDxNoEstim->Fill(p,vect_dqcalibdx[nclust]*pow(10,3));
                 h2PDqcalibDxLargeNoEstim->Fill(p,vect_dqcalibdx[nclust]*pow(10,3));
             }
+            estim.SetVect(vect_dedx);
+            float dedx = estim.GetHarmonic2()*pow(10,3);
+        //if(id==321 || id==-321)
+            {
+                hDistribMassSM->Fill(sqrt((dedx-C)*pow(p,2)/K));
+                hDistribMassSUSY->Fill(sqrt((dedx-C)*pow(p,2)/K));
 
+            }
+            
 
 
             /*if(testsat254 && testsat255 )//&& b1->GetVectTrack()[track].GetVectClusters().size() <=3)
@@ -807,6 +821,9 @@ int main(int argc,char** argv){
     ofile<<"StdDev : "<<h1DiffRelEvQCalib->GetStdDev()<<"\tError : "<<h1DiffRelEvQCalib->GetStdDevError()<<endl;
 
     TFile* fileout = new TFile(s2.c_str(),"RECREATE");
+
+    DrawHisto(*fileout,hDistribMassSM,"","m [GeV]");
+    DrawHisto(*fileout,hDistribMassSUSY,"","m [GeV]");
 
     hInvestigationCharge->Write();
     hInvestigationEloss->Write();
@@ -1383,6 +1400,7 @@ int main(int argc,char** argv){
     
     TFile* ofilecalib = new TFile(("results_ratiosat"+to_string(ratiosat)+".root").c_str(),"RECREATE");
     cDiffRelChargeCalib_Charge->Write();
+    h1DiffRelEvQ->Write();
     h1DiffRelEvQCalib->Write();
     ofilecalib->Write();
     ofilecalib->Close();
