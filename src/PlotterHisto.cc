@@ -36,6 +36,30 @@ void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string 
     prof->Draw("SAME");
 }
 
+void DrawHisto(TFile &fileout,vector<TH2F*> VectHisto,vector<string> VectLegend,string title,string x_title,string y_title)
+{
+    TCanvas canvas;
+    canvas.cd();
+    for(int i=0;i<VectHisto.size();i++)
+    {
+        VectHisto[i]->SetMarkerColor(36+2*i);
+        VectHisto[i]->SetFillColor(36+2*i);
+        VectHisto[i]->SetLineColor(36+2*i);
+        VectHisto[i]->SetMarkerStyle(6);
+        VectHisto[i]->GetXaxis()->SetTitle(x_title.c_str());
+        VectHisto[i]->GetYaxis()->SetTitle(y_title.c_str());
+        VectHisto[i]->Draw("SAME");
+    }
+    VectHisto[0]->SetTitle(title.c_str());
+    TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
+    for(int i=0;i<VectLegend.size();i++)
+    {
+        leg->AddEntry(VectHisto[i],VectLegend[i].c_str(),"l");
+    }
+    leg->Draw("SAME");
+    canvas.Write();
+}
+
 void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title)
 {
     THStack* Stack = new THStack(title.c_str(),title.c_str());
@@ -67,6 +91,7 @@ void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> 
         VectHisto[i]->SetLineColor(2*(i+1));
         VectHisto[i]->SetFillColor(0);
         VectHisto[i]->GetXaxis()->SetTitle(x_title.c_str());
+        VectHisto[i]->GetYaxis()->SetTitle("u.a.");
         VectHisto[i]->Draw("SAME");
         if(VectHisto[i]->GetMaximum()>binmax) binmax=VectHisto[i]->GetMaximum();
     }
@@ -86,7 +111,7 @@ void DrawHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend
     canvas.cd();
     for(int i=0;i<VectHisto.size();i++)
     {
-        VectHisto[i]->SetLineColor(2*(i+1));
+        VectHisto[i]->SetLineColor(3*(i+1));
         VectHisto[i]->SetFillColor(0);
         VectHisto[i]->GetXaxis()->SetTitle(x_title.c_str());
         VectHisto[i]->Draw("SAME");
@@ -98,6 +123,27 @@ void DrawHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend
         leg->AddEntry(VectHisto[i],VectLegend[i].c_str(),"l");
     }
     leg->Draw("SAME");
+}
+
+void DrawHisto(TFile &fileout,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title)
+{
+    TCanvas canvas;
+    canvas.cd();
+    for(int i=0;i<VectHisto.size();i++)
+    {
+        VectHisto[i]->SetLineColor(3*(i+1));
+        VectHisto[i]->SetFillColor(0);
+        VectHisto[i]->GetXaxis()->SetTitle(x_title.c_str());
+        VectHisto[i]->Draw("SAME");
+    }
+    VectHisto[0]->SetTitle(title.c_str());
+    TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
+    for(int i=0;i<VectLegend.size();i++)
+    {
+        leg->AddEntry(VectHisto[i],VectLegend[i].c_str(),"l");
+    }
+    leg->Draw("SAME");
+    canvas.Write();
 }
 
 void DrawClusterProfile(const Cluster* clus)

@@ -146,7 +146,7 @@ void Builder::GetEntry(int i)
         for(int itrack=0;itrack<ntracks;itrack++)
         {
 			//cout<<"track "<<itrack<<endl;
-            if(track_pt[itrack]>ThresholdPt_ && track_p[itrack]>0 && track_chi2[itrack]<=5 && track_nvalidhits[itrack]>=8 )//&& -0.8<=track_eta[itrack]<=0.8) //on applique des selections sur nos traces, des criteres de qualite. On veut minimum pt>threshold GeV 
+            if(track_pt[itrack]>ThresholdPt_ && track_p[itrack]>0 && track_chi2[itrack]<=5 && track_nvalidhits[itrack]>=8 && track_nhits[itrack]<=40 && -0.8<=track_eta[itrack] && track_eta[itrack]<=0.8) //on applique des selections sur nos traces, des criteres de qualite. On veut minimum pt>threshold GeV 
             {	
 				float ThresholdPartId=1;
                 vector<Cluster> VectClust;
@@ -159,17 +159,19 @@ void Builder::GetEntry(int i)
                         vector<SimHit> VectSimHits;
                         for(int istrip=sclus_index_strip[iclust];istrip<sclus_index_strip[iclust]+sclus_nstrip[iclust];istrip++)
                         {
+							//cout<<"strip "<<istrip<<endl;
                             ClusterStrip strip1(strip_ampl[istrip]);
                             VectStrips.push_back(strip1);
                         }
                         for(int isimhit=sclus_index_simhit[iclust];isimhit<sclus_index_simhit[iclust]+sclus_nsimhit[iclust];isimhit++)
                         {
+							//cout<<"simhit "<<isimhit<<endl;
                             SimHit simhit1(simhit_pid[isimhit],simhit_p[isimhit],simhit_eloss[isimhit],simhit_tof[isimhit],simhit_xentry[isimhit],simhit_xexit[isimhit]);
                             VectSimHits.push_back(simhit1);
 							VectPartID_Cluster.push_back(simhit_pid[isimhit]);
                         }
                         Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_shape[iclust],sclus_firstsclus[iclust],VectPartID_Cluster[0],VectStrips,VectSimHits);
-                        if(clust1.Cut()==false && clust1.Edge()==false) VectClust.push_back(clust1); //filtre sur les clusters
+						if(clust1.Cut()==false && clust1.Edge()==false) VectClust.push_back(clust1); //filtre sur les clusters
 						SizeSimHit=VectSimHits.size();
                     }
                 }

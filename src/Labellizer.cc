@@ -7,7 +7,7 @@ const float m_electron = 511*pow(10,-6); //masse de l'electron en GeV
 const float m_pion = 139.57*pow(10,-3); //masse du pion en GeV
 const float m_kaon = 439.68*pow(10,-3); //masse du kaon en GeV
 const float m_proton = 938.27*pow(10,-3); //masse du proton en GeV
-const float m_Rhadrons = 1400; //masse des R-hadrons (proche masse gluino) en GeV 
+const float m_Rhadrons = 2400; //masse des R-hadrons (proche masse gluino) en GeV 
 
 const char* StringToChar(string str)
 {
@@ -160,6 +160,7 @@ float GetPoverM(float p,int i)
     if(i==211 || i==-211) return p/m_pion;
     if(i==2212 || i==-2212) return p/m_proton;
     if(i==1009213 || i==-1009213) return p/m_Rhadrons;
+    if((1000001<=i && i<=2000015) || (-2000015<=i && i<=-1000001)) return p/m_Rhadrons;
 }
 
 string LoopPartID(int i)

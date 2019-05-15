@@ -111,7 +111,7 @@ int count=0;
     {
 
         tree->GetEntry(i);
-        if(layerLabel==5 && nstripsat254>=1 && nstripsat255==0)
+        if(layerLabel==5)
         {
             hChi2overNdf->Fill(chi2overndf);
             string str_histo = Label(layerLabel)+" NStrip="+to_string(nstrip)+" NStripSat254="+to_string(nstripsat254)+" NStripSat255="+to_string(nstripsat255);
@@ -123,6 +123,10 @@ int count=0;
             TCanvas* CanvasOfInterest = new TCanvas(str_histo.c_str(),str_histo.c_str());
             HistoOfInterest->Draw("colz");
             ProfileOfInterest->Draw("same");
+            HistoOfInterest->GetXaxis()->SetTitle("E_{loss} [MeV]");
+            HistoOfInterest->GetYaxis()->SetTitle("Q [MeV]");
+            HistoOfInterest->GetXaxis()->SetRangeUser(0,0.0015);    
+            HistoOfInterest->GetYaxis()->SetRangeUser(0,0.0015);
             CanvasOfInterest->Write();
         }
         tabp0[i]=p0;

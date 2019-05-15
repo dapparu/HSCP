@@ -46,8 +46,8 @@ int main(int argc,char** argv)
 	for(int i=1;i<argc;i++)
 	{
 		TFile* _file0 = TFile::Open(argv[i]);
-		TH1F* _histo0 = (TH1F*) _file0->Get("h1DiffRelEvQCalib");
-		TFitResultPtr _fit0 = _histo0->Fit("gaus","QRS","",_histo0->GetBinCenter(_histo0->GetMaximumBin())-_histo0->GetStdDev()/2,_histo0->GetBinCenter(_histo0->GetMaximumBin())+_histo0->GetStdDev()/2);
+		TH1F* _histo0 = (TH1F*) _file0->Get("h1DiffRelEvQcorr");
+		TFitResultPtr _fit0 = _histo0->Fit("gaus","RS","",_histo0->GetBinCenter(_histo0->GetMaximumBin())-_histo0->GetStdDev()/2,_histo0->GetBinCenter(_histo0->GetMaximumBin())+_histo0->GetStdDev()/2);
 		VectHisto.push_back(_histo0);
 		VectFit.push_back(_fit0);
 		VectChi2Gaus.push_back(_fit0->Chi2());

@@ -34,6 +34,7 @@ int main(int argc,char** argv)
     TProfile* profdedx;
 	TFile* _file0 = TFile::Open(argv[1]);
 	TH2F* _hdEdx = (TH2F*) _file0->Get("h2PDeDx");
+    //TH2F* _hdEdxRec = (TH2F*) _file0->Get("h2PDqcalibDx");
     TH2F* _hdEdxRec = (TH2F*) _file0->Get("h2PDeDxLarge");
     TH2F* _hdedxclone = (TH2F*) _hdEdxRec->Clone();
     _hdedxclone->Reset();
@@ -77,7 +78,11 @@ int main(int argc,char** argv)
         }
     }
     TF1* InvSquare = new TF1("InvSquare","[0]/(x*x)+[1]");
-    TFitResultPtr fit_gr = hrec->Fit("InvSquare","SR","",600,3000);
+    //TF1* InvSquare = new TF1("InvSquare","[0]*(1/x)*(-pow(x,3)/16+pow(x,2)/3-x+1)+[1]/(x*x)");
+    //TF1* InvSquare = new TF1("InvSquare","[0]/pow(x,4)+[1]/pow(x,2)+[2]");
+    //TF1* InvSquare = new TF1("InvSquare","[0]/pow(x,6)+[1]/pow(x,4)+[2]/pow(x,2)+[3]");
+    //TF1* InvSquare = new TF1("InvSquare","[0]/pow(x,5/3)+[1]/pow(x,2)+[2]");
+    TFitResultPtr fit = hrec->Fit("InvSquare","S");
     hrec->GetYaxis()->SetRangeUser(0,100);
     
     /*for(int i=0;i<nbre && start<_hdEdx->GetNbinsX();i++)
@@ -93,7 +98,7 @@ int main(int argc,char** argv)
         
     }
     TF1* InvExp = new TF1("InvExp","[0]/(x*x)+[1]",0,nbre);
-    TFitResultPtr fit_gr = hproj->Fit("InvExp","SR");
+    TFitResultPtr fit = hproj->Fit("InvExp","SR");
     hproj->Write();*/
     hrec->Write();
 
@@ -106,8 +111,10 @@ int main(int argc,char** argv)
     ofile->Close();
     delete ofile;
 
-    cout<<fit_gr->Parameter(0)<<"/P^{2}+"<<fit_gr->Parameter(1)<<endl;
-    cout<<fit_gr->Parameter(0)/pow(2400,2)<<endl;
+    float mass=2400; //en GeV
+
+    cout<<"par0 "<<fit->Parameter(0)<<" par1 "<<fit->Parameter(1)<<" par2 "<<fit->Parameter(2)<<endl;
+    cout<<"par0/M^2 "<<fit->Parameter(0)/pow(mass,2)<<" par1/M^2 "<<fit->Parameter(1)/pow(mass,2)<<endl;
 
     return 0;
 }
