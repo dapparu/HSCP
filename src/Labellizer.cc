@@ -14,7 +14,7 @@ const char* StringToChar(string str)
     return str.c_str();
 }
 
-void SetHistoLabel(TCanvas* canvas,TH1F* histo)
+void SetHistoLabel(TCanvas* canvas,TH1D* histo)
 {
 
     int Wsize = histo->GetMaximum()*1.05;
@@ -87,7 +87,7 @@ string LabelParticle(int i)
     if(i==2212 || i==-2212) return "p/#bar{p}";
     if(i==1009213 || i==-1009213) return "R^{+}_{#tilde{g}u#bar{d}}";
     //if(((int)i/1000==1009 || (int)i/1000==-1009) && !(i==1009213 || i==-1009213)) return "R^{+}";
-    if((1000001<=i && i<=2000015) || (-2000015<=i && i<=-1000001)) return "SUSY particle";
+    else if((1000001<=i && i<=2000015) || (-2000015<=i && i<=-1000001)) return "SUSY particle";
     else return "SM particle";
 }
 
@@ -150,7 +150,8 @@ int ReBinPartID(int i)
     if(i==1009213 || i==-1009213) return 5; //R-hadron 
     //if(((int)i/1000==1009 || (int)i/1000==-1009) && !(i==1009213 || i==-1009213)) return 6;
     if((1000001<=i && i<=2000015) || (-2000015<=i && i<=-1000001)) return 6; //SUSY
-    else return 4; //SM
+    //else return 4; //SM
+    if(!(1000001<=i && i<=2000015) || (-2000015<=i && i<=-1000001)) return 4; //SUSY
 }
 
 float GetPoverM(float p,int i)
@@ -160,7 +161,7 @@ float GetPoverM(float p,int i)
     if(i==211 || i==-211) return p/m_pion;
     if(i==2212 || i==-2212) return p/m_proton;
     if(i==1009213 || i==-1009213) return p/m_Rhadrons;
-    if((1000001<=i && i<=2000015) || (-2000015<=i && i<=-1000001)) return p/m_Rhadrons;
+    else if((1000001<=i && i<=2000015) || (-2000015<=i && i<=-1000001)) return p/m_Rhadrons;
 }
 
 string LoopPartID(int i)

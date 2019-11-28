@@ -5,7 +5,7 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TF1.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TH2F.h"
 #include "TH3F.h"
 #include "THStack.h"
@@ -21,19 +21,22 @@
 #include "Rtypes.h"
 #include "TLatex.h"
 #include "TMathText.h"
+#include "TPaveText.h"
 
 #include "Labellizer.h"
 
 using namespace std;
 
-void DrawHisto(TFile &fileout,TH1F* histo,string title,string x_title="");
-void DrawProfile(TFile &fileout,TProfile* prof,string title,string x_title="");
+void DrawHisto(TFile &fileout,TH1D* histo,string title,string x_title="");
+void DrawProfile(TFile &fileout,TProfile* prof,string title,string x_title="",string y_title="");
 void DrawHisto(TFile &fileout,TH2F* histo,string title,string x_title="",string y_title="");
 void DrawHisto(TFile &fileout,vector<TH2F*> VectHisto,vector<string> VectLegend,string title,string x_title="",string y_title="");
-void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string title="",string x_title="", string y_title="");
-void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title);
-void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title);
-void DrawHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title);
-void DrawHisto(TFile &fileout,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title);
+void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string title="",string x_title="", string y_title="",string z_title="");
+void DrawHistoNormalized(TFile &fileout,TH2F* histo,string title="",string xtitle="",string ytitle="",string ztitle="");
+void DrawHistoNormalizedComment(TFile &fileout,TH2F* histo,string title="",string xtitle="",string ytitle="",string ztitle="",string comment="");
+void StackHisto(TCanvas &canvas,vector<TH1D*> VectHisto,vector<string> VectLegend,string title,string x_title);
+void DrawHistoNormalized(TCanvas &canvas,vector<TH1D*> VectHisto,vector<string> VectLegend,string title,string x_title);
+void DrawHisto(TCanvas &canvas,vector<TH1D*> VectHisto,vector<string> VectLegend,string title,string x_title);
+void DrawHisto(TFile &fileout,vector<TH1D*> VectHisto,vector<string> VectLegend,string title,string x_title);
 void DrawClusterProfile(const Cluster* clus);
 bool SelectedArea(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4,float x,float y);

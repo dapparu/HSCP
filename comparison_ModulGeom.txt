@@ -1,0 +1,5 @@
+Name		MPV	DistribMean	DistribMeanErr	DistribStdDev	DistribStdDevErr	FitMean	FitMeanErr	FitSigma	FitSigmaErr	FracIntervalGlissantSigma	FracIntervalGlissant68	FracInterval
+
+h_ClustSat_MyCorrWOinv_TIB		6	0.435621	0.114624	0.648411	0.0810514	-12.5269	8.46395	2.80707	2.5985	0	0	0.558824
+
+h_ClustSat_HscpCorrWOinv_TIB		5	0.4027	0.116244	0.636694	0.0821969	-9.93556	8.03981	3.16523	1.663	0	0	0.529412

@@ -1,0 +1,5 @@
+Name		MPV	DistribMean	DistribMeanErr	DistribStdDev	DistribStdDevErr	FitMean	FitMeanErr	FitSigma	FitSigmaErr	FracIntervalGlissantSigma	FracIntervalGlissant68	FracInterval
+
+h_ClustSat_HscpCorrNoInv		1494	-0.0882961	0.00173121	0.303909	0.00122415	-0.0499591	0.00139079	0.173407	0.00165354	0.572841	0.796959	0.692325
+
+h_ClustSat_MyFullCorr		1872	-0.0679966	0.00169901	0.29819	0.00120138	-0.0424609	0.000819406	0.119169	0.00089679	0.558575	0.809507	0.743783

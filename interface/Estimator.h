@@ -24,4 +24,5 @@ class Estimator
         float GetTrunc40();
         float GetHarmonic2();
         float GetStdDev();
+        float GetRMS();
 };

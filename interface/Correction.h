@@ -41,13 +41,14 @@ class Correction
         float chi2_;
         int Ndf_;
         float Chi2overNdf_;
-        int Label_;
+        int label_;
         int nstrip_;
         int nstripsat254_;
         int nstripsat255_;
         int moduleGeom_;
-        TProfile* profile_;
+        TProfile* historec_;
         TH2F* histo_;
+        //TH1F* historec_;
         
         float p0[21][4][7][7];
         float p1[21][4][7][7];
@@ -68,11 +69,13 @@ class Correction
         void SetBranch();
         void Write(int Label,int nstrip,int nstripsat254,int nstripsat255);
         void WriteFile();
-        void Read();
+        void ReadLayer();
+        void ReadModulGeom();
         void FillProfile();
         void FitProfile();
         void SetHisto(TH2F &histo);
         float ChargeCorr(float charge,int Label,int nstrip,int nstripsat254,int nstripsat255);
+        bool TestCorr(int Label,int nstrip,int nstripsat254,int nstripsat255);
         void SetRebin(int Rebin);
         void SetRange(float Range);
 

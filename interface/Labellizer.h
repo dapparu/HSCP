@@ -29,7 +29,7 @@ using namespace std;
 
 
 const char* StringToChar(string str);
-void SetHistoLabel(TCanvas* canvas,TH1F* histo);
+void SetHistoLabel(TCanvas* canvas,TH1D* histo);
 void SetHistoLabelPartID(TCanvas* canvas,TH2F* histo);
 string Label(int i);
 string LabelParticle(int i);

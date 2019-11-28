@@ -12,9 +12,10 @@ Track::Track()
 	phi_		= .0;
 	nhits_		= .0;
 	ndedxhits_	= 0;
+	ias_ampl_	= .0;
 }
 
-Track::Track(float pt,float p,float eta,float phi,float nhits,int ndedxhits,const vector<Cluster> &VectClusters)
+Track::Track(float pt,float p,float eta,float phi,float nhits,int ndedxhits,float ias_ampl,const vector<Cluster> &VectClusters)
 {
 	pt_		= pt;
 	p_		= p;
@@ -22,6 +23,7 @@ Track::Track(float pt,float p,float eta,float phi,float nhits,int ndedxhits,cons
 	phi_	= phi;
 	nhits_	= nhits;
 	ndedxhits_	= ndedxhits;
+	ias_ampl_	= ias_ampl;
 	VectClusters_	= VectClusters;
 }
 
@@ -31,6 +33,7 @@ Track::~Track()
 	p_			= .0;
 	nhits_		= .0;
 	ndedxhits_	= 0;
+	ias_ampl_	= .0;
 	VectClusters_.clear();
 }
 
@@ -57,6 +60,11 @@ float Track::GetPhi() const
 int Track::GetNhits() const
 {
 	return nhits_;
+}
+
+float Track::GetIasAmpl() const
+{
+	return ias_ampl_;
 }
 
 int Track::GetNCluster() const

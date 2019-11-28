@@ -6,12 +6,14 @@ Cluster::Cluster()
 {
 	dedx_charge_		= .0;
 	sclus_charge_		= .0;
+	sclus_charge_corr_	= .0;
 	pathlength_			= .0;
 	eloss_ 				= .0;
 	nstrips_			= 0;
 	nsimhits_			= 0;
 	detid_				= 0;
 	subdetid_			= 0;
+	modulgeom_			= 0;
 	firstsclus_			= 0;
 	sat254_				= false;
 	sat255_				= false;
@@ -19,16 +21,18 @@ Cluster::Cluster()
 	partid_				= 0;
 }
 
-Cluster::Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,bool sat254,bool sat255,bool shape,int firstsclus,int partId,const vector<ClusterStrip> &VectStrips,const vector<SimHit> &VectSimHits)
+Cluster::Cluster(float dedx_charge,float sclus_charge,float sclus_charge_corr,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,int modulgeom,bool sat254,bool sat255,bool shape,int firstsclus,int partId,const vector<ClusterStrip> &VectStrips,const vector<SimHit> &VectSimHits)
 {
 	dedx_charge_		= dedx_charge;
 	sclus_charge_		= sclus_charge;
+	sclus_charge_corr_	= sclus_charge_corr;
 	pathlength_			= pathlength;
 	eloss_				= eloss;
 	nstrips_			= nstrips;
 	nsimhits_			= nsimhits;
 	detid_				= detid;
 	subdetid_			= subdetid;
+	modulgeom_			= modulgeom;
 	sat254_				= sat254;
 	sat255_				= sat255;
 	shape_				= shape;
@@ -50,6 +54,21 @@ float Cluster::GetDedxCharge() const
 float Cluster::GetSclusCharge() const
 {
 	return sclus_charge_;
+}
+
+float Cluster::GetSclusChargeCorr() const
+{
+	return sclus_charge_corr_;
+}
+
+float Cluster::GetChargeWithoutSaturation() const
+{
+	float res=0;
+	for(int i=0;i<VectStrips_.size();i++)
+	{
+		if(VectStrips_[i].GetAmpl()!=254 && VectStrips_[i].GetAmpl()!=255) res+=VectStrips_[i].GetAmpl();
+	}
+	return res;
 }
 
 float Cluster::GetPathLength() const
@@ -75,6 +94,8 @@ int Cluster::GetLayer() const
 	else if(subdetid_==6) return 6*10+((detid_>>14)&0xF)-1;		//TEC
 }
 
+
+
 int Cluster::GetLayerLabel() const
 {
 	if(subdetid_==3)
@@ -95,6 +116,7 @@ int Cluster::GetLayerLabel() const
 	}
 	else if(subdetid_==4)
 	{
+		//cout<<((detid_>>14)&0x3)<<endl;
 		if(((detid_>>14)&0x3)==0) return 11;
 		else if(((detid_>>14)&0x3)==1) return 12;
 	}
@@ -242,4 +264,9 @@ int Cluster::GetMaxStrip() const
 		if(VectStrips_[i].GetAmpl()>=max) max=VectStrips_[i].GetAmpl();
 	}
 	return max;
+}
+
+int Cluster::GetModulGeom() const
+{
+	return modulgeom_;
 }

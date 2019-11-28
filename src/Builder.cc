@@ -19,6 +19,8 @@ Builder::Builder(TChain &chain)
 
 	ThresholdPartId_ = 0.;
 	ThresholdPt_	 = 0.;
+	ThresholdP_		 = 0.;
+	ThresholdEta_	 = 0.;
 
 	for(int i=0;i<ngenpart_max;i++){
 		gen_pdg[i]=0;
@@ -37,13 +39,16 @@ Builder::Builder(TChain &chain)
 		track_nhits[i]=0;
 		track_index_hit[i]=0;
 		track_eta[i]=0;
+		track_ias_ampl[i]=0;
 	}
 	for(int i=0;i<ndedxhits_max;i++){
 		dedx_detid[i]=0;
 		dedx_subdetid[i]=0;
+		dedx_modulgeom[i]=0;
 		dedx_charge[i]=0;
 		dedx_pathlength[i]=0;
-		dedx_isstrip[i]=0;
+		dedx_isstrip[i]=false;
+		dedx_ispixel[i]=false;
 		sclus_sat254[i]=0;
 		sclus_sat255[i]=0;
 		sclus_index_strip[i]=0;
@@ -52,6 +57,7 @@ Builder::Builder(TChain &chain)
 		sclus_nsimhit[i]=0;
 		sclus_eloss[i]=0;
 		sclus_firstsclus[i]=0;
+		sclus_charge_corr[i]=0;
 	}
 	for(int i=0;i<nstrips_max;i++){
 		strip_ampl[i]=0;
@@ -95,9 +101,11 @@ void Builder::SetBranchAdd()
 	chain_->SetBranchAddress("track_nvalidhits", &track_nvalidhits);
 	chain_->SetBranchAddress("track_index_hit", &track_index_hit);
 	chain_->SetBranchAddress("track_nhits", &track_nhits);
+	chain_->SetBranchAddress("track_ias_ampl",&track_ias_ampl);
 	chain_->SetBranchAddress("ndedxhits", &ndedxhits);
 	chain_->SetBranchAddress("dedx_detid", &dedx_detid);
 	chain_->SetBranchAddress("dedx_subdetid", &dedx_subdetid);
+	chain_->SetBranchAddress("dedx_modulgeom", &dedx_modulgeom);
 	chain_->SetBranchAddress("dedx_charge", &dedx_charge);
 	chain_->SetBranchAddress("dedx_pathlength", &dedx_pathlength);
 	chain_->SetBranchAddress("dedx_posx", &dedx_posx);
@@ -115,11 +123,12 @@ void Builder::SetBranchAdd()
 	chain_->SetBranchAddress("sclus_sat254", &sclus_sat254);
 	chain_->SetBranchAddress("sclus_sat255", &sclus_sat255);
 	chain_->SetBranchAddress("sclus_shape", &sclus_shape);
-	chain_->SetBranchAddress("sclus_index_simhit", &sclus_index_simhit);
-	chain_->SetBranchAddress("sclus_nsimhit", &sclus_nsimhit);
+	chain_->SetBranchAddress("sclus_charge_corr", &sclus_charge_corr);
 	chain_->SetBranchAddress("sclus_eloss", &sclus_eloss);
 	chain_->SetBranchAddress("nstrips", &nstrips);
 	chain_->SetBranchAddress("strip_ampl", &strip_ampl);
+	chain_->SetBranchAddress("sclus_index_simhit", &sclus_index_simhit);
+	chain_->SetBranchAddress("sclus_nsimhit", &sclus_nsimhit);
 	chain_->SetBranchAddress("nsimhits", &nsimhits);
 	chain_->SetBranchAddress("simhit_pid", &simhit_pid);
 	chain_->SetBranchAddress("simhit_process", &simhit_process);
@@ -143,10 +152,11 @@ void Builder::GetEntry(int i)
 	int SizeSimHit=0;
     if(ntracks>0)
     {
+		//cout<<"event "<<i<<endl;
         for(int itrack=0;itrack<ntracks;itrack++)
         {
 			//cout<<"track "<<itrack<<endl;
-            if(track_pt[itrack]>ThresholdPt_ && track_p[itrack]>0 && track_chi2[itrack]<=5 && track_nvalidhits[itrack]>=8 && track_nhits[itrack]<=40 && -0.8<=track_eta[itrack] && track_eta[itrack]<=0.8) //on applique des selections sur nos traces, des criteres de qualite. On veut minimum pt>threshold GeV 
+            if(track_pt[itrack]>ThresholdPt_ && track_p[itrack]>ThresholdP_ && track_chi2[itrack]<=5 && track_nvalidhits[itrack]>=8 && track_nhits[itrack]<=40 && abs(track_eta[itrack])<=ThresholdEta_) //on applique des selections sur nos traces, des criteres de qualite. On veut minimum pt>threshold GeV 
             {	
 				float ThresholdPartId=1;
                 vector<Cluster> VectClust;
@@ -170,8 +180,8 @@ void Builder::GetEntry(int i)
                             VectSimHits.push_back(simhit1);
 							VectPartID_Cluster.push_back(simhit_pid[isimhit]);
                         }
-                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_shape[iclust],sclus_firstsclus[iclust],VectPartID_Cluster[0],VectStrips,VectSimHits);
-						if(clust1.Cut()==false && clust1.Edge()==false) VectClust.push_back(clust1); //filtre sur les clusters
+                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust],sclus_charge_corr[iclust],dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],dedx_modulgeom[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_shape[iclust],sclus_firstsclus[iclust],VectPartID_Cluster[iclust],VectStrips,VectSimHits);
+						if(clust1.Cut()==false && clust1.Edge()==false) VectClust.push_back(clust1); //filtre sur les clusters --> on ne veut pas de clusters coupes ou sur les bords
 						SizeSimHit=VectSimHits.size();
                     }
                 }
@@ -217,9 +227,9 @@ void Builder::GetEntry(int i)
 						for(int iclust=0;iclust<VectClust.size();iclust++) VectClust[iclust].SetPartId(VectPartID[indice]);
 						VectPartID.clear();
 					}
-					Track track1(track_pt[itrack],track_p[itrack],track_eta[itrack],track_phi[itrack],track_nhits[itrack],ndedxhits,VectClust);
+					Track track1(track_pt[itrack],track_p[itrack],track_eta[itrack],track_phi[itrack],track_nhits[itrack],ndedxhits,track_ias_ampl[itrack],VectClust);
 					track1.SetPartId(VectClust[0].GetPartId());
-					if(ThresholdPartId>=ThresholdPartId_) VectTrack_.push_back(track1); //on ne garde que les traces qui verifient la condition d'au minimum threshold% de partId identique
+					if(ThresholdPartId>=ThresholdPartId_) VectTrack_.push_back(track1); //on ne garde que les traces qui verifient la condition d'au minimum threshold% de partId identique (generalement threshold=70)
 					VectPartID_Cluster.clear();
 				}	
             }
@@ -262,41 +272,22 @@ float Builder::GetThresholdPt() const
 	return ThresholdPt_;
 }
 
-/*void Builder::SetCalibration(float factor,int entries)
+void Builder::SetThresholdP(float threshold)
 {
-	chain_->GetEntry(entries);
-    if(ntracks>0)
-    {
-        for(int itrack=0;itrack<ntracks;itrack++)
-        {
-			//cout<<"track "<<itrack<<endl;
-            if(track_pt[itrack]>0 && track_p[itrack]>0)
-            {
-                vector<Cluster> VectClust;
-                for(int iclust=track_index_hit[itrack];iclust<track_index_hit[itrack]+track_nhits[itrack];iclust++)
-                {
-					//cout<<"clust "<<iclust<<endl;
-                    if(dedx_isstrip[iclust]==true && dedx_charge[iclust]>0 && dedx_pathlength[iclust]>0)
-                    {
-                        vector<ClusterStrip> VectStrips;
-                        vector<SimHit> VectSimHits;
-                        for(int istrip=sclus_index_strip[iclust];istrip<sclus_index_strip[iclust]+sclus_nstrip[iclust];istrip++)
-                        {
-                            ClusterStrip strip1(strip_ampl[istrip]);
-                            VectStrips.push_back(strip1);
-                        }
-                        for(int isimhit=sclus_index_simhit[iclust];isimhit<sclus_index_simhit[iclust]+sclus_nsimhit[iclust];isimhit++)
-                        {
-                            SimHit simhit1(simhit_pid[isimhit],simhit_p[isimhit],simhit_eloss[isimhit],simhit_tof[isimhit]);
-                            VectSimHits.push_back(simhit1);
-                        }
-                        Cluster clust1(dedx_charge[iclust],sclus_charge[iclust]*factor*(3.61*pow(10,-9)*247),dedx_pathlength[iclust],sclus_eloss[iclust],sclus_nstrip[iclust],sclus_nsimhit[iclust],dedx_detid[iclust],dedx_subdetid[iclust],sclus_sat254[iclust],sclus_sat255[iclust],sclus_firstsclus[iclust],VectStrips,VectSimHits);
-                        VectClust.push_back(clust1);
-                    }
-                }
-                Track track1(track_pt[itrack],track_p[itrack],track_nhits[itrack],ndedxhits,VectClust);
-                VectTrack_.push_back(track1);
-            }
-        }
-    }
-}*/
+	ThresholdP_ = threshold;
+}
+
+float Builder::GetThresholdP() const
+{
+	return ThresholdP_;
+}
+
+void Builder::SetThresholdEta(float threshold)
+{
+	ThresholdEta_ = threshold;
+}
+
+float Builder::GetThresholdEta() const
+{
+	return ThresholdEta_;
+}

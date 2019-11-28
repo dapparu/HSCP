@@ -6,12 +6,19 @@
 #include "Track.h"
 #include "../interface/Labellizer.h"
 
-const int ngenpart_max = 226; //taille obtenue grace au MakeClass de root, applique sur le fichier merge.root (fusion des trois ntuples)
+/*const int ngenpart_max = 226; //taille obtenue grace au MakeClass de root, applique sur le fichier merge.root (fusion des trois ntuples)
 const int ntracks_max = 216;//205;
 const int ndedxhits_max = 3417;//3157;
 const int nstrips_max = 8138;//8135;
 const int nsimhits_max = 2847;//2712;
-const int nentries = 15188;
+const int nentries = 15188;*/
+
+const int ngenpart_max = 10000000; //taille utilisee afin de pouvoir appliquer sur mini aod
+const int ntracks_max = 10000000;
+const int ndedxhits_max = 10000000;
+const int nstrips_max = 100000000;
+const int nsimhits_max = 100000000;
+const int nentries = 10000000;
 
 class Builder{
 
@@ -21,6 +28,8 @@ class Builder{
 		vector<Track> VectTrack_;
 		float ThresholdPartId_;
 		float ThresholdPt_;
+		float ThresholdP_;
+		float ThresholdEta_;
 
 		Int_t           runNumber;
    		Int_t           event;
@@ -43,9 +52,11 @@ class Builder{
    		Int_t           track_nvalidhits[ntracks_max];   //[ntracks]
    		Int_t           track_index_hit[ntracks_max];   //[ntracks]
    		Int_t           track_nhits[ntracks_max];   //[ntracks]
+		Float_t			track_ias_ampl[ntracks_max];
    		Int_t           ndedxhits;
    		Int_t           dedx_detid[ndedxhits_max];   //[ndedxhits]
    		Int_t           dedx_subdetid[ndedxhits_max];   //[ndedxhits]
+		Int_t			dedx_modulgeom[ndedxhits_max];
    		Float_t         dedx_charge[ndedxhits_max];   //[ndedxhits]
    		Float_t         dedx_pathlength[ndedxhits_max];   //[ndedxhits]
    		Float_t         dedx_posx[ndedxhits_max];   //[ndedxhits]
@@ -66,6 +77,7 @@ class Builder{
    		Int_t           sclus_index_simhit[ndedxhits_max];   //[ndedxhits]
    		Int_t           sclus_nsimhit[ndedxhits_max];   //[ndedxhits]
    		Float_t         sclus_eloss[ndedxhits_max];   //[ndedxhits]
+		Float_t			sclus_charge_corr[ndedxhits_max];
    		Int_t           nstrips;
    		Int_t           strip_ampl[nstrips_max];   //[nstrips]
    		Int_t           nsimhits;
@@ -95,8 +107,12 @@ class Builder{
 		void SetCalibration(float factor,int entries);///loop on the tree and recalibration 
 		void SetThresholdPartId(float threshold);
 		float GetThresholdPartId() const;
-		void SetThresholdPt(float pf);
+		void SetThresholdPt(float pt);
 		float GetThresholdPt() const;
+		void SetThresholdP(float p);
+		float GetThresholdP() const;
+		void SetThresholdEta(float eta);
+		float GetThresholdEta() const;
 
 };
 

@@ -2,17 +2,18 @@
 
 using namespace std;
 
-void DrawHisto(TFile &fileout,TH1F* histo,string title,string x_title)
+void DrawHisto(TFile &fileout,TH1D* histo,string title,string x_title)
 {
     histo->SetTitle(title.c_str());
     histo->GetXaxis()->SetTitle(x_title.c_str());
     histo->Write();
 }
 
-void DrawProfile(TFile &fileout,TProfile* prof,string title,string x_title)
+void DrawProfile(TFile &fileout,TProfile* prof,string title,string x_title,string y_title)
 {
     prof->SetTitle(title.c_str());
     prof->GetXaxis()->SetTitle(x_title.c_str());
+    prof->GetYaxis()->SetTitle(y_title.c_str());
     prof->Write();
 }
 
@@ -24,8 +25,16 @@ void DrawHisto(TFile &fileout,TH2F* histo,string title,string x_title,string y_t
     histo->Write();
 }
 
-void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string title,string xtitle, string ytitle)
+void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string title,string xtitle, string ytitle, string ztitle)
 {
+
+    /*for(int i=0;i<histo->GetXaxis()->GetNbins()+1;i++)
+    {
+        for(int j=0;j<histo->GetYaxis()->GetNbins()+1;j++)
+        {
+            histo->SetBinContent(i,j,histo->GetBinContent(i,j)/histo->GetEntries());
+        }
+    }*/
     prof->SetMarkerStyle(2);
     prof->SetMarkerColor(kRed);
     prof->SetLineColor(kRed);
@@ -33,7 +42,47 @@ void SuperposedHisto2DProfile(TCanvas &canvas,TH2F* histo,TProfile* prof,string 
     histo->SetTitle(title.c_str());
     histo->GetXaxis()->SetTitle(xtitle.c_str());
     histo->GetYaxis()->SetTitle(ytitle.c_str());
+    histo->GetZaxis()->SetTitle(ztitle.c_str());
     prof->Draw("SAME");
+}
+
+void DrawHistoNormalized(TFile &fileout,TH2F* histo,string title,string xtitle,string ytitle,string ztitle)
+{
+    TCanvas *c1 = new TCanvas();
+    for(int i=0;i<histo->GetXaxis()->GetNbins()+1;i++)
+    {
+        for(int j=0;j<histo->GetYaxis()->GetNbins()+1;j++)
+        {
+            histo->SetBinContent(i,j,histo->GetBinContent(i,j)/histo->GetEntries());
+        }
+    }
+    histo->SetTitle(title.c_str());
+    histo->GetXaxis()->SetTitle(xtitle.c_str());
+    histo->GetYaxis()->SetTitle(ytitle.c_str());
+    histo->GetZaxis()->SetTitle(ztitle.c_str());
+    histo->Draw("colz");
+    c1->Write();
+}
+
+void DrawHistoNormalizedComment(TFile &fileout,TH2F* histo,string title,string xtitle,string ytitle,string ztitle,string comment)
+{
+    TCanvas *c1 = new TCanvas();
+    for(int i=0;i<histo->GetXaxis()->GetNbins()+1;i++)
+    {
+        for(int j=0;j<histo->GetYaxis()->GetNbins()+1;j++)
+        {
+            histo->SetBinContent(i,j,histo->GetBinContent(i,j)/histo->GetEntries());
+        }
+    }
+    TPaveText* text = new TPaveText(0.4,0.4,0.6,0.6,"NDC");
+    text->AddText(comment.c_str());
+    histo->SetTitle(title.c_str());
+    histo->GetXaxis()->SetTitle(xtitle.c_str());
+    histo->GetYaxis()->SetTitle(ytitle.c_str());
+    histo->GetZaxis()->SetTitle(ztitle.c_str());
+    histo->Draw("colz");
+    text->Draw("same");
+    c1->Write();
 }
 
 void DrawHisto(TFile &fileout,vector<TH2F*> VectHisto,vector<string> VectLegend,string title,string x_title,string y_title)
@@ -42,9 +91,9 @@ void DrawHisto(TFile &fileout,vector<TH2F*> VectHisto,vector<string> VectLegend,
     canvas.cd();
     for(int i=0;i<VectHisto.size();i++)
     {
-        VectHisto[i]->SetMarkerColor(36+2*i);
-        VectHisto[i]->SetFillColor(36+2*i);
-        VectHisto[i]->SetLineColor(36+2*i);
+        VectHisto[i]->SetMarkerColor(38+2*i);
+        VectHisto[i]->SetFillColor(38+2*i);
+        VectHisto[i]->SetLineColor(38+2*i);
         VectHisto[i]->SetMarkerStyle(6);
         VectHisto[i]->GetXaxis()->SetTitle(x_title.c_str());
         VectHisto[i]->GetYaxis()->SetTitle(y_title.c_str());
@@ -60,7 +109,7 @@ void DrawHisto(TFile &fileout,vector<TH2F*> VectHisto,vector<string> VectLegend,
     canvas.Write();
 }
 
-void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title)
+void StackHisto(TCanvas &canvas,vector<TH1D*> VectHisto,vector<string> VectLegend,string title,string x_title)
 {
     THStack* Stack = new THStack(title.c_str(),title.c_str());
     for(int i=0;i<VectHisto.size();i++)
@@ -73,6 +122,7 @@ void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegen
     canvas.cd();
     Stack->Draw();
     Stack->GetXaxis()->SetTitle(x_title.c_str());
+    Stack->GetYaxis()->SetTitle("[u.a.]");
     TLegend* leg_stack = new TLegend(0.7,0.7,0.9,0.9);
     for(int i=0;i<VectLegend.size();i++)
     {
@@ -81,17 +131,17 @@ void StackHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegen
     leg_stack->Draw("SAME");
 }
 
-void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title)
+void DrawHistoNormalized(TCanvas &canvas,vector<TH1D*> VectHisto,vector<string> VectLegend,string title,string x_title)
 {
     float binmax = 0.;
     canvas.cd();
     for(int i=0;i<VectHisto.size();i++)
     {
         VectHisto[i]->Scale(1./(VectHisto[i]->Integral()));
-        VectHisto[i]->SetLineColor(2*(i+1));
+        VectHisto[i]->SetLineColor(36+2*i);
         VectHisto[i]->SetFillColor(0);
         VectHisto[i]->GetXaxis()->SetTitle(x_title.c_str());
-        VectHisto[i]->GetYaxis()->SetTitle("u.a.");
+        VectHisto[i]->GetYaxis()->SetTitle("[u.a.]");
         VectHisto[i]->Draw("SAME");
         if(VectHisto[i]->GetMaximum()>binmax) binmax=VectHisto[i]->GetMaximum();
     }
@@ -106,14 +156,15 @@ void DrawHistoNormalized(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> 
 
 }
 
-void DrawHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title)
+void DrawHisto(TCanvas &canvas,vector<TH1D*> VectHisto,vector<string> VectLegend,string title,string x_title)
 {
     canvas.cd();
     for(int i=0;i<VectHisto.size();i++)
     {
-        VectHisto[i]->SetLineColor(3*(i+1));
+        VectHisto[i]->SetLineColor(2*(i+1));
         VectHisto[i]->SetFillColor(0);
         VectHisto[i]->GetXaxis()->SetTitle(x_title.c_str());
+        VectHisto[i]->GetYaxis()->SetTitle("[u.a.]");
         VectHisto[i]->Draw("SAME");
     }
     VectHisto[0]->SetTitle(title.c_str());
@@ -125,22 +176,24 @@ void DrawHisto(TCanvas &canvas,vector<TH1F*> VectHisto,vector<string> VectLegend
     leg->Draw("SAME");
 }
 
-void DrawHisto(TFile &fileout,vector<TH1F*> VectHisto,vector<string> VectLegend,string title,string x_title)
+void DrawHisto(TFile &fileout,vector<TH1D*> VectHisto,vector<string> VectLegend,string title,string x_title)
 {
     TCanvas canvas;
     canvas.cd();
     for(int i=0;i<VectHisto.size();i++)
     {
-        VectHisto[i]->SetLineColor(3*(i+1));
-        VectHisto[i]->SetFillColor(0);
+        VectHisto[i]->SetLineColor(36+2*i);
+        VectHisto[i]->SetFillColor(36+2*i);
+        VectHisto[i]->SetFillStyle(2);
         VectHisto[i]->GetXaxis()->SetTitle(x_title.c_str());
+        VectHisto[i]->GetYaxis()->SetTitle("[u.a.]");
         VectHisto[i]->Draw("SAME");
     }
     VectHisto[0]->SetTitle(title.c_str());
     TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
     for(int i=0;i<VectLegend.size();i++)
     {
-        leg->AddEntry(VectHisto[i],VectLegend[i].c_str(),"l");
+        leg->AddEntry(VectHisto[i],VectLegend[i].c_str(),"f");
     }
     leg->Draw("SAME");
     canvas.Write();

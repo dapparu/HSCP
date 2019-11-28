@@ -13,12 +13,14 @@ class Cluster{
 		
 		float	dedx_charge_;
 		float	sclus_charge_;
+		float	sclus_charge_corr_;
 		float	pathlength_;
 		float eloss_;
 		int	nstrips_;
 		int	nsimhits_;
 		int detid_;
 		int subdetid_;
+		int modulgeom_;
 		int firstsclus_;
 		bool sat254_;
 		bool sat255_;
@@ -30,10 +32,12 @@ class Cluster{
 	public:	
 		
 		Cluster();
-		Cluster(float dedx_charge,float sclus_charge,float pathlength,float eloss,int nstrips,int nsimhits,int detid, int subdetid,bool sat254,bool sat255,bool shape,int firstsclus,int partId,const vector<ClusterStrip> &VectStrip,const vector<SimHit> &VectSimHit);
+		Cluster(float dedx_charge,float sclus_charge,float sclus_charge_corr,float pathlength,float eloss,int nstrips,int nsimhits,int detid,int subdetid,int modulgeom,bool sat254,bool sat255,bool shape,int firstsclus,int partId,const vector<ClusterStrip> &VectStrip,const vector<SimHit> &VectSimHit);
 		~Cluster();
 		float GetDedxCharge() const;
 		float GetSclusCharge() const;
+		float GetSclusChargeCorr() const;
+		float GetChargeWithoutSaturation() const;
 		float GetPathLength() const;
 		float GetEloss() const;
 		int GetFirstsclus() const;
@@ -57,5 +61,5 @@ class Cluster{
 		int GetDetId() const;
 		int GetSubDetId() const;
 		int GetMaxStrip() const;
-
+		int GetModulGeom() const;
 };

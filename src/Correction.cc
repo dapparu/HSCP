@@ -11,14 +11,14 @@ Correction::Correction()
     chi2_   = 0.;
     Ndf_    = 0;
     Chi2overNdf_ = 1.;
-    Label_ = 0;
+    label_ = 0;
     nstrip_ = 0;
     nstripsat254_   = 0;
     nstripsat255_   = 0;
     moduleGeom_     = 0;
     Rebin_          = 5;
     Range_          = 1;
-    for(int Label=1;Label<22;Label++)
+    for(int label=1;label<22;label++)
     {
         for(int size=3;size<7;size++)
         {
@@ -26,11 +26,11 @@ Correction::Correction()
             {
                 for(int sat255=0;sat255<size-sat254+1;sat255++)
                 {
-                    if(Label_==Label && nstrip_==size && nstripsat254_==sat254 && nstripsat255_==sat255)
+                    if(label_==label && nstrip_==size && nstripsat254_==sat254 && nstripsat255_==sat255)
                     {
-                        p0[Label-1][size-3][sat254][sat255]=0.;
-                        p1[Label-1][size-3][sat254][sat255]=1.;
-                        chi2[Label-1][size-3][sat254][sat255]=0.;
+                        p0[label-1][size-3][sat254][sat255]=0.;
+                        p1[label-1][size-3][sat254][sat255]=1.;
+                        chi2[label-1][size-3][sat254][sat255]=0.;
                     }
                 }
             }
@@ -48,14 +48,14 @@ Correction::Correction(TH2F &histo)
     chi2_   = 0.;
     Ndf_    = 0;
     Chi2overNdf_ = 1.;
-    Label_ = 0;
+    label_ = 0;
     nstrip_ = 0;
     nstripsat254_   = 0;
     nstripsat255_   = 0;
     moduleGeom_     = 0;
     Rebin_          = 5;
     Range_          = 1;
-    for(int Label=1;Label<22;Label++)
+    for(int label=1;label<22;label++)
     {
         for(int size=3;size<7;size++)
         {
@@ -63,11 +63,11 @@ Correction::Correction(TH2F &histo)
             {
                 for(int sat255=0;sat255<size-sat254+1;sat255++)
                 {
-                    if(Label_==Label && nstrip_==size && nstripsat254_==sat254 && nstripsat255_==sat255)
+                    if(label_==label && nstrip_==size && nstripsat254_==sat254 && nstripsat255_==sat255)
                     {
-                        p0[Label-1][size-3][sat254][sat255]=0.;
-                        p1[Label-1][size-3][sat254][sat255]=1.;
-                        chi2[Label-1][size-3][sat254][sat255]=0.;
+                        p0[label-1][size-3][sat254][sat255]=0.;
+                        p1[label-1][size-3][sat254][sat255]=1.;
+                        chi2[label-1][size-3][sat254][sat255]=0.;
                     }
                 }
             }
@@ -85,14 +85,14 @@ Correction::Correction(TH2F &histo,int Rebin,float Range)
     chi2_   = 0.;
     Ndf_    = 0;
     Chi2overNdf_ = 1.;
-    Label_ = 0;
+    label_ = 0;
     nstrip_ = 0;
     nstripsat254_   = 0;
     nstripsat255_   = 0;
     moduleGeom_     = 0;
     Rebin_          = Rebin;
     Range_          = Range;
-    for(int Label=1;Label<22;Label++)
+    for(int label=1;label<22;label++)
     {
         for(int size=3;size<7;size++)
         {
@@ -100,11 +100,11 @@ Correction::Correction(TH2F &histo,int Rebin,float Range)
             {
                 for(int sat255=0;sat255<size-sat254+1;sat255++)
                 {
-                    if(Label_==Label && nstrip_==size && nstripsat254_==sat254 && nstripsat255_==sat255)
+                    if(label_==label && nstrip_==size && nstripsat254_==sat254 && nstripsat255_==sat255)
                     {
-                        p0[Label-1][size-3][sat254][sat255]=0.;
-                        p1[Label-1][size-3][sat254][sat255]=1.;
-                        chi2[Label-1][size-3][sat254][sat255]=0.;
+                        p0[label-1][size-3][sat254][sat255]=0.;
+                        p1[label-1][size-3][sat254][sat255]=1.;
+                        chi2[label-1][size-3][sat254][sat255]=0.;
                     }
                 }
             }
@@ -126,19 +126,36 @@ void Correction::SetHisto(TH2F &histo)
 
 void Correction::FillHisto(int label,int nstrip,int nstripsat254,int nstripsat255)//,int modulegeom,bool SameXtalk,bool SaturatedStrip)
 {
-    float lowedgexu = 1.;
-    float lowedgexd = 0.;
-    float lowedgeyu = 1.;
+    float lowedgexu = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX());
+    float lowedgexd = histo_->GetXaxis()->GetBinCenter(0);
+    float lowedgeyu = histo_->GetYaxis()->GetBinCenter(histo_->GetNbinsY());
 
     /*if(label<=10 && nstrip==4 && nstripsat254==1 && nstripsat255==0) lowedgeyu=0.0004; //je ne remplis pas certaines parties qui etaient problematiques
     if(label<=10 && nstrip==5 && nstripsat254==1 && nstripsat255==0) lowedgeyu=0.00048;
     if(label>=5 && label<=10 && nstrip>=3 && nstripsat254==1 && nstripsat255==0) lowedgexu=0.004; */
-    lowedgexu=0.004;
+    //lowedgexu=0.004;
+    float integer=0.85;
+    //if(nstrip==3 && label<=4) integer=1;
     
-
+    int integral = histo_->Integral();
+    int countInt=0;
+    float ratioIntegral=0.;
     TH2F* histo_clone = (TH2F*) histo_->Clone();
     histo_clone->Reset();
-    for(int i=0;i<histo_clone->GetNbinsX()+2;i++)
+    int x_histo=0;
+    int x_low=0;
+    while(ratioIntegral<integer)
+    {
+        x_histo++;
+        for(int y_histo=0;y_histo<histo_->GetNbinsY()+2;y_histo++)
+        {
+            countInt+=histo_->GetBinContent(x_histo,y_histo);
+        }
+        ratioIntegral=((float)countInt/(float)integral);
+        if(ratioIntegral<0.1) x_low++;
+    }
+
+    for(int i=x_low;i<x_histo;i++)
     {
         float LowEdgeX = histo_->GetXaxis()->GetBinLowEdge(i);
         float WidthX = histo_->GetXaxis()->GetBinWidth(i);
@@ -153,7 +170,13 @@ void Correction::FillHisto(int label,int nstrip,int nstripsat254,int nstripsat25
             }
         }
     }
+
+    
     histo_ = histo_clone;
+    string first_title = histo_clone->GetTitle();
+    first_title+="_NoDiag";
+    histo_->SetTitle(first_title.c_str());
+    histo_->SetName(first_title.c_str());
     histo_->Write();
 }
 
@@ -161,9 +184,48 @@ void Correction::FillHisto(int label,int nstrip,int nstripsat254,int nstripsat25
 
 void Correction::FillProfile() //je recupere un profil de l'histo rempli au prealable
 {
-    profile_ = histo_->ProfileX("_pfx",1,-1,"");
-    profile_->Rebin(Rebin_);
+    historec_ = histo_->ProfileX("_pfx",1,-1,"");
+    historec_->Rebin(Rebin_);
     delete histo_;
+    /*int firstdiv = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/2;
+    int divider = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/firstdiv;
+    historec_ = new TH1F(histo_->GetTitle(),histo_->GetTitle(),histo_->GetNbinsX()/divider,0,histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX()));
+    TH2F* histoclone = (TH2F*) histo_->Clone();
+    histoclone->Reset();
+    int binrec=0;
+
+    for(int x=1;x<=histo_->GetNbinsX();x++)
+    {
+        for(int y=1;y<=histo_->GetNbinsY();y++)
+        {
+            if(histo_->GetBinContent(x,y)>0) histoclone->SetBinContent(x,y,histo_->GetBinContent(x,y));
+        }
+        if(x%divider==0)
+        {
+            binrec++;
+            float mpv=1.;
+            float sigma=0.;
+            TH1F* projY = (TH1F*) histoclone->ProjectionY();
+            if(projY->GetEntries()>0) 
+            {
+                int fitStatus = projY->Fit("gaus","QL","");
+                TFitResultPtr func_fit = projY->Fit("gaus","QLS","");
+                if(fitStatus>-1) 
+                {
+                    mpv=func_fit->Parameter(1);
+                    sigma=func_fit->Parameter(2);
+                }
+                historec_->SetBinContent(binrec,mpv);
+                //historec_->SetBinError(binrec,sigma/sqrt(projY->GetEntries()));
+                historec_->SetBinError(binrec,sigma);
+                projY->Write();
+            }
+            histoclone->Reset();
+            delete projY;
+        }
+    }
+    delete histoclone;
+    delete histo_;*/
 }
 
 void Correction::SetFileAndTreeName(string file_name,string tree_name)
@@ -186,7 +248,7 @@ void Correction::SetBranch() //j'enregistre les differentes infos d'interet
     tree_->Branch("chi2",&chi2_,"chi2/F");
     tree_->Branch("ndf",&Ndf_,"ndf/I");
     tree_->Branch("chi2overndf",&Chi2overNdf_,"chi2overndf/F");
-    tree_->Branch("Label",&Label_,"Label/I");
+    tree_->Branch("label",&label_,"label/I");
     tree_->Branch("nstrip",&nstrip_,"nstrip/I");
 //    tree_->Branch("histo","TH2F",&histo_,0,0);
 //    tree_->Branch("profile","TProfile",&profile_,0,0);
@@ -196,18 +258,37 @@ void Correction::SetBranch() //j'enregistre les differentes infos d'interet
     tree_->Branch("range",&Range_,"range/F");
 }
 
-void Correction::Write(int Label,int nstrip,int nstripsat254,int nstripsat255)
+void Correction::Write(int label,int nstrip,int nstripsat254,int nstripsat255)
 {
-    if(profile_->GetEntries()>10 && (nstripsat254!=0 || nstripsat255!=0)) //je ne recupere les resultats du fit que pour des profils avec plus de dix entrees et ou il y a eu saturation
+    if(historec_->GetEntries()>=3 && (nstripsat254+nstripsat255>0)) //je ne recupere les resultats du fit que pour des profils avec plus de dix entrees et ou il y a eu saturation
     {    
-        TFitResultPtr FitRes_ = profile_->Fit("pol1","SQR","",profile_->GetBinContent(0),Range_*profile_->GetBinContent(profile_->GetNbinsX()));
-        p0_     = FitRes_->Parameter(0);
-        p1_     = FitRes_->Parameter(1);
-        p0err_  = FitRes_->Error(0);
-        p1err_  = FitRes_->Error(1);
-        chi2_   = FitRes_->Chi2();
-        Ndf_    = FitRes_->Ndf();
-        Chi2overNdf_ = (float)chi2_/(float)Ndf_;
+        //TFitResultPtr FitRes_ = profile_->Fit("pol1","SQR","",profile_->GetBinContent(0),Range_*profile_->GetBinContent(profile_->GetNbinsX()));
+        TFitResultPtr FitRes_ = historec_->Fit("pol1","SQ","");
+        int fitStat = historec_->Fit("pol1","Q","");
+        if(fitStat>-1)
+        {
+            p0_     = FitRes_->Parameter(0);
+            p1_     = FitRes_->Parameter(1);
+            p0err_  = FitRes_->Error(0);
+            p1err_  = FitRes_->Error(1);
+            chi2_   = FitRes_->Chi2();
+            Ndf_    = FitRes_->Ndf();
+            Chi2overNdf_ = (float)chi2_/(float)Ndf_;
+            float chicalc=0.;
+            int nentries=0;
+            for(int bin=0;bin<historec_->GetNbinsX();bin++)
+            {
+                if(historec_->GetBinContent(bin)>0)
+                {
+                    nentries++;
+                    float valueCalc=(historec_->GetXaxis()->GetBinCenter(bin)*p1_+p0_);
+                    chicalc+=pow(valueCalc-historec_->GetBinContent(bin),2);
+                }
+                
+            }
+            chicalc=(sqrt(chicalc)/nentries);
+            Chi2overNdf_=chicalc;
+        }
     //    tree_->Branch("fitresult","TFitResultPtr",&FitRes_,0,0);
     }
     else //si il n'y a pas eu de saturation ou s'il n'y a pas assez d'entrees dans le profil, je parametrise tel qu'il n'y ait pas de changement 
@@ -220,11 +301,17 @@ void Correction::Write(int Label,int nstrip,int nstripsat254,int nstripsat255)
         Ndf_    = 0;
         Chi2overNdf_ = 0.;
     }
-    Label_ = Label;
+    label_ = label;
     nstrip_ = nstrip;
     nstripsat254_ = nstripsat254;
     nstripsat255_ = nstripsat255;
     tree_->Fill();
+    string title = historec_->GetTitle();
+    title+="_rec";
+    historec_->SetTitle(title.c_str());
+    historec_->SetName(title.c_str());
+    historec_->Write();
+    delete historec_;
 }
 
 void Correction::WriteFile()
@@ -233,11 +320,11 @@ void Correction::WriteFile()
     file_->Close();
 }
 
-void Correction::Read()
+void Correction::ReadLayer()
 {
     tree_->SetBranchAddress("p0",&p0_);
     tree_->SetBranchAddress("p1",&p1_);
-    tree_->SetBranchAddress("Label",&Label_);
+    tree_->SetBranchAddress("label",&label_);
     tree_->SetBranchAddress("nstrip",&nstrip_);
     tree_->SetBranchAddress("nstripsat254",&nstripsat254_);
     tree_->SetBranchAddress("nstripsat255",&nstripsat255_);
@@ -247,7 +334,7 @@ void Correction::Read()
     for(int i=0;i<tree_->GetEntries();i++) //on fait une recherche parmi toutes les categories (prend du temps --> a ameliorer)
     {
         tree_->GetEntry(i);
-        for(int Label=1;Label<22;Label++)
+        for(int label=1;label<22;label++)
         {
             for(int size=3;size<7;size++)
             {
@@ -255,11 +342,47 @@ void Correction::Read()
                 {
                     for(int sat255=0;sat255<size-sat254+1;sat255++)
                     {
-                        if(Label_==Label && nstrip_==size && nstripsat254_==sat254 && nstripsat255_==sat255)
+                        if(label_==label && nstrip_==size && nstripsat254_==sat254 && nstripsat255_==sat255)
                         {
-                            p0[Label-1][size-3][sat254][sat255]=p0_;
-                            p1[Label-1][size-3][sat254][sat255]=p1_;
-                            chi2[Label-1][size-3][sat254][sat255]=Chi2overNdf_;
+                            p0[label-1][size-3][sat254][sat255]=p0_;
+                            p1[label-1][size-3][sat254][sat255]=p1_;
+                            chi2[label-1][size-3][sat254][sat255]=Chi2overNdf_;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+}
+
+void Correction::ReadModulGeom()
+{
+    tree_->SetBranchAddress("p0",&p0_);
+    tree_->SetBranchAddress("p1",&p1_);
+    tree_->SetBranchAddress("label",&label_);
+    tree_->SetBranchAddress("nstrip",&nstrip_);
+    tree_->SetBranchAddress("nstripsat254",&nstripsat254_);
+    tree_->SetBranchAddress("nstripsat255",&nstripsat255_);
+    tree_->SetBranchAddress("chi2overndf",&Chi2overNdf_);
+    tree_->SetBranchAddress("rebin",&Rebin_);
+    tree_->SetBranchAddress("range",&Range_);
+    for(int i=0;i<tree_->GetEntries();i++) //on fait une recherche parmi toutes les categories (prend du temps --> a ameliorer)
+    {
+        tree_->GetEntry(i);
+        for(int label=1;label<15;label++)
+        {
+            for(int size=3;size<7;size++)
+            {
+                for(int sat254=0;sat254<size+1;sat254++)
+                {
+                    for(int sat255=0;sat255<size-sat254+1;sat255++)
+                    {
+                        if(label_==label && nstrip_==size && nstripsat254_==sat254 && nstripsat255_==sat255)
+                        {
+                            p0[label-1][size-3][sat254][sat255]=p0_;
+                            p1[label-1][size-3][sat254][sat255]=p1_;
+                            chi2[label-1][size-3][sat254][sat255]=Chi2overNdf_;
                         }
                     }
                 }
@@ -282,26 +405,34 @@ float Correction::CalibCharge(int entry,float charge)
     
 }
 
-float Correction::ChargeCorr(float charge,int Label,int nstrip,int nstripsat254,int nstripsat255)
+float Correction::ChargeCorr(float charge,int label,int nstrip,int nstripsat254,int nstripsat255)
 {   
     if(nstrip>=6) nstrip=6; //inclusif pour le nombre de strips du cluster 
     if(nstripsat254>=2) nstripsat254=2; //inclusif pour le nombre de strips saturees 
     if(nstripsat255>=2) nstripsat255=2;
-    float p0Calc=p0[Label-1][nstrip-3][nstripsat254][nstripsat255];
-    float p1Calc=p1[Label-1][nstrip-3][nstripsat254][nstripsat255];
-    float chi2Calc=chi2[Label-1][nstrip-3][nstripsat254][nstripsat255];
+    float p0Calc=p0[label-1][nstrip-3][nstripsat254][nstripsat255];
+    float p1Calc=p1[label-1][nstrip-3][nstripsat254][nstripsat255];
+    float chi2Calc=chi2[label-1][nstrip-3][nstripsat254][nstripsat255];
     float res=charge;
-    if(p1Calc>0.001) 
+    if((chi2Calc>0 && chi2Calc<=5 && p1Calc>0.02)) 
+    //if(p1Calc>0.02)
     {res=(charge-p0Calc)/p1Calc;}
     return res;
 }
 
-/*float Correction::ChargeCorr(float charge,int Label,int nstrip,int nstripsat254,int nstripsat255)
+bool Correction::TestCorr(int label,int nstrip,int nstripsat254,int nstripsat255)
+{
+    bool test=false;
+    if((chi2[label-1][nstrip-3][nstripsat254][nstripsat255]>0 && chi2[label-1][nstrip-3][nstripsat254][nstripsat255]<=5 && p1[label-1][nstrip-3][nstripsat254][nstripsat255]>0.02)) test=true;
+    return test;
+}
+
+/*float Correction::ChargeCorr(float charge,int label,int nstrip,int nstripsat254,int nstripsat255)
 {
     float res=charge;
     tree_->SetBranchAddress("p0",&p0_);
     tree_->SetBranchAddress("p1",&p1_);
-    tree_->SetBranchAddress("Label",&Label_);
+    tree_->SetBranchAddress("label",&label_);
     tree_->SetBranchAddress("nstrip",&nstrip_);
     tree_->SetBranchAddress("nstripsat254",&nstripsat254_);
     tree_->SetBranchAddress("nstripsat255",&nstripsat255_);
@@ -314,7 +445,7 @@ float Correction::ChargeCorr(float charge,int Label,int nstrip,int nstripsat254,
         if(nstrip>=6) nstrip=6; //inclusif pour le nombre de strips du cluster 
         if(nstripsat254>=2) nstripsat254=2; //inclusif pour le nombre de strips saturees 
         if(nstripsat255>=2) nstripsat255=2;
-        if(Label==Label_ && nstrip==nstrip_ && nstripsat254==nstripsat254_ && nstripsat255==nstripsat255_ && p1_>0) //Chi2overNdf_<=) 
+        if(label==label_ && nstrip==nstrip_ && nstripsat254==nstripsat254_ && nstripsat255==nstripsat255_ && p1_>0) //Chi2overNdf_<=) 
         {res=(charge-p0_)/p1_;} //ici on peut effectuer notre selection sur la qualite des ajustements effectuees
     }
     return res;

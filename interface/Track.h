@@ -17,19 +17,21 @@ class Track{
 		float 				phi_;
 		float				nhits_;
 		int					ndedxhits_;
+		float 				ias_ampl_;
 		vector<Cluster>		VectClusters_;
 		int 				PartId_;
 
 	public:
 
 		Track();
-		Track(float pt,float p,float eta,float phi,float nhits,int ndedxhits,const vector<Cluster> &VectClusters);
+		Track(float pt,float p,float eta,float phi,float nhits,int ndedxhits,float ias_ampl,const vector<Cluster> &VectClusters);
 		~Track();
 		float GetPt() const;
 		float GetP() const;
 		float GetEta() const;
 		float GetPhi() const;
 		int GetNhits() const;
+		float GetIasAmpl() const;
 		int GetNCluster() const;
 		int GetNSatCluster(int sat) const;
 		int GetNSatClusterBoth() const;

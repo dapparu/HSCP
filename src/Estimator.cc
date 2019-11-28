@@ -96,11 +96,15 @@ float Estimator::GetHarmonic2()
 {
 	float mean = .0;
 	float size = Vect_.size();
-	for(int i=0;i<size;i++)
+	if(size>0) 
 	{
-		mean+=pow(Vect_[i],-2);
+		for(int i=0;i<size;i++)
+		{
+			mean+=pow(Vect_[i],-2);
+		}
+		return pow(mean/size,-0.5);
 	}
-	return pow(mean/size,-0.5);
+	else return 0;
 }
 
 float Estimator::GetStdDev()
@@ -109,10 +113,26 @@ float Estimator::GetStdDev()
 	float res=.0;
 	for(int i=0; i<size; i++)
 	{
-		//cout<<"Vect_ = "<<Vect_[i]<<"    harmonic2 = "<<harmonic2()<<endl;
 		res+=pow(Vect_[i]-this->GetMean(),2);
 	}
 	res=pow(res/(float)(size-1),0.5);
 	return res;
 }
 
+float Estimator::GetRMS()
+{
+	float size = Vect_.size();
+	float res = 0.;
+	float mean = this->GetMean();
+	if(size>0)
+	{
+		for(int i=0;i<size;i++)
+		{
+			res+=pow(Vect_[i]-mean,2);
+		}
+		res/=size;
+		res=sqrt(res);
+		return res;
+	}
+	else return 0;
+}
