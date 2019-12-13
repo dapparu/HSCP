@@ -46,9 +46,9 @@ class Correction
         int nstripsat254_;
         int nstripsat255_;
         int moduleGeom_;
-        TProfile* historec_;
+        //TProfile* historec_;
         TH2F* histo_;
-        //TH1F* historec_;
+        TH1F* historec_;
         
         float p0[21][4][7][7];
         float p1[21][4][7][7];

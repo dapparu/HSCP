@@ -119,7 +119,6 @@ Correction::~Correction()
 
 void Correction::SetHisto(TH2F &histo)
 {
-
     histo_ = &histo;
     histo_->Write();
 }
@@ -134,7 +133,7 @@ void Correction::FillHisto(int label,int nstrip,int nstripsat254,int nstripsat25
     if(label<=10 && nstrip==5 && nstripsat254==1 && nstripsat255==0) lowedgeyu=0.00048;
     if(label>=5 && label<=10 && nstrip>=3 && nstripsat254==1 && nstripsat255==0) lowedgexu=0.004; */
     //lowedgexu=0.004;
-    float integer=0.85;
+    float integer=0.9;
     //if(nstrip==3 && label<=4) integer=1;
     
     int integral = histo_->Integral();
@@ -154,7 +153,7 @@ void Correction::FillHisto(int label,int nstrip,int nstripsat254,int nstripsat25
         ratioIntegral=((float)countInt/(float)integral);
         if(ratioIntegral<0.1) x_low++;
     }
-
+    x_low=0;
     for(int i=x_low;i<x_histo;i++)
     {
         float LowEdgeX = histo_->GetXaxis()->GetBinLowEdge(i);
@@ -184,10 +183,10 @@ void Correction::FillHisto(int label,int nstrip,int nstripsat254,int nstripsat25
 
 void Correction::FillProfile() //je recupere un profil de l'histo rempli au prealable
 {
-    historec_ = histo_->ProfileX("_pfx",1,-1,"");
-    historec_->Rebin(Rebin_);
-    delete histo_;
-    /*int firstdiv = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/2;
+    //historec_ = histo_->ProfileX("_pfx",1,-1,"");
+    //historec_->Rebin(Rebin_);
+    //delete histo_;
+    int firstdiv = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/2;
     int divider = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/firstdiv;
     historec_ = new TH1F(histo_->GetTitle(),histo_->GetTitle(),histo_->GetNbinsX()/divider,0,histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX()));
     TH2F* histoclone = (TH2F*) histo_->Clone();
@@ -206,18 +205,20 @@ void Correction::FillProfile() //je recupere un profil de l'histo rempli au prea
             float mpv=1.;
             float sigma=0.;
             TH1F* projY = (TH1F*) histoclone->ProjectionY();
-            if(projY->GetEntries()>0) 
+            if(projY->GetEntries()>10) 
             {
                 int fitStatus = projY->Fit("gaus","QL","");
                 TFitResultPtr func_fit = projY->Fit("gaus","QLS","");
-                if(fitStatus>-1) 
+                if(fitStatus==0) 
                 {
                     mpv=func_fit->Parameter(1);
                     sigma=func_fit->Parameter(2);
                 }
-                historec_->SetBinContent(binrec,mpv);
-                //historec_->SetBinError(binrec,sigma/sqrt(projY->GetEntries()));
-                historec_->SetBinError(binrec,sigma);
+                if(mpv<projY->GetMean()+3*projY->GetStdDev() && mpv>projY->GetMean()-3*projY->GetStdDev())
+                {
+                    historec_->SetBinContent(binrec,mpv);
+                    historec_->SetBinError(binrec,sigma/sqrt(projY->GetEntries()));
+                }   
                 projY->Write();
             }
             histoclone->Reset();
@@ -225,7 +226,7 @@ void Correction::FillProfile() //je recupere un profil de l'histo rempli au prea
         }
     }
     delete histoclone;
-    delete histo_;*/
+    delete histo_;
 }
 
 void Correction::SetFileAndTreeName(string file_name,string tree_name)
@@ -265,7 +266,7 @@ void Correction::Write(int label,int nstrip,int nstripsat254,int nstripsat255)
         //TFitResultPtr FitRes_ = profile_->Fit("pol1","SQR","",profile_->GetBinContent(0),Range_*profile_->GetBinContent(profile_->GetNbinsX()));
         TFitResultPtr FitRes_ = historec_->Fit("pol1","SQ","");
         int fitStat = historec_->Fit("pol1","Q","");
-        if(fitStat>-1)
+        if(fitStat==0)
         {
             p0_     = FitRes_->Parameter(0);
             p1_     = FitRes_->Parameter(1);
@@ -287,7 +288,7 @@ void Correction::Write(int label,int nstrip,int nstripsat254,int nstripsat255)
                 
             }
             chicalc=(sqrt(chicalc)/nentries);
-            Chi2overNdf_=chicalc;
+            chi2_=chicalc;
         }
     //    tree_->Branch("fitresult","TFitResultPtr",&FitRes_,0,0);
     }
@@ -407,17 +408,25 @@ float Correction::CalibCharge(int entry,float charge)
 
 float Correction::ChargeCorr(float charge,int label,int nstrip,int nstripsat254,int nstripsat255)
 {   
+    bool test=true;
     if(nstrip>=6) nstrip=6; //inclusif pour le nombre de strips du cluster 
-    if(nstripsat254>=2) nstripsat254=2; //inclusif pour le nombre de strips saturees 
-    if(nstripsat255>=2) nstripsat255=2;
+    if(nstripsat254>=2 && nstripsat255==0) nstripsat254=2; //inclusif pour le nombre de strips saturees 
+    if(nstripsat255>=2 && nstripsat254==0) nstripsat255=2;
+    int nstripsat = nstripsat254+nstripsat255;
+
+    if(label>=5 && nstripsat>=2) test=false;
+    if(nstrip==3 && nstripsat>=2) test=false;
+    if(label>=5 && label <=7 && nstripsat==1) 
+    {
+        if(nstrip>=5) nstrip=5;
+    }
     float p0Calc=p0[label-1][nstrip-3][nstripsat254][nstripsat255];
     float p1Calc=p1[label-1][nstrip-3][nstripsat254][nstripsat255];
-    float chi2Calc=chi2[label-1][nstrip-3][nstripsat254][nstripsat255];
-    float res=charge;
-    if((chi2Calc>0 && chi2Calc<=5 && p1Calc>0.02)) 
-    //if(p1Calc>0.02)
-    {res=(charge-p0Calc)/p1Calc;}
+    float res=0;
+
+    if(test) res=(charge-p0Calc)/p1Calc;
     return res;
+
 }
 
 bool Correction::TestCorr(int label,int nstrip,int nstripsat254,int nstripsat255)
