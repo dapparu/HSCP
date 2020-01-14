@@ -37,7 +37,7 @@ using namespace std;
 #include "../interface/Estimator.h"
 
 
-
+#include "../SaturationCorrection.h"
 
 
 
@@ -57,7 +57,9 @@ const float KprotonEcorrNew=1.18;
 const float CprotonEcorr=6.15;
 const float KprotonEcorr=2.91; 
 
-const float MGluino = 2400.;
+const float MGluino2400 = 2400.;
+const float MGluino1400 = 1400.;
+const float MStau651 = 651.;
 
 
 
@@ -92,6 +94,8 @@ void StudyGraph(ofstream &ofile, TH1F* histo)
     int CountPassGlissant=0;
     int CountPassRight=0;
     int CountPassLeft=0;
+    int bornegche=0;
+    int bornedrte=0;
     for(int i=0;i<histo->GetNbinsX();i++)
     {
         if(histo->GetBinCenter(i)>=FitMean-FitSigma && histo->GetBinCenter(i)<=FitMean+FitSigma) 
@@ -106,14 +110,16 @@ void StudyGraph(ofstream &ofile, TH1F* histo)
         {
             CountPass+=histo->GetBinContent(i);
         }
-        if(histo->GetBinCenter(i)>=0.4) CountPassRight+=histo->GetBinContent(i);
-        if(histo->GetBinCenter(i)<=-0.4) CountPassLeft+=histo->GetBinContent(i);
+        if(histo->GetBinCenter(i)>=0.4) bornedrte=i;
+        if(histo->GetBinCenter(i)<=-0.4) bornegche=i;
     }
     float FracInterval = (float)CountPass/(float)histo->GetEntries();
     float FracIntervalGlissantSigma = (float)CountPassGlissantSigma/(float)histo->GetEntries();
     float FracIntervalGlissant = (float)CountPassGlissant/(float)histo->GetEntries();
-    float FracRight = (float)CountPassRight/(float)histo->GetEntries();
-    float FracLeft = (float)CountPassLeft/(float)histo->GetEntries();
+    //float FracRight = (float)CountPassRight/(float)histo->GetEntries();
+    //float FracLeft = (float)CountPassLeft/(float)histo->GetEntries();
+    float FracRight = (float)histo->Integral(bornedrte,histo->GetNbinsX()+1)/(float)histo->Integral();
+    float FracLeft = (float)histo->Integral(0,bornegche)/(float)histo->Integral();
     //ofile<<"Name"<<"\t\t"<<"DistribMean"<<"\t"<<"DistribMeanErr"<<"\t"<<"DistribStdDev"<<"\t"<<"DistribStdDevErr"<<"\t"<<"FitMean"<<"\t"<<"FitMeanErr"<<"\t"<<"FitSigma"<<"\t"<<"FitSigmaErr"<<"\t"<<"FracIntervalGlissantSigma"<<"\t"<<"FracInterval"<<endl;
     ofile<<endl;
     ofile<<histo->GetName()<<"\t\t"<<histo->GetMaximum()<<"\t"<<DistribMean<<"\t"<<DistribMeanErr<<"\t"<<DistribStdDev<<"\t"<<DistribStdDevErr<<"\t FitMean : "<<FitMean<<"\t"<<FitMeanErr<<"\t FitSigma : "<<FitSigma<<"\t"<<FitSigmaErr<<"\t"<<FracIntervalGlissantSigma<<"\t"<<FracIntervalGlissant<<"\t"<<FracInterval<<"\t FracRight : "<<FracRight<<"\t FracLeft : "<<FracLeft<<endl;
@@ -258,52 +264,7 @@ string LabelLayer(int i)
     if(i==21)  return "TEC9";
 }
 
-vector<float> FactorKC(TH2F* histo,float mass) //histo pre-filtre sur le particleID --> il faut donner la masse correspondante 
-{
 
-    TProfile profile;       
-    TH2F* histoclone = (TH2F*) histo->Clone();
-    histoclone->Reset();
-    TFitResultPtr fit_res;
-    TH1D* projY;
-    TH1F* historec = new TH1F("","",1000,0,5);
-    int divider=50;
-    for(int i=1;i<=histo->GetNbinsX();i++)
-    {
-        for(int j=2;j<=histo->GetNbinsY();j++)
-        {
-            if(histo->GetBinContent(i,j)>0) histoclone->SetBinContent(i,j,histo->GetBinContent(i,j));
-        }
-        if(i%divider==0)
-        {
-            projY = histoclone->ProjectionY();
-            projY->Rebin(5);
-            if(projY->GetEntries()>0)
-            {
-                fit_res = projY->Fit("gaus","0QS");
-                TH1D* projX = histoclone->ProjectionX();
-                //projX->Rebin(5);
-                //TFitResultPtr fit_resX = projX->Fit("gaus","QS");
-                //historec.SetBinContent(projX->GetMean(),fit_res->Parameter(1));
-                //historec.SetBinError(projX->GetMean(),fit_res->Error(1));
-                historec->SetBinContent(i-(float)divider/2,fit_res->Parameter(1));
-                historec->SetBinError(i-(float)divider/2,fit_res->Error(1));
-                historec->SetMarkerStyle(3);
-                historec->SetMarkerColor(4);
-
-            }
-            histoclone->Reset();
-        }
-    }
-    TF1* InvSquare = new TF1("InvSquare","[0]+[1]*(1/pow(x,2))");
-    TFitResultPtr fit = historec->Fit("InvSquare","QRS","",0,3000);
-    vector<float> vectres;
-    vectres.push_back(fit->Parameter(1)/(mass*mass)); //K
-    vectres.push_back(fit->Parameter(0)); //C
-    vectres.push_back(fit->Error(1)/(mass*mass));
-    vectres.push_back(fit->Error(0));
-    return vectres;
-}
 
 
 vector<int> CrossTalkInv(Correction corr,const std::vector<int>&  Q, const float x1, const float x2, float threshold, float thresholdSat, int label, int correctType, float RatioSat254, float RatioSat255, float ThresholdRatioSat) //Methode de correction + XTalkInv
@@ -358,7 +319,7 @@ vector<int> CrossTalkInv(Correction corr,const std::vector<int>&  Q, const float
 
     //----------------------
 
-    if(DylanCorr && RatioSatTotal>=ThresholdRatioSat && *mQ>253 && (*(mQ-1)>thresholdSat && *(mQ+1)>thresholdSat && *(mQ-1)<254 && *(mQ+1)<254 &&  abs(*(mQ-1) - *(mQ+1)) < 40 ))
+    if(DylanCorr && RatioSatTotal>=ThresholdRatioSat && *mQ>253 && (*(mQ-1)>thresholdSat && *(mQ+1)>thresholdSat))
     {
         int NSat254=0;
         int NSat255=0;
@@ -371,7 +332,6 @@ vector<int> CrossTalkInv(Correction corr,const std::vector<int>&  Q, const float
             ClusterCharge+=(Q[i]);
         }
 
-        //float ClusterChargeCorr=corr.ChargeCorr(ClusterCharge*(3.61*pow(10,-9)*247),label,Q.size(),NSat254,NSat255)/(3.61*pow(10,-9)*247);
         float ClusterChargeCorr=corr.ChargeCorr(ClusterCharge,label,Q.size(),NSat254,NSat255)*1.038;
         float DiffClusterCharge=ClusterChargeCorr-ClusterCharge;
         for (unsigned int i=0;i<Q.size();i++)
@@ -383,7 +343,11 @@ vector<int> CrossTalkInv(Correction corr,const std::vector<int>&  Q, const float
 
         vector<int>::iterator maxQ = max_element(QII.begin(), QII.end());
         if(DiffClusterCharge>=0) QII.at(std::distance(QII.begin(),maxQ))+=DiffClusterCharge;
-        return QII;
+        bool test=false;
+        if(NSat254+NSat255==1 && abs(*(mQ-1) - *(mQ+1)) < 40 ) test=true;
+        if(NSat254+NSat255>1 && abs(*(mQ-1) - *(mQ+1)) < 40 ) test=true;
+        if(test) return QII;
+        if(!test) return Q;
     }
 
     //----------------------
@@ -566,7 +530,249 @@ vector<int> CrossTalkInvStudy(Correction corr,const std::vector<int>&  Q, const 
 
 }
 
+TH1F* ProfileMPV(TH2F* histo_,float &p0,float &p1,float &Chi2)
+{
+    int firstdiv = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/2;
+    int divider = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/firstdiv;
+    TH1F* historec_ = new TH1F(histo_->GetTitle(),histo_->GetTitle(),histo_->GetNbinsX()/divider,0,histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX()));
+    TH2F* histoclone = (TH2F*) histo_->Clone();
+    histoclone->Reset();
+    int binrec=0;
 
+    for(int x=1;x<=histo_->GetNbinsX();x++)
+    {
+        for(int y=1;y<=histo_->GetNbinsY();y++)
+        {
+            if(histo_->GetBinContent(x,y)>0) histoclone->SetBinContent(x,y,histo_->GetBinContent(x,y));
+        }
+        if(x%2==0)
+        {
+            binrec++;
+            float mpv=1.;
+            float mpverror=0.;
+            TH1F* projY = (TH1F*) histoclone->ProjectionY();
+            if(projY->GetEntries()>0) 
+            {
+                int fitStatus = projY->Fit("gaus","QL","");
+                TFitResultPtr func_fit = projY->Fit("gaus","QLS","");
+                if(fitStatus>-1) 
+                {
+                    mpv=func_fit->Parameter(1);
+                    mpverror=func_fit->Error(1);
+                }
+                historec_->SetBinContent(binrec,mpv);
+                historec_->SetBinError(binrec,mpverror);
+                //historec_->SetBinError(binrec,sigma);
+            }
+            histoclone->Reset();
+            delete projY;
+        }
+    }
+    delete histoclone;
+    TFitResultPtr FitRes_ = historec_->Fit("pol1","SQR","",500,1500);
+    int fitStat = historec_->Fit("pol1","QR","",500,1500);
+    if(fitStat>-1)
+    {
+        float p0_     = FitRes_->Parameter(0);
+        float p1_     = FitRes_->Parameter(1);
+        float p0err_  = FitRes_->Error(0);
+        float p1err_  = FitRes_->Error(1);
+        float chi2_   = FitRes_->Chi2();
+        float Ndf_    = FitRes_->Ndf();
+        float Chi2overNdf_ = (float)chi2_/(float)Ndf_;
+        float chicalc=0.;
+        int nentries=0;
+        for(int bin=0;bin<historec_->GetNbinsX();bin++)
+        {
+            if(historec_->GetBinContent(bin)>0)
+            {
+                nentries++;
+                float valueCalc=(historec_->GetXaxis()->GetBinCenter(bin)*p1_+p0_);
+                chicalc+=pow(valueCalc-historec_->GetBinContent(bin),2);
+            }
+            
+        }
+        chicalc=(sqrt(chicalc)/nentries);
+        Chi2overNdf_=chicalc;
+        p0=p0_;
+        p1=p1_;
+        Chi2=Chi2overNdf_;
+    }
+    return historec_;
+}
+
+TH1F* ProfilerMPV(TH2F* histo_)
+{
+    int firstdiv = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/2;
+    int divider = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/firstdiv;
+    TH1F* historec_ = new TH1F(histo_->GetTitle(),histo_->GetTitle(),histo_->GetNbinsX()/divider,0,histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX()));
+    TH2F* histoclone = (TH2F*) histo_->Clone();
+    histoclone->Reset();
+    int binrec=0;
+
+    for(int x=1;x<=histo_->GetNbinsX();x++)
+    {
+        for(int y=1;y<=histo_->GetNbinsY();y++)
+        {
+            if(histo_->GetBinContent(x,y)>0) histoclone->SetBinContent(x,y,histo_->GetBinContent(x,y));
+        }
+        if(x%2==0)
+        {
+            binrec++;
+            float mpv=1.;
+            float sigma=0.;
+            float mpverror=0.;
+            float sigmaerror=0.;
+            TH1F* projY = (TH1F*) histoclone->ProjectionY();
+            if(projY->GetEntries()>0) 
+            {
+                int fitStatus = projY->Fit("gaus","QR","",projY->GetMean()-3*projY->GetStdDev(),projY->GetMean()+3*projY->GetStdDev());
+                TFitResultPtr func_fit = projY->Fit("gaus","QRS","",projY->GetMean()-3*projY->GetStdDev(),projY->GetMean()+3*projY->GetStdDev());
+                if(fitStatus==0) 
+                {
+                    mpv=func_fit->Parameter(1);
+                    sigma=func_fit->Parameter(2);
+                    mpverror=func_fit->Error(1);
+                    sigmaerror=func_fit->Error(2);
+                }
+                historec_->SetBinContent(binrec,mpv);
+                historec_->SetBinError(binrec,mpverror);
+            }
+            histoclone->Reset();
+            delete projY;
+        }
+    }
+    delete histoclone;
+    return historec_;
+}
+
+TH1F* ProfilerResolution(TH2F* histo_)
+{
+    int firstdiv = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/2;
+    int divider = histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX())/firstdiv;
+    TH1F* historec_ = new TH1F(histo_->GetTitle(),histo_->GetTitle(),histo_->GetNbinsX()/divider,0,histo_->GetXaxis()->GetBinCenter(histo_->GetNbinsX()));
+    TH2F* histoclone = (TH2F*) histo_->Clone();
+    histoclone->Reset();
+    int binrec=0;
+
+    for(int x=1;x<=histo_->GetNbinsX();x++)
+    {
+        for(int y=1;y<=histo_->GetNbinsY();y++)
+        {
+            if(histo_->GetBinContent(x,y)>0) histoclone->SetBinContent(x,y,histo_->GetBinContent(x,y));
+        }
+        if(x%2==0)
+        {
+            binrec++;
+            float mpv=1.;
+            float sigma=0.;
+            float mpverror=0.;
+            float sigmaerror=0.;
+            TH1F* projY = (TH1F*) histoclone->ProjectionY();
+            if(projY->GetEntries()>0) 
+            {
+                int fitStatus = projY->Fit("gaus","QR","",projY->GetMean()-3*projY->GetStdDev(),projY->GetMean()+3*projY->GetStdDev());
+                TFitResultPtr func_fit = projY->Fit("gaus","QRS","",projY->GetMean()-3*projY->GetStdDev(),projY->GetMean()+3*projY->GetStdDev());
+                if(fitStatus==0) 
+                {
+                    mpv=func_fit->Parameter(1);
+                    sigma=func_fit->Parameter(2);
+                    mpverror=func_fit->Error(1);
+                    sigmaerror=func_fit->Error(2);
+                }
+                // sigma=projY->GetStdDev();
+                // sigmaerror=projY->GetStdDevError();
+                historec_->SetBinContent(binrec,sigma);
+                historec_->SetBinError(binrec,sigmaerror);
+            }
+            histoclone->Reset();
+            delete projY;
+        }
+    }
+    delete histoclone;
+    return historec_;
+}
+
+TH1F* FactorKC(TH2F* histo,float& K,float& C) //histo pre-filtre sur le particleID --> il faut donner la masse correspondante 
+{
+    TH1F* historec = (TH1F*) ProfilerMPV(histo);
+    TF1* InvSquare = new TF1("InvSquare","[0]+[1]*(1/pow(x,2))");
+    TFitResultPtr fit = historec->Fit("InvSquare","QRS","",0,3000);
+    int fitstatus = historec->Fit("InvSquare","QR","",0,3000);
+    vector<float> vectres;
+    if(fitstatus==0)
+    {
+        vectres.push_back(fit->Parameter(1)); //K
+        vectres.push_back(fit->Parameter(0)); //C
+        vectres.push_back(fit->Error(1));
+        vectres.push_back(fit->Error(0));   
+    }
+    else{vectres.push_back(0);vectres.push_back(0);vectres.push_back(0);vectres.push_back(0);}
+    K=vectres[0];C=vectres[2];
+    return historec;
+}
+
+void FitProfile(TProfile* profile,float &p0,float &p1)
+{
+    TFitResultPtr FitRes_ = profile->Fit("pol1","SQR","",400,2000);
+    int fitStat = profile->Fit("pol1","QR","",400,2000);
+    if(fitStat>-1)
+    {
+        float p0_     = FitRes_->Parameter(0);
+        float p1_     = FitRes_->Parameter(1);
+        float p0err_  = FitRes_->Error(0);
+        float p1err_  = FitRes_->Error(1);
+        float chi2_   = FitRes_->Chi2();
+        float Ndf_    = FitRes_->Ndf();
+        float Chi2overNdf_ = (float)chi2_/(float)Ndf_;
+        float chicalc=0.;
+        int nentries=0;
+        for(int bin=0;bin<profile->GetNbinsX();bin++)
+        {
+            if(profile->GetBinContent(bin)>0)
+            {
+                nentries++;
+                float valueCalc=(profile->GetXaxis()->GetBinCenter(bin)*p1_+p0_);
+                chicalc+=pow(valueCalc-profile->GetBinContent(bin),2);
+            }
+            
+        }
+        chicalc=(sqrt(chicalc)/nentries);
+        Chi2overNdf_=chicalc;
+        p0=p1_;
+        p1=p1err_;
+    }
+}
+
+float DeDxMoyen(float p,float K,float C)
+{
+    float PoverM=p/2400;
+    return K*pow(PoverM,-2)+C;
+}
+
+float QtoE(float Q) 
+{
+    return Q*(3.61*pow(10,-9)*247);
+}
+
+TCanvas* DrawTransparency(vector<TH1F*> histo1,TH1F* histo2,string title,string xaxis,string yaxis)
+{
+    TCanvas* c1 = new TCanvas(title.c_str(),"");
+    histo1.at(0)->GetXaxis()->SetTitle(xaxis.c_str());
+    histo1.at(0)->GetYaxis()->SetTitle(yaxis.c_str());
+    c1->cd();
+    for(int i=0;i<histo1.size();i++)
+    {
+        histo1.at(i)->SetLineColor(2*(i+1));
+        histo1.at(i)->Draw("same");
+    }
+    histo2->Scale(0.05);
+    histo2->SetFillStyle(3003);
+    histo2->SetFillColor(1);
+    histo2->SetLineColor(1);
+    histo2->Draw("same,bar");
+    return c1;
+}
 
 
 
@@ -610,6 +816,15 @@ int main(int argc,char** argv)
     EcorrModulGeom.ReadModulGeom();
 
 
+    SaturationCorrection sc;
+    TFile* fileparameters = TFile::Open("FileParameters.root");
+    TTree* treeparameters = (TTree*) fileparameters->Get("tree");
+
+    SaturationCorrection sc2;
+    sc2.SetTree(*treeparameters);
+    sc2.ReadParameters();
+
+
 	/*Correction EcorrModulGeom;
 	TFile* fileModulGeom = TFile::Open("testMethodModulGeom.root");
 	TTree* treeModulGeom = (TTree*) fileModulGeom->Get("tree");
@@ -635,6 +850,10 @@ int main(int argc,char** argv)
     inputfileFactorKC>>K_EfullModulGeom; inputfileFactorKC>>C_EfullModulGeom;
     
 
+    float Calibp0=0., Calibp1=0.;
+    ifstream inputfileCalib("calib.txt");
+    inputfileCalib>>Calibp0;
+    inputfileCalib>>Calibp1;
 
 
 	bool method=false;
@@ -691,6 +910,12 @@ vector<vector<vector<vector<TH2F*>>>> VectModulGeomVectNStripVectNStripSat254Vec
 vector<vector<vector<vector<TH2F*>>>> VectModulGeomVectNStripVectNStripSat254VectNStripSat255HistoNoSat;
 if(method)
 {
+
+    sc.InitHisto();
+
+
+
+
 //METHODE 1 -- CATEGORIES LAYER
     for(int layer=1;layer<22;layer++)
     {
@@ -737,8 +962,22 @@ if(method)
         }
         VectModulGeomVectNStripVectNStripSat254VectNStripSat255Histo.push_back(VectNStripVectNStripSat254VectNStripSat255Histo);
     }
-
-
+    vector<vector<vector<TH2F*>>> vModulGeomvNStripvNSat;
+    for(int ModulGeom=1;ModulGeom<15;ModulGeom++)
+    {
+        vector<vector<TH2F*>> vNStripvNSat;
+        for(int nstrip=3;nstrip<7;nstrip++)
+        {
+            vector<TH2F*> vNSat;
+            for(int nsat=1;nsat<3;nsat++)
+            {
+                string title = LabelModulGeom(ModulGeom)+" NStrip="+to_string(nstrip)+" NSat="+to_string(nsat);
+                vNSat.push_back(new TH2F(title.c_str(),title.c_str(),200,0,5000,200,0,5000));
+            }
+            vNStripvNSat.push_back(vNSat);
+        }
+        vModulGeomvNStripvNSat.push_back(vNStripvNSat);
+    }
 
 }
 
@@ -1140,47 +1379,175 @@ TH2F* h2_ClustSat_ThresholdSatCrit = new TH2F("h2_ClustSat_ThresholdSatCrit","",
 
 //Study crit. MyCorr
 
-TProfile* profile_ClustSat_HscpNoInv = new TProfile("profile_ClustSat_HscpNoInv","",20,0,4000);
+TH2F* h2_ClustSat_QsimBetaGamma_Gluino2400 = new TH2F("h2_ClustSat_QsimBetaGamma_Gluino2400","",100,0,2,100,0,4000);
+TProfile* prof_ClustSat_QsimBetaGamma_Gluino2400 = new TProfile("prof_ClustSat_QsimBetaGamma_Gluino2400","",100,0,2,0,4000,"");
+
+TH2F* h2_ClustSat_QsimBetaGamma_Gluino1400 = new TH2F("h2_ClustSat_QsimBetaGamma_Gluino1400","",100,0,2,100,0,4000);
+TProfile* prof_ClustSat_QsimBetaGamma_Gluino1400 = new TProfile("prof_ClustSat_QsimBetaGamma_Gluino1400","",100,0,2,0,4000,"");
+
+TH2F* h2_ClustSat_QsimBetaGamma_Stau651 = new TH2F("h2_ClustSat_QsimBetaGamma_Stau651","",100,0,2,100,0,4000);
+TProfile* prof_ClustSat_QsimBetaGamma_Stau651 = new TProfile("prof_ClustSat_QsimBetaGamma_Stau651","",100,0,2,0,4000,"");
+
+
+
+TH1F* h1_ClustSat_Qsim = new TH1F("h1_ClustSat_Qsim","",100,0,4000);
+
+TProfile* profile_ClustSat_HscpNoInv = new TProfile("profile_ClustSat_HscpNoInv","",100,0,4000);
 
 TH1F* h1_ClustSat_MyCorrModulGeom_WihtoutCrit = new TH1F("h1_ClustSat_MyCorrModulGeom_WihtoutCrit","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_WihtoutCrit = new TProfile("profile_ClustSat_MyCorrModulGeom_WihtoutCrit","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_WihtoutCrit = new TProfile("profile_ClustSat_MyCorrModulGeom_WihtoutCrit","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQ = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQ","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQ40 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQ40","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ40 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ40","",100,0,4000,"");
+TH2F* h2_ClustSat_MyCorrModulGeom_DeltaQ40 = new TH2F("h2_ClustSat_MyCorrModulGeom_DeltaQ40","",200,0,4000,400,0,4000);
+
+TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQ30 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQ30","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ30 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ30","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQ20 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQ20","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ20 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ20","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQ10 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQ10","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ10 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ10","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQ15 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQ15","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ15 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ15","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQ5 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQ5","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ5 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ5","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQ50 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQ50","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ50 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ50","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQ60 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQ60","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQ60 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQ60","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25 = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_RatioSat90 = new TH1F("h1_ClustSat_MyCorrModulGeom_RatioSat90","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_RatioSat90 = new TProfile("profile_ClustSat_MyCorrModulGeom_RatioSat90","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_RatioSat90 = new TProfile("profile_ClustSat_MyCorrModulGeom_RatioSat90","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_RatioSat60 = new TH1F("h1_ClustSat_MyCorrModulGeom_RatioSat60","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_RatioSat60 = new TProfile("profile_ClustSat_MyCorrModulGeom_RatioSat60","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_RatioSat60 = new TProfile("profile_ClustSat_MyCorrModulGeom_RatioSat60","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat90 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat90","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat90 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat90","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat90 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat90","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90 = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat60 = new TH1F("h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat60","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat60 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat60","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat60 = new TProfile("profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat60","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60 = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60 = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90 = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90","",100,0,4000,"");
 
 TH1F* h1_ClustSat_MyCorrModulGeom_ChargeMinEstimated = new TH1F("h1_ClustSat_MyCorrModulGeom_ChargeMinEstimated","",200,-2,2);
-TProfile* profile_ClustSat_MyCorrModulGeom_ChargeMinEstimated = new TProfile("profile_ClustSat_MyCorrModulGeom_ChargeMinEstimated","",20,0,4000,"");
+TProfile* profile_ClustSat_MyCorrModulGeom_ChargeMinEstimated = new TProfile("profile_ClustSat_MyCorrModulGeom_ChargeMinEstimated","",100,0,4000,"");
 
+TH2F* h2_ClustSat_Overlap = new TH2F("h2_ClustSat_Overlap","",100,0,100,100,0,1);
+TProfile* profile_ClustSat_Overlap = new TProfile("profile_ClustSat_Overlap","",100,0,100,0,1,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEta = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEta","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEta = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEta","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TIB1 = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TIB1","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TIB1 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TIB1","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_OB1 = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_OB1","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_OB1 = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_OB1","",100,0,4000,"");
+
+TH1F* h1_ClustSat_HscpNoInv_CutEta = new TH1F("h1_ClustSat_HscpNoInv_CutEta","",200,-2,2);
+TProfile* profile_ClustSat_HscpNoInv_CutEta = new TProfile("profile_ClustSat_HscpNoInv_CutEta","",100,0,4000,"");
+
+TH1F* h1_ClustSat_HscpNoInv_TIB1 = new TH1F("h1_ClustSat_HscpNoInv_TIB1","",200,-2,2);
+TProfile* profile_ClustSat_HscpNoInv_TIB1 = new TProfile("profile_ClustSat_HscpNoInv_TIB1","",100,0,4000,"");
+
+TH1F* h1_ClustSat_HscpNoInv_OB1 = new TH1F("h1_ClustSat_HscpNoInv_OB1","",200,-2,2);
+TProfile* profile_ClustSat_HscpNoInv_OB1 = new TProfile("profile_ClustSat_HscpNoInv_OB1","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEtaSup = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEtaSup","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEtaSup = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEtaSup","",100,0,4000,"");
+
+TH1F* h1_ClustSat_HscpNoInv_CutEtaSup = new TH1F("h1_ClustSat_HscpNoInv_CutEtaSup","",200,-2,2);
+TProfile* profile_ClustSat_HscpNoInv_CutEtaSup = new TProfile("profile_ClustSat_HscpNoInv_CutEtaSup","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TEC = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TEC","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TEC = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TEC","",100,0,4000,"");
+
+TH1F* h1_ClustSat_HscpNoInv_TEC = new TH1F("h1_ClustSat_HscpNoInv_TEC","",200,-2,2);
+TProfile* profile_ClustSat_HscpNoInv_TEC = new TProfile("profile_ClustSat_HscpNoInv_TEC","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TID = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TID","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TID = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TID","",100,0,4000,"");
+
+TH1F* h1_ClustSat_HscpNoInv_TID = new TH1F("h1_ClustSat_HscpNoInv_TID","",200,-2,2);
+TProfile* profile_ClustSat_HscpNoInv_TID = new TProfile("profile_ClustSat_HscpNoInv_TID","",100,0,4000,"");
+
+TH1F* h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_Barrel = new TH1F("h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_Barrel","",200,-2,2);
+TProfile* profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_Barrel = new TProfile("profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_Barrel","",100,0,4000,"");
+
+TH1F* h1_ClustSat_HscpNoInv_Barrel = new TH1F("h1_ClustSat_HscpNoInv_Barrel","",200,-2,2);
+TProfile* profile_ClustSat_HscpNoInv_Barrel = new TProfile("profile_ClustSat_HscpNoInv_Barrel","",100,0,4000,"");
+
+TH1F* h1_Proposal = new TH1F("h1_Proposal","",200,-2,2);
+TProfile* profile_Proposal = new TProfile("profile_Proposal","",100,0,4000,"");
+TH1F* h1_ratioProfile = new TH1F("h1_ratioProfile","",100,0,4000);
+
+
+TH1F* h1_IhWTEC = new TH1F("h1_IhWTEC","",100,0,15);
+TH1F* h1_IhWOTEC = new TH1F("h1_IhWOTEC","",100,0,15);
+
+TH2F* distribdeltaQ = new TH2F("distribdeltaQ","",100,0,100,100,-2,2);
+TH2F* distribminQ = new TH2F("distribminQ","",100,0,100,100,-2,2); 
+
+TH1F* distribdedx = new TH1F("distribdedx","",100,0,40);
+TH1F* distribdedx2 = new TH1F("distribdedx2","",100,0,40);
+
+TH1F* h1_NewProcedure = new TH1F("h1_NewProcedure","",200,-2,2);
+TProfile* profile_NewProcedure = new TProfile("profile_NewProcedure","",100,0,4000,"");
+
+TH2F* IhPoverM = new TH2F("IhPoverM","",100,0,5,100,0,50);
+
+TH1F* h1_IhSim = new TH1F("h1_IhSim","",200,-2,2);
+TH1F* h1_IhHscpCorr = new TH1F("h1_IhHscpCorr","",200,-2,2);
+TH1F* h1_IhProposal = new TH1F("h1_IhProposal","",200,-2,2);
+TH1F* h1_IhScdProposal = new TH1F("h1_IhScdProposal","",200,-2,2);
+TH1F* h1_IhThirdProposal = new TH1F("h1_IhThirdProposal","",200,-2,2);
+TH1F* h1_IhFourthProposal = new TH1F("h1_IhFourthProposal","",200,-2,2);
+TH1F* h1_IhRecWOSat = new TH1F("h1_IhRecWOSat","",200,-2,2);
+
+TH2F* h2_IhSim = new TH2F("h2_IhSim","",100,0,20,100,0,20);
+TH2F* h2_IhHscpCorr = new TH2F("h2_IhHscpCorr","",100,0,20,100,0,20);
+TH2F* h2_IhProposal = new TH2F("h2_IhProposal","",100,0,20,100,0,20);
+TH2F* h2_IhScdProposal = new TH2F("h2_IhScdProposal","",100,0,20,100,0,20);
+TH2F* h2_IhThirdProposal = new TH2F("h2_IhThirdProposal","",100,0,20,100,0,20);
+TH2F* h2_IhFourthProposal = new TH2F("h2_IhFourthProposal","",100,0,20,100,0,20);
+TH2F* h2_IhRecWOSat = new TH2F("h2_IhRecWOSat","",100,0,20,100,0,20);
+
+TH2F* h2_Resolution_IhSim = new TH2F("h2_Resolution_IhSim","",100,0,20,100,-2,2);
+TH2F* h2_Resolution_IhHscpCorr = new TH2F("h2_Resolution_IhHscpCorr","",100,0,20,100,-2,2);
+TH2F* h2_Resolution_IhProposal = new TH2F("h2_Resolution_IhProposal","",100,0,20,100,-2,2);
+TH2F* h2_Resolution_IhScdProposal = new TH2F("h2_Resolution_IhScdProposal","",100,0,20,100,-2,2);
+TH2F* h2_Resolution_IhThirdProposal = new TH2F("h2_Resolution_IhThirdProposal","",100,0,20,100,-2,2);
+TH2F* h2_Resolution_IhFourthProposal = new TH2F("h2_Resolution_IhFourthProposal","",100,0,20,100,-2,2);
+TH2F* h2_Resolution_IhRecWOSat = new TH2F("h2_Resolution_IhRecWOSat","",100,0,20,100,-2,2);
+
+
+TH1F* distribIhSim = new TH1F("distribIhSim","",50,0,20);
 
 //COUPURES SUR LES EVENTS
 
@@ -1222,6 +1589,36 @@ int countThresholdDiff=0;
 int countBothThreshold=0;
 int countSatCluster=0;
 
+
+
+//Efficiency criteria
+
+float nPassingNoCrit=0.;
+float nPassingHSCPtest=0.;
+float nPassingDeltaQ=0.;
+float nPassingDeltaQ40=0.;
+float nPassingDeltaQ30=0.;
+float nPassingDeltaQ20=0.;
+float nPassingDeltaQ10=0.;
+float nPassingDeltaQ50=0.;
+float nPassingDeltaQ60=0.;
+float nPassingDeltaQ15=0.;
+float nPassingDeltaQ5=0.;
+float nPassingThresholdSat25=0.;
+float nPassingRatioSat60=0.;
+float nPassingRatioSat90=0.;
+float nPassingDeltaQRatioSat60=0.;
+float nPassingDeltaQRatioSat90=0.;
+float nPassingThresholdSat25RatioSat60=0.;
+float nPassingThresholdSat25RatioSat90=0.;
+float nPassingThresholdSat25DeltaQ=0.;
+float nPassingThresholdSat25DeltaQRatioSat60=0.;
+float nPassingThresholdSat25DeltaQRatioSat90=0.;
+float nPassingChargeMinEstimated=0.;
+float nPassingNewProcedure=0.;
+
+vector<string> nopass;
+
 //BOUCLE SUR LES EVENTS
 
 int entries = nentries;
@@ -1253,6 +1650,9 @@ for(int i=0;i<entries;i++)
         vector<float> dEfulldx_Layer;
         vector<float> dEfulldx_ModulGeom;
 
+        vector<float> dEdxWTEC;
+        vector<float> dEdxWOTEC;
+
 
 
         vector<float> VectDecorrDxLayer;
@@ -1270,7 +1670,6 @@ for(int i=0;i<entries;i++)
         int id                  = b1->GetVectTrack()[track].GetPartId();
         float PoverM            = GetPoverM(p,id);
 
-        
 
         nParticle++;
         if(RatioNClusterSat254+RatioNClusterSat255>=ratsat) nPatriclePassingMyCrit++;
@@ -1285,6 +1684,15 @@ for(int i=0;i<entries;i++)
         std::vector<float> dEdxMyCorr;
         std::vector<float> dEdxHscpCorrWOinv;
         std::vector<float> dEdxHscpCorr;
+
+
+        std::vector<float> DeDxSim;
+        std::vector<float> DeDxHscpCorr;
+        std::vector<float> DeDxProposal;
+        std::vector<float> DeDxScdProposal;
+        std::vector<float> DeDxThirdProposal;
+        std::vector<float> DeDxFourthProposal;
+        std::vector<float> DeDxRecWOSat;
 
 
     if(idlow<=abs(id) && abs(id)<=idup)
@@ -1324,6 +1732,7 @@ for(int i=0;i<entries;i++)
             float EcorrSatModul = Erec;
 			float EcorrNoSat	= ErecNoSat;
             int charge_sim      = Eloss/(3.61*pow(10,-9)*247);
+            DeDxSim.push_back(Eloss/pathlength);
 
             bool fakeclust = true;
 
@@ -1411,6 +1820,20 @@ for(int i=0;i<entries;i++)
             float DeltaQ = abs(*(mQ-1) - *(mQ+1));
             float NewTestEnergy = CentralChargeAndNeighbours*(3.61*pow(10,-9)*247);
             float DeltaQCalc = abs(Qplus-Qminus);
+
+            int minQ=9999;
+
+            if(*(mQ-1)<minQ) minQ=(*(mQ-1));
+            if(*(mQ+1)<minQ) minQ=(*(mQ+1));
+
+            bool testProposal=false;
+            if(Qminus>=25 && Qplus>=25 && RatioNClusterSat254+RatioNClusterSat255>=0.6 && DeltaQCalc<=40) testProposal=true;
+
+            // if(!testProposal) continue;
+
+            h2_ClustSat_Overlap->Fill(minQ,RatioNClusterSat254+RatioNClusterSat255);
+            profile_ClustSat_Overlap->Fill(minQ,RatioNClusterSat254+RatioNClusterSat255);
+
 
 
             float ChargeMinEstimated = StripNoSat+1.2*StripSat;
@@ -1640,39 +2063,102 @@ for(int i=0;i<entries;i++)
                 for(int i=0;i<VectChargeMyCorrRatioSat100.size();i++) ChargeMyCorrRatioSat100+=VectChargeMyCorrRatioSat100.at(i);
                 float EMyCorrRatioSat100=(3.61*pow(10,-9)*247)*ChargeMyCorrRatioSat100;
 
+
+
+                float QMyCorr = 1.038*EcorrModulGeom.ChargeCorr(charge,modulgeom,nstrips,nsat254,nsat255);
+
+                dEdxWTEC.push_back((QMyCorr*(3.61*pow(10,-9)*247))/pathlength);
+                if(subdetid!=6) dEdxWOTEC.push_back((QMyCorr*(3.61*pow(10,-9)*247))/pathlength);
+
+                
+                
+                
             //--------
                     
                 ncluster++;
 
+                if(!(sat254 || sat255))
+                {
+                    DeDxHscpCorr.push_back(Erec/pathlength);
+                    DeDxProposal.push_back(Erec/pathlength);
+                    DeDxScdProposal.push_back(Erec/pathlength);
+                    DeDxThirdProposal.push_back(Erec/pathlength);
+                    DeDxFourthProposal.push_back(Erec/pathlength);
+                    DeDxRecWOSat.push_back(Erec/pathlength);
+                }
+
                 if((sat254 || sat255))
                 {
 
-//if(nsat254+nsat255>=2)
-{
+                distribdedx->Fill((QMyCorr*(3.61*pow(10,-9)*247)*pow(10,3))/pathlength);
+                if(subdetid!=6)distribdedx2->Fill((QMyCorr*(3.61*pow(10,-9)*247)*pow(10,3))/pathlength);
+                //if(subdetid==6 && NClustSat254+NClustSat255<=1)distribdedx2->Fill((QMyCorr*(3.61*pow(10,-9)*247)*pow(10,3))/pathlength);
+
+                //if(nsat254+nsat255>=2)
+                {
 
                     if(fakeclust) h1_ClustSatDeltaQ_nsat2_FakeClusters->Fill(DeltaQCalc);
                     if(!fakeclust) h1_ClustSatDeltaQ_nsat2_TrueClusters->Fill(DeltaQCalc);
 
                     //Study crit. MyCorrModulGeom
 
-                    h_ClustSat_HscpCorrNoInv->Fill((ChargeCorrHSCP_WithoutInversion-charge_sim)/charge_sim);
-                    profile_ClustSat_HscpNoInv->Fill(charge_sim,ChargeCorrHSCP_WithoutInversion);
+                    h2_ClustSat_QsimBetaGamma_Gluino2400->Fill(p/MGluino2400,charge_sim);
+                    prof_ClustSat_QsimBetaGamma_Gluino2400->Fill(p/MGluino2400,charge_sim);
+
+                    h2_ClustSat_QsimBetaGamma_Gluino1400->Fill(p/MGluino1400,charge_sim);
+                    prof_ClustSat_QsimBetaGamma_Gluino1400->Fill(p/MGluino1400,charge_sim);
+
+                    h2_ClustSat_QsimBetaGamma_Stau651->Fill(p/MStau651,charge_sim);
+                    prof_ClustSat_QsimBetaGamma_Stau651->Fill(p/MStau651,charge_sim);
 
                     bool testRatioSat60 = false;
                     bool testRatioSat90 = false;
                     bool testThresholdSat25 = false;
                     bool testThresholdDeltaQ = false;
+                    bool testThresholdDeltaQ30 = false;
+                    bool testThresholdDeltaQ40 = false;
+                    bool testThresholdDeltaQ50 = false;
+                    bool testThresholdDeltaQ60 = false;
+                    bool testThresholdDeltaQ20 = false;
+                    bool testThresholdDeltaQ10 = false;
+                    bool testThresholdDeltaQ15 = false;
+                    bool testThresholdDeltaQ5 = false;
                     bool testChargeMinEstimated = false;
+                    
+                    
+                    
 
                     if(RatioNClusterSat254+RatioNClusterSat255>=0.6) testRatioSat60=true;
                     if(RatioNClusterSat254+RatioNClusterSat255>=0.9) testRatioSat90=true;
                     if(Qminus>=25 && Qplus>=25) testThresholdSat25=true;
-                    if(DeltaQCalc<=40 && nsat254+nsat255==1) testThresholdDeltaQ=true;
-                    if(DeltaQCalc<=150 && nsat254+nsat255>1) testThresholdDeltaQ=true;
+                    if(DeltaQCalc<=40 && nsat254+nsat255>=1) testThresholdDeltaQ=true;
+                    //if(DeltaQCalc<=150 && nsat254+nsat255>1) testThresholdDeltaQ=true;
+                    if(DeltaQCalc<=30) testThresholdDeltaQ30=true;
+                    if(DeltaQCalc<=40) testThresholdDeltaQ40=true;
+                    if(DeltaQCalc<=50) testThresholdDeltaQ50=true;
+                    if(DeltaQCalc<=60) testThresholdDeltaQ60=true;
+                    if(DeltaQCalc<=20) testThresholdDeltaQ20=true;
+                    if(DeltaQCalc<=10) testThresholdDeltaQ10=true;
+                    if(DeltaQCalc<=15) testThresholdDeltaQ15=true;
+                    if(DeltaQCalc<=5) testThresholdDeltaQ5=true;
+
+                    
                     
 
                     float QMyCorrModulGeom = 1.038*EcorrModulGeom.ChargeCorr(charge,modulgeom,nstrips,nsat254,nsat255);
+                    //if(QMyCorrModulGeom>400) QMyCorrModulGeom = QMyCorrModulGeom*Calibp0+Calibp1;
+                    bool testCorrModulGeom = EcorrModulGeom.TestCorr(modulgeom,nstrips,nsat254,nsat255);
+                    string nopassing = (LabelModulGeom(modulgeom)+","+to_string(nstrips)+","+to_string(nsat254)+","+to_string(nsat255)).c_str();
+                    if(!testCorrModulGeom && nstrips<=6 && nsat254<=2 && nsat255<=2) nopass.push_back(nopassing);
                     float QDeltaQ = charge;
+                    float QDeltaQ30 = charge;
+                    float QDeltaQ40 = charge;
+                    float QDeltaQ50 = charge;
+                    float QDeltaQ60 = charge;
+                    float QDeltaQ20 = charge;
+                    float QDeltaQ10 = charge;
+                    float QDeltaQ15 = charge;
+                    float QDeltaQ5 = charge;
                     float QThresholdSat25 = charge;
                     float QRatioSat60 = charge;
                     float QRatioSat90 = charge;
@@ -1685,64 +2171,300 @@ for(int i=0;i<entries;i++)
                     float QThresholdSat25DeltaQRatioSat90 = charge;
                     float QChargeMinEstimated = charge;
 
-                    if(testThresholdDeltaQ) QDeltaQ=QMyCorrModulGeom;
-                    if(testThresholdSat25) QThresholdSat25=QMyCorrModulGeom;
-                    if(testRatioSat60) QRatioSat60=QMyCorrModulGeom;
-                    if(testRatioSat90) QRatioSat90=QMyCorrModulGeom;
-                    if(testThresholdDeltaQ && testRatioSat60) QDeltaQRatioSat60=QMyCorrModulGeom;
-                    if(testThresholdDeltaQ && testRatioSat90) QDeltaQRatioSat90=QMyCorrModulGeom;
-                    if(testThresholdSat25 && testRatioSat60) QThresholdSat25RatioSat60=QMyCorrModulGeom;
-                    if(testThresholdSat25 && testRatioSat90) QThresholdSat25RatioSat90=QMyCorrModulGeom;
-                    if(testThresholdSat25 && testThresholdDeltaQ) QThresholdSat25DeltaQ=QMyCorrModulGeom;
-                    if(testThresholdSat25 && testThresholdDeltaQ && testRatioSat60) QThresholdSat25DeltaQRatioSat60=QMyCorrModulGeom;
-                    if(testThresholdSat25 && testThresholdDeltaQ && testRatioSat90) QThresholdSat25DeltaQRatioSat90=QMyCorrModulGeom;
-                    if(QMyCorrModulGeom>ChargeMinEstimated) QChargeMinEstimated=QMyCorrModulGeom;
-
+                    h1_ClustSat_Qsim->Fill(charge_sim);
+                    
+                    
+                    
                     h1_ClustSat_MyCorrModulGeom_WihtoutCrit->Fill((QMyCorrModulGeom-charge_sim)/charge_sim);
                     profile_ClustSat_MyCorrModulGeom_WihtoutCrit->Fill(charge_sim,QMyCorrModulGeom);
+                    nPassingNoCrit++;
 
-                    h1_ClustSat_MyCorrModulGeom_DeltaQ->Fill((QDeltaQ-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_DeltaQ->Fill(charge_sim,QDeltaQ);
+                    float Qnewproc = 1.03*sc2.ChargeCorrected(charge,modulgeom,nstrips,nsat254+nsat255);
 
-                    h1_ClustSat_MyCorrModulGeom_ThresholdSat25->Fill((QThresholdSat25-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_ThresholdSat25->Fill(charge_sim,QThresholdSat25);
+                    DeDxFourthProposal.push_back(QtoE(Qnewproc)/pathlength);
 
-                    h1_ClustSat_MyCorrModulGeom_RatioSat60->Fill((QRatioSat60-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_RatioSat60->Fill(charge_sim,QRatioSat60);
+                    if(Qminus>=25 && Qplus>=25 && DeltaQCalc<=40 && Qnewproc-charge!=0) DeDxThirdProposal.push_back(QtoE(Qnewproc)/pathlength);
 
-                    h1_ClustSat_MyCorrModulGeom_RatioSat90->Fill((QRatioSat90-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_RatioSat90->Fill(charge_sim,QRatioSat90);
+                    if(Qminus>=25 && Qplus>=25 && testRatioSat60 && DeltaQCalc<=40 && Qnewproc-charge!=0)
+                    // if(Qminus>=25 && Qplus>=25 && DeltaQCalc<=40 && Qnewproc-charge!=0)
+                    // if(testCorrHscp)
+                    {
+                        //if(nsat254+nsat255==2 && modulgeom>=5)
+                        {
+                        h1_NewProcedure->Fill((Qnewproc-charge_sim)/charge_sim);
+                        profile_NewProcedure->Fill(charge_sim,Qnewproc);
+                        nPassingNewProcedure++;
+                        }
+                        DeDxProposal.push_back(QtoE(Qnewproc)/pathlength);
+                        DeDxScdProposal.push_back(QtoE(Qnewproc)/pathlength);
+                    }
+                    else DeDxScdProposal.push_back(Erec/pathlength);
 
-                    h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat60->Fill((QDeltaQRatioSat60-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat60->Fill(charge_sim,QDeltaQRatioSat60);
-
-                    h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat90->Fill((QDeltaQRatioSat90-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat90->Fill(charge_sim,QDeltaQRatioSat90);
-
-                    h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60->Fill((QThresholdSat25RatioSat60-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60->Fill(charge_sim,QThresholdSat25RatioSat60);
-
-                    h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90->Fill((QThresholdSat25RatioSat90-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90->Fill(charge_sim,QThresholdSat25RatioSat90);
-
-                    h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ->Fill((QThresholdSat25DeltaQ-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ->Fill(charge_sim,QThresholdSat25DeltaQ);
-
-                    h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
-
-                    h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90->Fill((QThresholdSat25DeltaQRatioSat90-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90->Fill(charge_sim,QThresholdSat25DeltaQRatioSat90);
-
-                    h1_ClustSat_MyCorrModulGeom_ChargeMinEstimated->Fill((QChargeMinEstimated-charge_sim)/charge_sim);
-                    profile_ClustSat_MyCorrModulGeom_ChargeMinEstimated->Fill(charge_sim,QChargeMinEstimated);
-
-
+                    if(Qminus>=25 && Qplus>=25 && testRatioSat60 && DeltaQCalc<=40 && QMyCorrModulGeom-charge!=0)
+                    {
+                        /*if(modulgeom>=5 && nsat254+nsat255==1 && nstrips>3)
+                        {
+                            h1_Proposal->Fill((QMyCorrModulGeom-charge_sim)/charge_sim);
+                            profile_Proposal->Fill(charge_sim,QMyCorrModulGeom);
+                        }*/
+                        /*if(modulgeom<=4 && nsat254+nsat255==1 && nsat255!=1)
+                        {
+                            h1_Proposal->Fill((QMyCorrModulGeom-charge_sim)/charge_sim);
+                            profile_Proposal->Fill(charge_sim,QMyCorrModulGeom);
+                        }
+                        if(modulgeom<=4 && nsat254+nsat255==2)
+                        {
+                            h1_Proposal->Fill((QMyCorrModulGeom-charge_sim)/charge_sim);
+                            profile_Proposal->Fill(charge_sim,QMyCorrModulGeom);
+                        }*/
+                        //if(modulgeom>4 && modulgeom<8 && nstrips==5 && nsat254+nsat255==1 && nsat255!=1)
+                        {
+                            h1_Proposal->Fill((QMyCorrModulGeom-charge_sim)/charge_sim);
+                            profile_Proposal->Fill(charge_sim,QMyCorrModulGeom);
+                        }
+                    }
 
 
 
 
-}
+                    if(testCorrHscp)
+                    {
+                        h_ClustSat_HscpCorrNoInv->Fill((ChargeCorrHSCP_WithoutInversion-charge_sim)/charge_sim);
+                        profile_ClustSat_HscpNoInv->Fill(charge_sim,ChargeCorrHSCP_WithoutInversion);
+                        DeDxHscpCorr.push_back(QtoE(ChargeCorrHSCP_WithoutInversion)/pathlength);
+                        if(abs(eta)<=1.4)
+                        {
+                            h1_ClustSat_HscpNoInv_CutEta->Fill((ChargeCorrHSCP_WithoutInversion-charge_sim)/charge_sim);
+                            profile_ClustSat_HscpNoInv_CutEta->Fill(charge_sim,ChargeCorrHSCP_WithoutInversion);
+                        }
+                        if(layerLabel==1)
+                        {
+                            h1_ClustSat_HscpNoInv_TIB1->Fill((ChargeCorrHSCP_WithoutInversion-charge_sim)/charge_sim);
+                            profile_ClustSat_HscpNoInv_TIB1->Fill(charge_sim,ChargeCorrHSCP_WithoutInversion);
+                        }
+                        if(modulgeom==3)
+                        {
+                            h1_ClustSat_HscpNoInv_OB1->Fill((ChargeCorrHSCP_WithoutInversion-charge_sim)/charge_sim);
+                            profile_ClustSat_HscpNoInv_OB1->Fill(charge_sim,ChargeCorrHSCP_WithoutInversion);
+                        }
+                        if(abs(eta)>1.4)
+                        {
+                            h1_ClustSat_HscpNoInv_CutEtaSup->Fill((ChargeCorrHSCP_WithoutInversion-charge_sim)/charge_sim);
+                            profile_ClustSat_HscpNoInv_CutEtaSup->Fill(charge_sim,ChargeCorrHSCP_WithoutInversion);
+                        }
+                        if(subdetid==6)
+                        {
+                            h1_ClustSat_HscpNoInv_TEC->Fill((ChargeCorrHSCP_WithoutInversion-charge_sim)/charge_sim);
+                            profile_ClustSat_HscpNoInv_TEC->Fill(charge_sim,ChargeCorrHSCP_WithoutInversion);
+                        }
+                        if(subdetid==4)
+                        {
+                            h1_ClustSat_HscpNoInv_TID->Fill((ChargeCorrHSCP_WithoutInversion-charge_sim)/charge_sim);
+                            profile_ClustSat_HscpNoInv_TID->Fill(charge_sim,ChargeCorrHSCP_WithoutInversion);
+                        }
+                        if(subdetid==3 || subdetid==5)
+                        {
+                            h1_ClustSat_HscpNoInv_Barrel->Fill((ChargeCorrHSCP_WithoutInversion-charge_sim)/charge_sim);
+                            profile_ClustSat_HscpNoInv_Barrel->Fill(charge_sim,ChargeCorrHSCP_WithoutInversion);
+                        }
+                        nPassingHSCPtest++;
+                    }
+                    if(testThresholdDeltaQ)
+                    {
+                        QDeltaQ=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQ->Fill((QDeltaQ-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQ->Fill(charge_sim,QDeltaQ);
+                        nPassingDeltaQ++;
+                    }
+                    if(testThresholdDeltaQ40)
+                    {
+                        QDeltaQ40=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQ40->Fill((QDeltaQ40-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQ40->Fill(charge_sim,QDeltaQ40);
+                        h2_ClustSat_MyCorrModulGeom_DeltaQ40->Fill(charge_sim,QDeltaQ40);
+                        nPassingDeltaQ40++;
+                    }
+                    if(testThresholdDeltaQ30)
+                    {
+                        QDeltaQ30=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQ30->Fill((QDeltaQ30-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQ30->Fill(charge_sim,QDeltaQ30);
+                        nPassingDeltaQ30++;
+                    }
+                    if(testThresholdDeltaQ50)
+                    {
+                        QDeltaQ50=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQ50->Fill((QDeltaQ50-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQ50->Fill(charge_sim,QDeltaQ50);
+                        nPassingDeltaQ50++;
+                    }
+                    if(testThresholdDeltaQ60)
+                    {
+                        QDeltaQ60=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQ60->Fill((QDeltaQ60-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQ60->Fill(charge_sim,QDeltaQ60);
+                        nPassingDeltaQ60++;
+                    }
+                    if(testThresholdDeltaQ20)
+                    {
+                        QDeltaQ20=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQ20->Fill((QDeltaQ20-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQ20->Fill(charge_sim,QDeltaQ20);
+                        nPassingDeltaQ20++;
+                    }
+                    if(testThresholdDeltaQ10)
+                    {
+                        QDeltaQ10=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQ10->Fill((QDeltaQ10-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQ10->Fill(charge_sim,QDeltaQ10);
+                        nPassingDeltaQ10++;
+                    }
+                    if(testThresholdDeltaQ15)
+                    {
+                        QDeltaQ15=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQ15->Fill((QDeltaQ15-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQ15->Fill(charge_sim,QDeltaQ15);
+                        nPassingDeltaQ15++;
+                    }
+                    if(nstrips>=6)
+                    {
+                        QDeltaQ5=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQ5->Fill((QDeltaQ5-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQ5->Fill(charge_sim,QDeltaQ5);
+                        nPassingDeltaQ5++;
+                    }
+                    if(nstrips==5)
+                    {
+                        QThresholdSat25=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_ThresholdSat25->Fill((QThresholdSat25-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_ThresholdSat25->Fill(charge_sim,QThresholdSat25);
+                        nPassingThresholdSat25++;
+                    }
+                    if(nstrips==3) 
+                    {
+                        QRatioSat60=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_RatioSat60->Fill((QRatioSat60-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_RatioSat60->Fill(charge_sim,QRatioSat60);
+                        nPassingRatioSat60++;
+                    }
+                    if(nstrips==4) 
+                    {
+                        QRatioSat90=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_RatioSat90->Fill((QRatioSat90-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_RatioSat90->Fill(charge_sim,QRatioSat90);
+                        nPassingRatioSat90++;
+                    }
+                    if(testThresholdDeltaQ && testRatioSat60) 
+                    {
+                        QDeltaQRatioSat60=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat60->Fill((QDeltaQRatioSat60-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat60->Fill(charge_sim,QDeltaQRatioSat60);
+                        nPassingDeltaQRatioSat60++;
+                    }
+                    if(testThresholdDeltaQ && testRatioSat90) 
+                    {
+                        QDeltaQRatioSat90=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat90->Fill((QDeltaQRatioSat90-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat90->Fill(charge_sim,QDeltaQRatioSat90);
+                        nPassingDeltaQRatioSat90++;
+                    }
+                    if(testThresholdSat25 && testRatioSat60) 
+                    {
+                        QThresholdSat25RatioSat60=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60->Fill((QThresholdSat25RatioSat60-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60->Fill(charge_sim,QThresholdSat25RatioSat60);
+                        nPassingThresholdSat25RatioSat60++;
+                    }
+                    if(testThresholdSat25 && testRatioSat90) 
+                    {
+                        QThresholdSat25RatioSat90=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90->Fill((QThresholdSat25RatioSat90-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90->Fill(charge_sim,QThresholdSat25RatioSat90);
+                        nPassingThresholdSat25RatioSat90++;
+                    }
+                    if(testThresholdSat25 && testThresholdDeltaQ) 
+                    {
+                        QThresholdSat25DeltaQ=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ->Fill((QThresholdSat25DeltaQ-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ->Fill(charge_sim,QThresholdSat25DeltaQ);
+                        nPassingThresholdSat25DeltaQ++;
+                    }
+                    if(testThresholdSat25 && testThresholdDeltaQ && testRatioSat60) 
+                    {
+                        
+                        QThresholdSat25DeltaQRatioSat60=QMyCorrModulGeom;
+                        if(subdetid!=6)
+                        {
+                            h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                            profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
+                        }
+                        if(modulgeom>=5 && nsat254+nsat255==1)
+                        {
+                            h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                            profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
+                        }
+                        
+                        if(abs(eta)<=1.4) 
+                        {
+                            h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEta->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                            profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEta->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
+                        }
+                        if(layerLabel==1)
+                        {
+                            h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TIB1->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                            profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TIB1->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
+                        }
+                        if(modulgeom==3)
+                        {
+                            h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_OB1->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                            profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_OB1->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
+                        }
+                        if(abs(eta)>1.4)
+                        {
+                            h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEtaSup->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                            profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEtaSup->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
+                        }
+                        if(subdetid==6 && nsat254+nsat255==1 && QThresholdSat25DeltaQRatioSat60>0 && DeltaQCalc<=25)
+                        {
+                            h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TEC->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                            profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TEC->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
+                            //if((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim<-0.3) 
+                            {
+                                distribdeltaQ->Fill(DeltaQCalc,(QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                                distribminQ->Fill(minQ,(QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                                //cout<<charge_sim<<"    "<<charge<<"      "<<QThresholdSat25DeltaQRatioSat60<<"     "<<(QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim<<endl;
+                                //cout<<"modul "<<LabelModulGeom(modulgeom)<<"   Layer  "<<LabelLayer(layerLabel)<<"   NStrip    "<<nstrips<<"   nsat254   "<<nsat254<<"    nsat255    "<<nsat255<<endl;
+                            }
+                            
+                        }
+                        if(subdetid==4 && nsat254+nsat255==1 && QThresholdSat25DeltaQRatioSat60>0 && DeltaQCalc<=25)
+                        {
+                            h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TID->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                            profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TID->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
+                        }
+                        if(subdetid==3 || subdetid==5)
+                        {
+                            h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_Barrel->Fill((QThresholdSat25DeltaQRatioSat60-charge_sim)/charge_sim);
+                            profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_Barrel->Fill(charge_sim,QThresholdSat25DeltaQRatioSat60);
+                        }
+                        nPassingThresholdSat25DeltaQRatioSat60++;
+                    }
+                    if(testThresholdSat25 && testThresholdDeltaQ && testRatioSat90) 
+                    {
+                        QThresholdSat25DeltaQRatioSat90=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90->Fill((QThresholdSat25DeltaQRatioSat90-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90->Fill(charge_sim,QThresholdSat25DeltaQRatioSat90);
+                        nPassingThresholdSat25DeltaQRatioSat90++;
+                    }
+                    if(QMyCorrModulGeom>ChargeMinEstimated) 
+                    {
+                        QChargeMinEstimated=QMyCorrModulGeom;
+                        h1_ClustSat_MyCorrModulGeom_ChargeMinEstimated->Fill((QChargeMinEstimated-charge_sim)/charge_sim);
+                        profile_ClustSat_MyCorrModulGeom_ChargeMinEstimated->Fill(charge_sim,QChargeMinEstimated);
+                        nPassingChargeMinEstimated++;
+                    }
+
+                }
                     //-------------------------------------
 
 
@@ -2296,6 +3018,7 @@ for(int TSat=-10;TSat<140;TSat++)
             	    }
 				}
 
+                if(Qminus>=25 && Qplus>=25 && RatioNClusterSat254+RatioNClusterSat255>=0.6 && DeltaQCalc<=40) sc.FillHisto(charge_sim,charge,modulgeom,nstrips,nsat254+nsat255);
 				
 
 			}
@@ -2305,6 +3028,7 @@ for(int TSat=-10;TSat<140;TSat++)
 
 
 		}
+
 
         Estimator estimLayer(VectDecorrDxLayer);
         Estimator estimModulGeom(VectDecorrDxModulGeom);
@@ -2384,6 +3108,11 @@ for(int TSat=-10;TSat<140;TSat++)
         massEfullModulGeom->Fill(sqrt((estimDeDx.GetHarmonic2()*pow(10,3)-C_EfullModulGeom)*pow(p,2)/K_EfullModulGeom));
 
 
+        Estimator estimdEdxWTEC(dEdxWTEC);
+        Estimator estimdEdxWOTEC(dEdxWOTEC);
+        h1_IhWTEC->Fill(estimdEdxWTEC.GetHarmonic2()*pow(10,3));
+        h1_IhWOTEC->Fill(estimdEdxWOTEC.GetHarmonic2()*pow(10,3));
+
 
 
         //Study Ih
@@ -2394,10 +3123,10 @@ for(int TSat=-10;TSat<140;TSat++)
         Estimator estimdEdxHscpCorr(dEdxHscpCorr);
 
 
-        h2_IhHarmonic_sim->Fill(p/MGluino,estimdEdxsim.GetHarmonic2()*pow(10,3));
-        h2_IhHarmonic_MyCorr->Fill(p/MGluino,estimdEdxMyCorr.GetHarmonic2()*pow(10,3));
-        h2_IhHarmonic_HscpCorrWOinv->Fill(p/MGluino,estimdEdxHscpCorrWOinv.GetHarmonic2()*pow(10,3));
-        h2_IhHarmonic_HscpCorr->Fill(p/MGluino,estimdEdxHscpCorr.GetHarmonic2()*pow(10,3));
+        h2_IhHarmonic_sim->Fill(p/MGluino2400,estimdEdxsim.GetHarmonic2()*pow(10,3));
+        h2_IhHarmonic_MyCorr->Fill(p/MGluino2400,estimdEdxMyCorr.GetHarmonic2()*pow(10,3));
+        h2_IhHarmonic_HscpCorrWOinv->Fill(p/MGluino2400,estimdEdxHscpCorrWOinv.GetHarmonic2()*pow(10,3));
+        h2_IhHarmonic_HscpCorr->Fill(p/MGluino2400,estimdEdxHscpCorr.GetHarmonic2()*pow(10,3));
 
 
         h2_ClustSat_IhSimIhMyCorrRatioSat->Fill(estimdEdxsim.GetHarmonic2()*pow(10,3),estimdEdxMyCorr.GetHarmonic2()*pow(10,3));
@@ -2446,9 +3175,64 @@ for(int TSat=-10;TSat<140;TSat++)
         }
 
 
+        //Ih
+    
+    {
+        Estimator estimDeDxSim(DeDxSim);
+        Estimator estimDeDxHscpCorr(DeDxHscpCorr);
+        Estimator estimDeDxProposal(DeDxProposal);
+        Estimator estimDeDxScdProposal(DeDxScdProposal);
+        Estimator estimDeDxThirdProposal(DeDxThirdProposal);
+        Estimator estimDeDxFourthProposal(DeDxFourthProposal);
+        Estimator estimDeDxRecWOSat(DeDxRecWOSat);
+
+        if(p/2400>0.2)IhPoverM->Fill(p/2400,estimDeDxSim.GetHarmonic2()*pow(10,3));
+        float Csim=4.47,Ksim=1.77;
+        float comparatif = DeDxMoyen(p,Ksim,Csim);
+        comparatif=estimDeDxSim.GetHarmonic2()*pow(10,3);
+
+        // if(DeDxHscpCorr.size()>=8)
+        {
+            h1_IhHscpCorr->Fill((estimDeDxHscpCorr.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+            h2_IhHscpCorr->Fill(comparatif,estimDeDxHscpCorr.GetHarmonic2()*pow(10,3));
+            h2_Resolution_IhHscpCorr->Fill(comparatif,(estimDeDxHscpCorr.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        }
+        // if(DeDxProposal.size()>=8)
+        {
+            h1_IhProposal->Fill((estimDeDxProposal.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+            h2_IhProposal->Fill(comparatif,estimDeDxProposal.GetHarmonic2()*pow(10,3));
+            h2_Resolution_IhProposal->Fill(comparatif,(estimDeDxProposal.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        }
+
+        h1_IhSim->Fill((estimDeDxSim.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        
+        distribIhSim->Fill(estimDeDxSim.GetHarmonic2()*pow(10,3));
 
 
+        h1_IhScdProposal->Fill((estimDeDxScdProposal.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        h1_IhThirdProposal->Fill((estimDeDxThirdProposal.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        h1_IhFourthProposal->Fill((estimDeDxFourthProposal.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        h1_IhRecWOSat->Fill((estimDeDxRecWOSat.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
 
+
+        h2_IhSim->Fill(comparatif,estimDeDxSim.GetHarmonic2()*pow(10,3));
+        
+        
+        h2_IhScdProposal->Fill(comparatif,estimDeDxScdProposal.GetHarmonic2()*pow(10,3));
+        h2_IhThirdProposal->Fill(comparatif,estimDeDxThirdProposal.GetHarmonic2()*pow(10,3));
+        h2_IhFourthProposal->Fill(comparatif,estimDeDxFourthProposal.GetHarmonic2()*pow(10,3));
+        h2_IhRecWOSat->Fill(comparatif,estimDeDxRecWOSat.GetHarmonic2()*pow(10,3));
+
+        h2_Resolution_IhSim->Fill(comparatif,(estimDeDxSim.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        
+        
+        h2_Resolution_IhScdProposal->Fill(comparatif,(estimDeDxScdProposal.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        h2_Resolution_IhThirdProposal->Fill(comparatif,(estimDeDxThirdProposal.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        h2_Resolution_IhFourthProposal->Fill(comparatif,(estimDeDxFourthProposal.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+        h2_Resolution_IhRecWOSat->Fill(comparatif,(estimDeDxRecWOSat.GetHarmonic2()*pow(10,3)-comparatif)/comparatif);
+
+
+    }
 
     }
 
@@ -2501,32 +3285,36 @@ cout<<"EffBoth    "<<EffThresholdBoth<<endl;
 
 
 
-if(FactKC)
-{
-    vector<float> VectKCEsim = FactorKC(pVsdEsimdx,0.938);
-    cout<<VectKCEsim[0]<<" "<<VectKCEsim[1]<<endl;
+// if(FactKC)
+// {
+//     vector<float> VectKCEsim = FactorKC(pVsdEsimdx,0.938);
+//     cout<<VectKCEsim[0]<<" "<<VectKCEsim[1]<<endl;
 
-    vector<float> VectKCErec = FactorKC(pVsdErecdx,0.938);
-    cout<<VectKCErec[0]<<" "<<VectKCErec[1]<<endl;
+//     vector<float> VectKCErec = FactorKC(pVsdErecdx,0.938);
+//     cout<<VectKCErec[0]<<" "<<VectKCErec[1]<<endl;
 
-    vector<float> VectKCEcorr = FactorKC(pVsdEcorrdx,0.938);
-    cout<<VectKCEcorr[0]<<" "<<VectKCEcorr[1]<<endl;
+//     vector<float> VectKCEcorr = FactorKC(pVsdEcorrdx,0.938);
+//     cout<<VectKCEcorr[0]<<" "<<VectKCEcorr[1]<<endl;
 
-    vector<float> VectKCEfull_Layer = FactorKC(pVsdEfulldx_Layer,0.938);
-    cout<<VectKCEfull_Layer[0]<<" "<<VectKCEfull_Layer[1]<<endl;
+//     vector<float> VectKCEfull_Layer = FactorKC(pVsdEfulldx_Layer,0.938);
+//     cout<<VectKCEfull_Layer[0]<<" "<<VectKCEfull_Layer[1]<<endl;
 
-    vector<float> VectKCEfull_ModulGeom = FactorKC(pVsdEfulldx_ModulGeom,0.938);
-    cout<<VectKCEfull_ModulGeom[0]<<" "<<VectKCEfull_ModulGeom[1]<<endl;
+//     vector<float> VectKCEfull_ModulGeom = FactorKC(pVsdEfulldx_ModulGeom,0.938);
+//     cout<<VectKCEfull_ModulGeom[0]<<" "<<VectKCEfull_ModulGeom[1]<<endl;
 
-    ofstream outputfileFactorKC ("factKC.txt");
-    outputfileFactorKC<<VectKCEsim[0]<<"\t"<<VectKCEsim[1]<<endl;
-    outputfileFactorKC<<VectKCErec[0]<<"\t"<<VectKCErec[1]<<endl;
-    outputfileFactorKC<<VectKCEcorr[0]<<"\t"<<VectKCEcorr[1]<<endl;
-    outputfileFactorKC<<VectKCEfull_Layer[0]<<"\t"<<VectKCEfull_Layer[1]<<endl;
-    outputfileFactorKC<<VectKCEfull_ModulGeom[0]<<"\t"<<VectKCEfull_ModulGeom[1]<<endl;
-}
+//     ofstream outputfileFactorKC ("factKC.txt");
+//     outputfileFactorKC<<VectKCEsim[0]<<"\t"<<VectKCEsim[1]<<endl;
+//     outputfileFactorKC<<VectKCErec[0]<<"\t"<<VectKCErec[1]<<endl;
+//     outputfileFactorKC<<VectKCEcorr[0]<<"\t"<<VectKCEcorr[1]<<endl;
+//     outputfileFactorKC<<VectKCEfull_Layer[0]<<"\t"<<VectKCEfull_Layer[1]<<endl;
+//     outputfileFactorKC<<VectKCEfull_ModulGeom[0]<<"\t"<<VectKCEfull_ModulGeom[1]<<endl;
+// }
 
-
+// vector<float> vKC = FactorKC(IhPoverM,2400);
+// ofstream fileKC("KC.txt");
+// fileKC<<"K  "<<vKC[0]<<"  +/-   "<<vKC[2]<<endl;
+// fileKC<<"C  "<<vKC[1]<<"  +/-   "<<vKC[3]<<endl;
+// fileKC.close();
 
 
 //ECRITURE PARAMETRES METHODE
@@ -2534,8 +3322,14 @@ if(FactKC)
 
 if(method)
 {
-//METHODE LAYER 
+    sc.SetFileAndTreeName("FileParameters.root","tree");
+    sc.SetBranch();
+    sc.WriteParameters();
+    sc.WriteFile();
+    
 
+//METHODE LAYER 
+/*
 	Correction MethodLayer; 
     MethodLayer.SetRebin(10);
     //MethodLayer.SetRange(0.7);
@@ -2559,10 +3353,10 @@ if(method)
         }
     }
 	MethodLayer.WriteFile();
-
+*/
 //METHODE MODULGEOM 
 
-	Correction MethodModulGeom; 
+	/*Correction MethodModulGeom; 
 	MethodModulGeom.SetFileAndTreeName("testMethodModulGeom.root","tree");
 	MethodModulGeom.SetBranch();
 	for(int countlayer=1;countlayer<15;countlayer++)
@@ -2573,16 +3367,18 @@ if(method)
             {
                 for(int countnstripsat255=0;countnstripsat255<countnstrip-countnstripsat254+1;countnstripsat255++)
                 {
-                    MethodModulGeom.SetHisto(*VectModulGeomVectNStripVectNStripSat254VectNStripSat255Histo[countlayer-1][countnstrip-3][countnstripsat254][countnstripsat255]);
-                    MethodModulGeom.FillHisto(countlayer,countnstrip,countnstripsat254,countnstripsat255);
-                    MethodModulGeom.FillProfile();
-                    MethodModulGeom.Write(countlayer,countnstrip,countnstripsat254,countnstripsat255);
+                    if()
+                    {
+                        MethodModulGeom.SetHisto(*VectModulGeomVectNStripVectNStripSat254VectNStripSat255Histo[countlayer-1][countnstrip-3][countnstripsat254][countnstripsat255]);
+                        MethodModulGeom.FillHisto(countlayer,countnstrip,countnstripsat254,countnstripsat255);
+                        MethodModulGeom.FillProfile();
+                        MethodModulGeom.Write(countlayer,countnstrip,countnstripsat254,countnstripsat255);
+                    }
                 }
             }
         }
     }
-	MethodModulGeom.WriteFile();
-
+	MethodModulGeom.WriteFile();*/
 
 }
 
@@ -2773,58 +3569,388 @@ StudyGraph(ofile_Criteria,h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ);
 StudyGraph(ofile_Criteria,h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60);
 StudyGraph(ofile_Criteria,h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90);
 StudyGraph(ofile_Criteria,h1_ClustSat_MyCorrModulGeom_ChargeMinEstimated);
+StudyGraph(ofile_Criteria,h1_NewProcedure);
 ofile_Criteria.close();
 
+ofstream ofile_EfficiencyCriteria;
+ofile_EfficiencyCriteria.open("efficiency_criteria.txt");
+ofile_EfficiencyCriteria<<"Only saturated clusters"<<endl;
+ofile_EfficiencyCriteria<<"Passing no criteria \t\t"<<nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing HSCP criteria \t\t"<<nPassingHSCPtest/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQ \t\t"<<nPassingDeltaQ/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQ40 \t\t"<<nPassingDeltaQ40/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQ30 \t\t"<<nPassingDeltaQ30/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQ20 \t\t"<<nPassingDeltaQ20/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQ10 \t\t"<<nPassingDeltaQ10/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQ50 \t\t"<<nPassingDeltaQ50/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQ60 \t\t"<<nPassingDeltaQ60/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQ15 \t\t"<<nPassingDeltaQ15/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQ5 \t\t"<<nPassingDeltaQ5/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing ThresholdSat25 \t\t"<<nPassingThresholdSat25/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing RatioSat60 \t\t"<<nPassingRatioSat60/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing RatioSat90 \t\t"<<nPassingRatioSat90/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQRatioSat60 \t\t"<<nPassingDeltaQRatioSat60/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing DeltaQRatioSat90 \t\t"<<nPassingDeltaQRatioSat90/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing ThresholdSat25RatioSat60 \t\t"<<nPassingThresholdSat25RatioSat60/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing ThresholdSat25RatioSat90 \t\t"<<nPassingThresholdSat25RatioSat90/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing ThresholdSat25DeltaQRatioSat60 \t\t"<<nPassingThresholdSat25DeltaQRatioSat60/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing ThresholdSat25DeltaQRatioSat90 \t\t"<<nPassingThresholdSat25DeltaQRatioSat90/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing ChargeMinEstimated \t\t"<<nPassingChargeMinEstimated/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria<<"Passing NewProcedure \t\t"<<nPassingNewProcedure/nPassingNoCrit<<endl;
+ofile_EfficiencyCriteria.close();
+
+ofstream ofile_FitProfileCriteria;
+ofile_FitProfileCriteria.open("FitProfileCrit.txt");
+float p00=-1,p01=-1;
+
+FitProfile(profile_ClustSat_HscpNoInv,p00,p01);
+ofile_FitProfileCriteria<<"Passing HSCP criteria \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_HscpNoInv_CutEta,p00,p01);
+ofile_FitProfileCriteria<<"Passing HSCP criteria CutEta \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_HscpNoInv_TIB1,p00,p01);
+ofile_FitProfileCriteria<<"Passing HSCP criteria TIB1 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_HscpNoInv_OB1,p00,p01);
+ofile_FitProfileCriteria<<"Passing HSCP criteria OB1 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_WihtoutCrit,p00,p01);
+ofile_FitProfileCriteria<<"Passing no criteria \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_DeltaQ,p00,p01);
+ofile_FitProfileCriteria<<"Passing DeltaQ \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_DeltaQ40,p00,p01);
+ofile_FitProfileCriteria<<"Passing DeltaQ40 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_DeltaQ30,p00,p01);
+ofile_FitProfileCriteria<<"Passing DeltaQ30 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_ThresholdSat25,p00,p01);
+ofile_FitProfileCriteria<<"Passing ThresholdSat25 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_RatioSat60,p00,p01);
+ofile_FitProfileCriteria<<"Passing RatioSat60 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_RatioSat90,p00,p01);
+ofile_FitProfileCriteria<<"Passing RatioSat90 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat60,p00,p01);
+ofile_FitProfileCriteria<<"Passing DeltaQRatioSat60 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat90,p00,p01);
+ofile_FitProfileCriteria<<"Passing DeltaQRatioSat90 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60,p00,p01);
+ofile_FitProfileCriteria<<"Passing ThresholdSat25RatioSat60 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90,p00,p01);
+ofile_FitProfileCriteria<<"Passing ThresholdSat25RatioSat90 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60,p00,p01);
+ofile_FitProfileCriteria<<"Passing ThresholdSat25DeltaQRatioSat60 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEta,p00,p01);
+ofile_FitProfileCriteria<<"Passing ThresholdSat25DeltaQRatioSat60_CutEta \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TIB1,p00,p01);
+ofile_FitProfileCriteria<<"Passing ThresholdSat25DeltaQRatioSat60_TIB1 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_OB1,p00,p01);
+ofile_FitProfileCriteria<<"Passing ThresholdSat25DeltaQRatioSat60_OB1 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90,p00,p01);
+ofile_FitProfileCriteria<<"Passing ThresholdSat25DeltaQRatioSat90 \t\t"<<p00<<"\t"<<p01<<endl;
+
+FitProfile(profile_NewProcedure,p00,p01);
+ofile_FitProfileCriteria<<"New procedure \t\t"<<p00<<"\t"<<p01<<endl;
+
+ofile_FitProfileCriteria<<"CorrelationFactor ThresholdSat25RatioSat60 \t\t"<<h2_ClustSat_Overlap->GetCorrelationFactor()<<endl;
+
+ofile_FitProfileCriteria.close();
+
+
+/*ofstream ofile_Nopassing;
+ofile_Nopassing.open("NoPass.txt");
+for(int i=0;i<nopass.size();i++)
+{
+    ofile_Nopassing<<nopass[i]<<endl;
+}
+
+
+for(int xbin=1;xbin<profile_Proposal->GetNbinsX()+1;xbin++)
+{
+    h1_ratioProfile->SetBinContent(xbin,profile_Proposal->GetBinContent(xbin)/profile_Proposal->GetBinCenter(xbin));
+}
+TFitResultPtr fitRatio = h1_ratioProfile->Fit("pol1","QRS","",400,4000);
+ofstream ofile_calib;
+ofile_calib.open("calib.txt");
+ofile_calib<<fitRatio->Parameter(0)<<" "<<fitRatio->Parameter(1)<<endl;
+ofile_calib.close();
+*/ 
 
 //ECRITURE RESULTATS ETUDES
 
 TFile* outputfile = new TFile("testEtudeScdeMethod.root","RECREATE");
 
+float Kcalc,Ccalc;
+FactorKC(IhPoverM,Kcalc,Ccalc)->Write();
+IhPoverM->Write();
+cout<<"K  "<<Kcalc<<"  C   "<<Ccalc<<endl;
+
+h1_IhSim->Write();
+h1_IhHscpCorr->Write();
+h1_IhProposal->Write();
+h1_IhScdProposal->Write();
+h1_IhThirdProposal->Write();
+h1_IhFourthProposal->Write();
+h1_IhRecWOSat->Write();
+
+h2_IhSim->Write();
+h2_IhHscpCorr->Write();
+h2_IhProposal->Write();
+h2_IhScdProposal->Write();
+h2_IhThirdProposal->Write();
+h2_IhFourthProposal->Write();
+h2_IhRecWOSat->Write();
+
+TH1F* profilerMPVsim = ProfilerMPV(h2_IhSim);
+TH1F* profilerMPVhscp = ProfilerMPV(h2_IhHscpCorr);
+TH1F* profilerMPVprop = ProfilerMPV(h2_IhProposal);
+TH1F* profilerMPVscd = ProfilerMPV(h2_IhScdProposal);
+TH1F* profilerMPVthird = ProfilerMPV(h2_IhThirdProposal);
+TH1F* profilerMPVfourth = ProfilerMPV(h2_IhFourthProposal);
+TH1F* profilerMPVrecwosat = ProfilerMPV(h2_IhRecWOSat);
+
+h2_Resolution_IhSim->Write();
+h2_Resolution_IhHscpCorr->Write();
+h2_Resolution_IhProposal->Write();
+
+TH1F* profilerResolutionMPVsim = ProfilerResolution(h2_Resolution_IhSim);
+TH1F* profilerResolutionMPVhscp = ProfilerResolution(h2_Resolution_IhHscpCorr);
+TH1F* profilerResolutionMPVprop = ProfilerResolution(h2_Resolution_IhProposal);
+TH1F* profilerResolutionMPVscd = ProfilerResolution(h2_Resolution_IhScdProposal);
+TH1F* profilerResolutionMPVthird = ProfilerResolution(h2_Resolution_IhThirdProposal);
+TH1F* profilerResolutionMPVfourth = ProfilerResolution(h2_Resolution_IhFourthProposal);
+TH1F* profilerResolutionMPVrecwosat = ProfilerResolution(h2_Resolution_IhRecWOSat);
+
+vector<TH1F*> vProfileMPV;
+vector<TH1F*> vProfileResolution;
+
+vProfileMPV.push_back(profilerMPVhscp);
+vProfileMPV.push_back(profilerMPVprop);
+vProfileResolution.push_back(profilerResolutionMPVprop);
+vProfileResolution.push_back(profilerResolutionMPVhscp);
+
+
+DrawTransparency(vProfileMPV,distribIhSim,"linearity","I_{h}^{sim}","linearity")->Write();
+DrawTransparency(vProfileResolution,distribIhSim,"resolution","I_{h}^{sim}","resolution")->Write();
+
+profilerMPVsim->SetName("mpvsim");
+profilerMPVhscp->SetName("mpvhscp");
+profilerMPVprop->SetName("mpvprop");
+profilerMPVscd->SetName("mpvscd");
+profilerMPVthird->SetName("mpvthird");
+profilerMPVfourth->SetName("mpvfourth");
+profilerMPVrecwosat->SetName("mpvrecwosat");
+
+
+profilerResolutionMPVsim->SetName("ressim");
+profilerResolutionMPVhscp->SetName("reshscp");
+profilerResolutionMPVprop->SetName("resprop");
+profilerResolutionMPVscd->SetName("resscd");
+profilerResolutionMPVthird->SetName("resthird");
+profilerResolutionMPVfourth->SetName("resfourth");
+profilerResolutionMPVrecwosat->SetName("resrecwosat");
+
+profilerMPVsim->Write();
+profilerMPVhscp->Write();
+profilerMPVprop->Write();
+profilerMPVscd->Write();
+profilerMPVthird->Write();
+profilerMPVfourth->Write();
+profilerMPVrecwosat->Write();
+
+profilerResolutionMPVsim->Write();
+profilerResolutionMPVhscp->Write();
+profilerResolutionMPVprop->Write();
+profilerResolutionMPVscd->Write();
+profilerResolutionMPVthird->Write();
+profilerResolutionMPVfourth->Write();
+profilerResolutionMPVrecwosat->Write();
+
+
+
+
+
+
+
+
 TLine* line4000 = new TLine(0,0,4000,4000);
 line4000->Write();
 
+h1_NewProcedure->Scale(1./h1_NewProcedure->GetEntries());
+h1_NewProcedure->Write();
+profile_NewProcedure->Write();
+
+h1_Proposal->Scale(1./h1_Proposal->GetEntries());
+h1_Proposal->Write();
+profile_Proposal->Write();
+h1_ratioProfile->Write();
+
+distribdedx->Write();
+distribdedx2->Write();
+
+distribdeltaQ->Write();
+distribminQ->Write();
+
+h1_IhWTEC->Write();
+h1_IhWOTEC->Write();
+
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEtaSup->Write();
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TEC->Write();
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TID->Write();
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_Barrel->Write();
+
+h1_ClustSat_HscpNoInv_CutEtaSup->Write();
+h1_ClustSat_HscpNoInv_TEC->Write();
+h1_ClustSat_HscpNoInv_TID->Write();
+h1_ClustSat_HscpNoInv_Barrel->Write();
+
+profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEtaSup->Write();
+profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TEC->Write();
+profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TID->Write();
+profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_Barrel->Write();
+
+profile_ClustSat_HscpNoInv_CutEtaSup->Write();
+profile_ClustSat_HscpNoInv_TEC->Write();
+profile_ClustSat_HscpNoInv_TID->Write();
+profile_ClustSat_HscpNoInv_Barrel->Write();
+
+h2_ClustSat_QsimBetaGamma_Gluino2400->Write();
+h2_ClustSat_QsimBetaGamma_Gluino1400->Write();
+h2_ClustSat_QsimBetaGamma_Stau651->Write();
+prof_ClustSat_QsimBetaGamma_Gluino2400->Write();
+prof_ClustSat_QsimBetaGamma_Gluino1400->Write();
+prof_ClustSat_QsimBetaGamma_Stau651->Write();
+
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEta->Write();
+profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_CutEta->Write();
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TIB1->Write();
+profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_TIB1->Write();
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_OB1->Write();
+profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60_OB1->Write();
+
+h1_ClustSat_HscpNoInv_CutEta->Write();
+profile_ClustSat_HscpNoInv_CutEta->Write();
+h1_ClustSat_HscpNoInv_TIB1->Write();
+profile_ClustSat_HscpNoInv_TIB1->Write();
+h1_ClustSat_HscpNoInv_OB1->Write();
+profile_ClustSat_HscpNoInv_OB1->Write();
+
+
+
+
+
+h1_ClustSat_Qsim->Write();
+h2_ClustSat_Overlap->Write();
+profile_ClustSat_Overlap->Write();
+
+h1_ClustSatDeltaQ_nsat2_FakeClusters->Scale(1./h1_ClustSatDeltaQ_nsat2_FakeClusters->GetEntries());
 h1_ClustSatDeltaQ_nsat2_FakeClusters->Write();
+h1_ClustSatDeltaQ_nsat2_TrueClusters->Scale(1./h1_ClustSatDeltaQ_nsat2_TrueClusters->GetEntries());
 h1_ClustSatDeltaQ_nsat2_TrueClusters->Write();
 
+h_ClustSat_HscpCorrNoInv->Scale(1./h_ClustSat_HscpCorrNoInv->GetEntries());
 h_ClustSat_HscpCorrNoInv->Write();
 profile_ClustSat_HscpNoInv->Write();
 
+h1_ClustSat_MyCorrModulGeom_WihtoutCrit->Scale(1./h1_ClustSat_MyCorrModulGeom_WihtoutCrit->GetEntries());
 h1_ClustSat_MyCorrModulGeom_WihtoutCrit->Write();
 profile_ClustSat_MyCorrModulGeom_WihtoutCrit->Write();
 
+h1_ClustSat_MyCorrModulGeom_DeltaQ->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQ->GetEntries());
 h1_ClustSat_MyCorrModulGeom_DeltaQ->Write();
 profile_ClustSat_MyCorrModulGeom_DeltaQ->Write();
 
+h1_ClustSat_MyCorrModulGeom_DeltaQ40->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQ40->GetEntries());
+h1_ClustSat_MyCorrModulGeom_DeltaQ40->Write();
+profile_ClustSat_MyCorrModulGeom_DeltaQ40->Write();
+h2_ClustSat_MyCorrModulGeom_DeltaQ40->Write();
+float p0=-1,p1=-1,Chi2=-1;
+ProfileMPV(h2_ClustSat_MyCorrModulGeom_DeltaQ40,p0,p1,Chi2)->Write();
+cout<<p0<<" "<<p1<<" "<<Chi2<<endl;
+
+h1_ClustSat_MyCorrModulGeom_DeltaQ30->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQ30->GetEntries());
+h1_ClustSat_MyCorrModulGeom_DeltaQ30->Write();
+profile_ClustSat_MyCorrModulGeom_DeltaQ30->Write();
+
+h1_ClustSat_MyCorrModulGeom_DeltaQ50->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQ50->GetEntries());
+h1_ClustSat_MyCorrModulGeom_DeltaQ50->Write();
+profile_ClustSat_MyCorrModulGeom_DeltaQ50->Write();
+
+h1_ClustSat_MyCorrModulGeom_DeltaQ60->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQ60->GetEntries());
+h1_ClustSat_MyCorrModulGeom_DeltaQ60->Write();
+profile_ClustSat_MyCorrModulGeom_DeltaQ60->Write();
+
+h1_ClustSat_MyCorrModulGeom_DeltaQ20->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQ20->GetEntries());
+h1_ClustSat_MyCorrModulGeom_DeltaQ20->Write();
+profile_ClustSat_MyCorrModulGeom_DeltaQ20->Write();
+
+h1_ClustSat_MyCorrModulGeom_DeltaQ10->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQ10->GetEntries());
+h1_ClustSat_MyCorrModulGeom_DeltaQ10->Write();
+profile_ClustSat_MyCorrModulGeom_DeltaQ10->Write();
+
+h1_ClustSat_MyCorrModulGeom_DeltaQ15->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQ15->GetEntries());
+h1_ClustSat_MyCorrModulGeom_DeltaQ15->Write();
+profile_ClustSat_MyCorrModulGeom_DeltaQ15->Write();
+
+h1_ClustSat_MyCorrModulGeom_DeltaQ5->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQ5->GetEntries());
+h1_ClustSat_MyCorrModulGeom_DeltaQ5->Write();
+profile_ClustSat_MyCorrModulGeom_DeltaQ5->Write();
+
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25->Scale(1./h1_ClustSat_MyCorrModulGeom_ThresholdSat25->GetEntries());
 h1_ClustSat_MyCorrModulGeom_ThresholdSat25->Write();
 profile_ClustSat_MyCorrModulGeom_ThresholdSat25->Write();
 
+h1_ClustSat_MyCorrModulGeom_RatioSat60->Scale(1./h1_ClustSat_MyCorrModulGeom_RatioSat60->GetEntries());
 h1_ClustSat_MyCorrModulGeom_RatioSat60->Write();
 profile_ClustSat_MyCorrModulGeom_RatioSat60->Write();
 
+h1_ClustSat_MyCorrModulGeom_RatioSat90->Scale(1./h1_ClustSat_MyCorrModulGeom_RatioSat90->GetEntries());
 h1_ClustSat_MyCorrModulGeom_RatioSat90->Write();
 profile_ClustSat_MyCorrModulGeom_RatioSat90->Write();
 
+h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat60->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat60->GetEntries());
 h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat60->Write();
 profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat60->Write();
 
+h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat90->Scale(1./h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat90->GetEntries());
 h1_ClustSat_MyCorrModulGeom_DeltaQRatioSat90->Write();
 profile_ClustSat_MyCorrModulGeom_DeltaQRatioSat90->Write();
 
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60->Scale(1./h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60->GetEntries());
 h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60->Write();
 profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat60->Write();
 
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90->Scale(1./h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90->GetEntries());
 h1_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90->Write();
 profile_ClustSat_MyCorrModulGeom_ThresholdSat25RatioSat90->Write();
 
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ->Scale(1./h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ->GetEntries());
 h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ->Write();
 profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQ->Write();
 
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->Scale(1./h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->GetEntries());
 h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->Write();
 profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat60->Write();
 
+h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90->Scale(1./h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90->GetEntries());
 h1_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90->Write();
 profile_ClustSat_MyCorrModulGeom_ThresholdSat25DeltaQRatioSat90->Write();
 
+h1_ClustSat_MyCorrModulGeom_ChargeMinEstimated->Scale(1./h1_ClustSat_MyCorrModulGeom_ChargeMinEstimated->GetEntries());
 h1_ClustSat_MyCorrModulGeom_ChargeMinEstimated->Write();
 profile_ClustSat_MyCorrModulGeom_ChargeMinEstimated->Write();
 
@@ -3571,4 +4697,5 @@ delete outputfile;
 
 
 return 0;
+
 }

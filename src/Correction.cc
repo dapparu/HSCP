@@ -205,7 +205,7 @@ void Correction::FillProfile() //je recupere un profil de l'histo rempli au prea
             float mpv=1.;
             float sigma=0.;
             TH1F* projY = (TH1F*) histoclone->ProjectionY();
-            if(projY->GetEntries()>10) 
+            if(projY->GetEntries()>=5) 
             {
                 int fitStatus = projY->Fit("gaus","QL","");
                 TFitResultPtr func_fit = projY->Fit("gaus","QLS","");
@@ -410,19 +410,20 @@ float Correction::ChargeCorr(float charge,int label,int nstrip,int nstripsat254,
 {   
     bool test=true;
     if(nstrip>=6) nstrip=6; //inclusif pour le nombre de strips du cluster 
-    if(nstripsat254>=2 && nstripsat255==0) nstripsat254=2; //inclusif pour le nombre de strips saturees 
-    if(nstripsat255>=2 && nstripsat254==0) nstripsat255=2;
+    if(nstripsat254>=2) nstripsat254=2; //inclusif pour le nombre de strips saturees 
+    if(nstripsat255>=2) nstripsat255=2;
     int nstripsat = nstripsat254+nstripsat255;
 
-    if(label>=5 && nstripsat>=2) test=false;
+
+    /*if(label>=5 && nstripsat>=2) test=false;
     if(nstrip==3 && nstripsat>=2) test=false;
     if(label>=5 && label <=7 && nstripsat==1) 
     {
         if(nstrip>=5) nstrip=5;
-    }
+    }*/
     float p0Calc=p0[label-1][nstrip-3][nstripsat254][nstripsat255];
     float p1Calc=p1[label-1][nstrip-3][nstripsat254][nstripsat255];
-    float res=0;
+    float res=charge;
 
     if(test) res=(charge-p0Calc)/p1Calc;
     return res;

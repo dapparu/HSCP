@@ -64,6 +64,7 @@ class Correction
         ~Correction();
         float CalibCharge(int entry,float charge);
         void FillHisto(int label,int nstrip,int nstripsat254,int nstripsat255);//,int modulegeom,bool SameXtalk=false,bool SaturatedStrip=true);
+        void FillHisto();
         void SetFileAndTreeName(string file_name,string tree_name);
         void SetTree(TTree &tree);
         void SetBranch();

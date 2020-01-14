@@ -20,7 +20,7 @@ Builder::Builder(TChain &chain)
 	ThresholdPartId_ = 0.;
 	ThresholdPt_	 = 0.;
 	ThresholdP_		 = 0.;
-	ThresholdEta_	 = 0.;
+	ThresholdEta_	 = 5.;
 
 	for(int i=0;i<ngenpart_max;i++){
 		gen_pdg[i]=0;
